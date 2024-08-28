@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "353866516844",
+    "project_id": "saludko-7f34b",
+    "storage_bucket": "saludko-7f34b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:353866516844:android:8d576ba6867767a3794b49",
+        "android_client_info": {
+          "package_name": "com.example.saludko"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCl5z8oXz7jfHChHoSVU-fsR8YAi873xZE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
