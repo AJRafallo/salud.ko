@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/ProviderSide/ProviderHomepage.dart';
+import 'package:saludko/screens/ProviderSide/ProviderVerificationStatusPage.dart';
 import 'package:saludko/screens/Services/authentication.dart';
-import 'package:saludko/screens/login_screen.dart';
-import 'package:saludko/screens/signup_screen.dart';
+import 'package:saludko/screens/Opening/login_screen.dart';
+import 'package:saludko/screens/Opening/signup_screen.dart';
 import 'package:saludko/screens/widget/button.dart';
 import 'package:saludko/screens/widget/snackbar.dart';
 import 'package:saludko/screens/widget/textfield.dart';
@@ -40,7 +40,7 @@ class _SignupScreenState extends State<ProviderSignup> {
         isLoading = true;
       });
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => const ProviderHomeScreen(),
+        builder: (context) => const ProviderVerificationStatusScreen(),
       ));
     }
     else{
