@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/login_screen.dart';
-import 'package:saludko/screens/signup_screen.dart';
-import 'package:saludko/screens/splash_screen.dart';
+import 'package:saludko/screens/Opening/login_screen.dart';
+import 'package:saludko/screens/Opening/signup_screen.dart';
+import 'package:saludko/screens/Opening/splash_screen.dart';
 
 
 class MyApp extends StatelessWidget {

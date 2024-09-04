@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:saludko/screens/ProviderSide/ProviderSignupPage.dart';
 import 'package:saludko/screens/Services/authentication.dart';
 import 'package:saludko/screens/UserSide/home_screen.dart';
-import 'package:saludko/screens/login_screen.dart';
+import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:saludko/screens/widget/button.dart';
 import 'package:saludko/screens/widget/snackbar.dart';
 import 'package:saludko/screens/widget/textfield.dart';

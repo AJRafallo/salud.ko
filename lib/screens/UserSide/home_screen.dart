@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/Services/authentication.dart';
-import 'package:saludko/screens/login_screen.dart';
-import 'package:saludko/screens/widget/button.dart';
+import 'package:saludko/screens/widget/appbar.dart';
 
 class MyHomeScreen extends StatelessWidget {
   const MyHomeScreen({super.key});
@@ -9,21 +7,33 @@ class MyHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("This is the HomeScreen",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),),
-            MyButton(onTab: () async {
-              await AuthServices().signOut();
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> const MyLogin()));
-            }, text: "Logout")
-          ],
-        ),
+      body: CustomScrollView(
+        slivers: [
+          const SaludkoAppBar(),
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(20, 1500, 20, 20),
+                    child: Column(
+                      children: [
+                        Text(
+                          "This is the HomeScreen",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Add more widgets as needed
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
