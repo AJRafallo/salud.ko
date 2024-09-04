@@ -69,7 +69,7 @@ class MyApp extends StatelessWidget {
               return const MyLogin(); // Redirect to login if the role is not found
             }
           } else {
-            return const MyLogin(); // Redirect to login if not authenticated
+            return const SplashScreen(); // Redirect to login if not authenticated
           }
         },
       ),
