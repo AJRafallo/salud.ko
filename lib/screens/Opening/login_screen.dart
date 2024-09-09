@@ -22,60 +22,60 @@ class _SignupScreenState extends State<MyLogin> {
 
   bool isLoading = false;
 
+  @override
   void dispose() {
     super.dispose();
     emailController.dispose();
     passwordController.dispose();
   }
 
-void logInUser() async {
-  setState(() {
-    isLoading = true;
-  });
+  void logInUser() async {
+    setState(() {
+      isLoading = true;
+    });
 
-  String role = await AuthServices().logInUser(
-    email: emailController.text,
-    password: passwordController.text,
-  );
+    String role = await AuthServices().logInUser(
+      email: emailController.text,
+      password: passwordController.text,
+    );
 
-  setState(() {
-    isLoading = false;
-  });
+    setState(() {
+      isLoading = false;
+    });
 
-  if (role == "user") {
-    // Navigate to the user's home screen
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const MyHomeScreen(),
-      ),
-    );
-  } else if (role == "healthcare_provider") {
-    // Navigate to the healthcare provider's home screen
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const ProviderHomeScreen(),
-      ),
-    );
-  } else if (role == "not_verified") {
-    // Navigate to the verification status screen
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const ProviderVerificationStatusScreen(),
-      ),
-    );
-  } else if (role == "admin") {
-    // Navigate to the admin's home screen
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const AdminDashboard(),
-      ),
-    );
-  } else {
-    // Show an error message
-    showSnackBar(context, role);
+    if (role == "user") {
+      // Navigate to the user's home screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const MyHomeScreen(),
+        ),
+      );
+    } else if (role == "healthcare_provider") {
+      // Navigate to the healthcare provider's home screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const ProviderHomeScreen(),
+        ),
+      );
+    } else if (role == "not_verified") {
+      // Navigate to the verification status screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const ProviderVerificationStatusScreen(),
+        ),
+      );
+    } else if (role == "admin") {
+      // Navigate to the admin's home screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const AdminDashboard(),
+        ),
+      );
+    } else {
+      // Show an error message
+      showSnackBar(context, role);
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {

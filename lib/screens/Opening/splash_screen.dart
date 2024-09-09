@@ -9,25 +9,28 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> 
-  with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   @override
-
-  void initState(){
+  void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
-    Future.delayed( const Duration( seconds: 5), (){
+    Future.delayed(const Duration(seconds: 5), () {
+      if (!mounted) return; // Check if the widget is still mounted
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const MyHomePage(title: 'salud.ko',),
-        ));
+          builder: (context) => const MyHomePage(title: 'salud.ko'),
+        ),
+      );
     });
   }
 
   @override
-  void dispose(){
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+  void dispose() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
     super.dispose();
   }
 
@@ -37,24 +40,27 @@ class _SplashScreenState extends State<SplashScreen>
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(colors: [Colors.blue,Colors.white],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter)
+          gradient: LinearGradient(
+            colors: [Colors.blue, Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.health_and_safety_rounded,
-              size:200,
+              size: 200,
               color: Colors.red,
-              ),
-            SizedBox(height: 20),
-            Text("salud.ko ",
-            style: TextStyle(
-              fontStyle: FontStyle.italic,
-              fontSize: 30, 
             ),
+            SizedBox(height: 20),
+            Text(
+              "salud.ko",
+              style: TextStyle(
+                fontStyle: FontStyle.italic,
+                fontSize: 30,
+              ),
             ),
           ],
         ),
