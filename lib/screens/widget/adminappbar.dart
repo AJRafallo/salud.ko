@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:saludko/screens/UserSide/profilepage.dart';
 import 'package:saludko/screens/widget/textfield.dart';
 
-class SaludkoAppBar extends StatefulWidget {
-  const SaludkoAppBar({super.key});
+class AdminAppBar extends StatefulWidget {
+  const AdminAppBar({super.key});
 
   @override
-  _SaludkoAppBarState createState() => _SaludkoAppBarState();
+  _AdminAppBarState createState() => _AdminAppBarState();
 }
 
-class _SaludkoAppBarState extends State<SaludkoAppBar> {
+class _AdminAppBarState extends State<AdminAppBar> {
   final TextEditingController searchController = TextEditingController();
 
   @override
@@ -21,7 +21,7 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      backgroundColor: const Color(0xFF1A62B7),
+      backgroundColor: Colors.redAccent,
       automaticallyImplyLeading: false,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -35,7 +35,7 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
-            "salud.ko",
+            "Admin Dashboard",
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -68,7 +68,7 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
             children: [
               const SizedBox(height: 10), // Adjusts the space to push content down
               const Text(
-                "Hello!",
+                "Hello, Admin!",
                 style: TextStyle(
                   fontSize: 25,
                   color: Colors.white,
@@ -76,7 +76,7 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
                 ),
               ),
               const Text(
-                "Welcome to salud.ko",
+                "Manage healthcare providers.",
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.white,
@@ -84,12 +84,17 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
                   fontStyle: FontStyle.italic,
                 ),
               ),
-              const SizedBox(
-                  height: 20), // Space between the text and search box
-              InputTextField(
-                textEditingController: searchController,
-                hintText: "Search",
-                icon: Icons.search,
+              const SizedBox(height: 20), // Space between the text and search box
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: InputTextField(
+                  textEditingController: searchController,
+                  hintText: "search",
+                  icon: Icons.search,
+                ),
               ),
             ],
           ),

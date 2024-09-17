@@ -17,7 +17,8 @@ class MySignup extends StatefulWidget {
 class _SignupScreenState extends State<MySignup> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
+  final TextEditingController lastnameController = TextEditingController();
+  final TextEditingController firstnameController = TextEditingController();
   bool isLoading = false;
 
   @override
@@ -26,14 +27,17 @@ class _SignupScreenState extends State<MySignup> {
     super.dispose();
     emailController.dispose();
     passwordController.dispose();
-    nameController.dispose();
-  }
+    lastnameController.dispose();
+    firstnameController.dispose();
+    }
 
   void signUpUser() async {
     String res = await AuthServices().signUpUser(
         email: emailController.text,
         password: passwordController.text,
-        name: nameController.text);
+        lastname: lastnameController.text,
+        firstname: firstnameController.text,
+    );
 
     if (res == "Success") {
       setState(() {
@@ -79,8 +83,13 @@ class _SignupScreenState extends State<MySignup> {
             ),
             const SizedBox(height: 50),
             InputTextField(
-              textEditingController: nameController,
-              hintText: "Enter name",
+              textEditingController: firstnameController,
+              hintText: "Enter first name",
+              icon: Icons.person_3_rounded,
+            ),
+            InputTextField(
+              textEditingController: lastnameController,
+              hintText: "Enter last name",
               icon: Icons.person_3_rounded,
             ),
             InputTextField(

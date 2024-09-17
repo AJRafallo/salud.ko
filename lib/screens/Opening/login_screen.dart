@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/AdminSide/VerificationPage.dart';
+import 'package:saludko/screens/HospitalAdminSide/HospitalAdHomepage.dart';
 import 'package:saludko/screens/ProviderSide/ProviderHomepage.dart';
 import 'package:saludko/screens/ProviderSide/ProviderVerificationStatusPage.dart';
 import 'package:saludko/screens/Services/authentication.dart';
@@ -13,10 +14,10 @@ class MyLogin extends StatefulWidget {
   const MyLogin({super.key});
 
   @override
-  State<MyLogin> createState() => _SignupScreenState();
+  State<MyLogin> createState() => _MyLoginState();
 }
 
-class _SignupScreenState extends State<MyLogin> {
+class _MyLoginState extends State<MyLogin> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -71,6 +72,13 @@ class _SignupScreenState extends State<MyLogin> {
           builder: (context) => const AdminDashboard(),
         ),
       );
+    } else if (role == "hospital_admin") {
+      // Navigate to the hospital admin's home screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const HospitalAdHomeScreen(),
+        ),
+      );
     } else {
       // Show an error message
       showSnackBar(context, role);
@@ -96,89 +104,71 @@ class _SignupScreenState extends State<MyLogin> {
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
-          child: SizedBox(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "Log in | salud.ko",
-              style: TextStyle(
-                fontSize: 20,
-                fontStyle: FontStyle.italic,
+        child: SizedBox(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "Log in | salud.ko",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontStyle: FontStyle.italic,
+                ),
               ),
-            ),
-            const SizedBox(height: 50),
-            InputTextField(
-              textEditingController: emailController,
-              hintText: "Enter email",
-              icon: Icons.email_rounded,
-            ),
-            InputTextField(
-              textEditingController: passwordController,
-              hintText: "Enter password",
-              isPass: true,
-              icon: Icons.lock_rounded,
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  "Forgot Password?",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 15,
+              const SizedBox(height: 50),
+              InputTextField(
+                textEditingController: emailController,
+                hintText: "Enter email",
+                icon: Icons.email_rounded,
+              ),
+              InputTextField(
+                textEditingController: passwordController,
+                hintText: "Enter password",
+                isPass: true,
+                icon: Icons.lock_rounded,
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    "Forgot Password?",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            MyButton(onTab: logInUser, text: "Login"),
-            const SizedBox(height: 15),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Dont have an account?"),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
+              const SizedBox(height: 20),
+              MyButton(onTab: logInUser, text: "Login"),
+              const SizedBox(height: 15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Don't have an account?"),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const MySignup(),
-                        ));
-                  },
-                  child: const Text(
-                    " Sign Up",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      " Sign Up",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                )
-              ],
-            )
-          ],
+                  )
+                ],
+              )
+            ],
+          ),
         ),
-      )),
-    );
-  }
-}
-
-/*@override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: 
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text('salud.ko'),
-          ],
-        ),
-        ),
-      body: const Center(
-        child: Text('This is the login page'),
       ),
     );
   }
 }
-*/

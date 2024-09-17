@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:saludko/screens/AdminSide/VerificationPage.dart';
+import 'package:saludko/screens/HospitalAdminSide/HospitalAdHomepage.dart';
 import 'package:saludko/screens/ProviderSide/ProviderHomepage.dart';
 import 'package:saludko/screens/UserSide/home_screen.dart';
 import 'package:saludko/screens/Opening/login_screen.dart';
@@ -42,6 +43,12 @@ class MyApp extends StatelessWidget {
       if (adminDoc.exists) {
         return 'admin';
       }
+
+      // Check if user exists in 'hospital' collection with role 'hospital_admin'
+      DocumentSnapshot hospitalDoc = await FirebaseFirestore.instance.collection('hospital').doc(user.uid).get();
+      if (hospitalDoc.exists && hospitalDoc.get('role') == 'hospital_admin') {
+        return 'hospital_admin';
+      }
     }
     return null;
   }
@@ -63,6 +70,8 @@ class MyApp extends StatelessWidget {
               return const ProviderHomeScreen();
             } else if (snapshot.data == 'admin') {
               return const AdminDashboard();
+            } else if (snapshot.data == 'hospital_admin') {
+              return const HospitalAdHomeScreen(); // Redirect hospital admin to their homepage
             } else if (snapshot.data == 'not_verified') {
               return const MyLogin();
             } else {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saludko/screens/ProviderSide/VerifiedListing.dart';
 import 'package:saludko/screens/widget/appbar.dart';
 import 'package:saludko/screens/widget/navbar.dart';
 import 'package:saludko/screens/UserSide/saved_screen.dart';
@@ -40,9 +41,11 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
                     ),
                   ),
                 ),
+                const VerifiedProvidersWidget()
               ],
             ),
           ),
+          // If you have more widgets to be scrolled
         ],
       ),
     ),
