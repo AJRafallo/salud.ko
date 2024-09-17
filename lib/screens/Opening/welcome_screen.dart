@@ -45,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Welcome to salud.ko ngcgcbvcvb',
+                  'Welcome to salud.ko',
                   style: TextStyle(
                     fontSize: 20,
                     fontStyle: FontStyle.italic,

@@ -17,35 +17,30 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    // Add your actual home screen widget here if it's different from the current one
-    Scaffold(
+    // Example of the home screen widget
+    const Scaffold(
       body: CustomScrollView(
         slivers: [
-          const SaludkoAppBar(),
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(20, 100, 20, 20),
-                    child: Column(
-                      children: [
-                        Text(
-                          "This is the HomeScreen",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
-                    ),
+          SaludkoAppBar(),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20, 20, 20, 0), // Adjust bottom padding to 0
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                     "Healthcare Providers",
+                     style: TextStyle(
+                       fontWeight: FontWeight.bold,
+                       fontSize: 20,
+                     ),
                   ),
-                ),
-                const VerifiedProvidersWidget()
-              ],
+                  VerifiedProvidersWidget(), // Ensure this widget is defined
+                ],
+              ),
             ),
           ),
-          // If you have more widgets to be scrolled
         ],
       ),
     ),
