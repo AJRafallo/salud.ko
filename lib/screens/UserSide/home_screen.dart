@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saludko/screens/ProviderSide/VerifiedListing.dart';
 import 'package:saludko/screens/widget/appbar.dart';
 
 class MyHomeScreen extends StatelessWidget {
@@ -6,33 +7,31 @@ class MyHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: CustomScrollView(
         slivers: [
-          const SaludkoAppBar(),
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(20, 1500, 20, 20),
-                    child: Column(
-                      children: [
-                        Text(
-                          "This is the HomeScreen",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
+          SaludkoAppBar(),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20, 1500, 20, 0), // Adjust bottom padding to 0
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  /*Text(
+                    "Healthcare Providers",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
                     ),
-                  ),
-                ),
-                // Add more widgets as needed
-              ],
+                  ),*/
+                  //SizedBox(height: 10), // Add small spacing
+                  VerifiedProvidersWidget(), // Directly add the widget here
+                ],
+              ),
             ),
           ),
+          // If you have more widgets to be scrolled
         ],
       ),
     );

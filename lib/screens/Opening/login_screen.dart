@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/AdminSide/VerificationPage.dart';
+import 'package:saludko/screens/HospitalAdminSide/HospitalAdHomepage.dart';
 import 'package:saludko/screens/ProviderSide/ProviderHomepage.dart';
 import 'package:saludko/screens/ProviderSide/ProviderVerificationStatusPage.dart';
 import 'package:saludko/screens/Services/authentication.dart';
@@ -22,6 +23,7 @@ class _SignupScreenState extends State<MyLogin> {
 
   bool isLoading = false;
 
+  @override
   void dispose() {
     super.dispose();
     emailController.dispose();
@@ -68,6 +70,13 @@ void logInUser() async {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => const AdminDashboard(),
+      ),
+    );
+  } else if (role == "hospital_admin") {
+    // Navigate to the admin's home screen
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => const HospitalAdHomeScreen(),
       ),
     );
   } else {

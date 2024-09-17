@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:saludko/screens/widget/hospitaladbotnav.dart';
 import 'package:saludko/screens/widget/provappbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class ProviderHomeScreen extends StatelessWidget {
-  const ProviderHomeScreen({super.key});
+class HospitalAdHomeScreen extends StatelessWidget {
+  const HospitalAdHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class ProviderHomeScreen extends StatelessWidget {
     return Scaffold(
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('healthcare_providers')
+            .collection('hospital')
             .doc(currentUser.uid) // Use the logged-in user's ID to get their data
             .snapshots(),
         builder: (context, snapshot) {
@@ -50,7 +51,7 @@ class ProviderHomeScreen extends StatelessWidget {
                         child: Column(
                           children: [
                             Text(
-                              "This is the Provider HomeScreen",
+                              "This is the Hospital Admin HomeScreen",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
@@ -68,6 +69,7 @@ class ProviderHomeScreen extends StatelessWidget {
           );
         },
       ),
+      bottomNavigationBar: const Hospitaladbotnav(),
     );
   }
 }

@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/UserSide/profilepage.dart';
+import 'package:saludko/screens/ProviderSide/ProviderProfile.dart';
 
-class SaludkoProvAppBar extends StatefulWidget {
-  const SaludkoProvAppBar({super.key});
+class SaludkoProvAppBar extends StatelessWidget {
+  final Map<String, dynamic> provider;
+  final String providerId; // Add the providerId
 
-  @override
-  _SaludkoProvAppBarState createState() => _SaludkoProvAppBarState();
-}
-
-class _SaludkoProvAppBarState extends State<SaludkoProvAppBar> {
-  final TextEditingController searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
-  }
+  const SaludkoProvAppBar({
+    super.key,
+    required this.provider,
+    required this.providerId, // Add the required providerId
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +22,8 @@ class _SaludkoProvAppBarState extends State<SaludkoProvAppBar> {
           bottomLeft: Radius.circular(30),
         ),
       ),
-      pinned: true, // Keeps the top part of the app bar visible when scrolling
-      expandedHeight: 150.0, // Adjust height as needed
+      pinned: true,
+      expandedHeight: 150.0,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -46,7 +40,7 @@ class _SaludkoProvAppBarState extends State<SaludkoProvAppBar> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ProfilePage(),
+                  builder: (context) => const ProviderProfile(),
                 ),
               );
             },
@@ -58,22 +52,22 @@ class _SaludkoProvAppBarState extends State<SaludkoProvAppBar> {
           ),
         ],
       ),
-      flexibleSpace: const FlexibleSpaceBar(
+      flexibleSpace: FlexibleSpaceBar(
         background: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Hello!",
-                style: TextStyle(
+                "Hello ${provider['firstname']}",
+                style: const TextStyle(
                   fontSize: 25,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
+              const Text(
                 "Welcome to salud.ko",
                 style: TextStyle(
                   fontSize: 15,
@@ -82,7 +76,7 @@ class _SaludkoProvAppBarState extends State<SaludkoProvAppBar> {
                   fontStyle: FontStyle.italic,
                 ),
               ),
-              SizedBox(height: 20), // Space between the text and search box
+              const SizedBox(height: 20),
             ],
           ),
         ),

@@ -24,8 +24,10 @@ class InputTextField extends StatelessWidget {
         controller: textEditingController,
         decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w300),
-            contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+            hintStyle: const TextStyle(
+                color: Colors.black, fontSize: 15, fontWeight: FontWeight.w300),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
             prefixIcon: Icon(icon),
             border: InputBorder.none,
             filled: true,

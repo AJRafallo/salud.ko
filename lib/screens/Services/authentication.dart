@@ -8,18 +8,20 @@ class AuthServices {
   Future<String> signUpUser(
       {required String email,
       required String password,
-      required String name}) async {
+      required String firstname,
+      required String lastname,}) async {
     String res = " Some error occured";
     try {
 
-    if(email.isNotEmpty || password.isNotEmpty || name.isNotEmpty){
+    if(email.isNotEmpty || password.isNotEmpty || firstname.isNotEmpty || lastname.isNotEmpty){
     UserCredential credential =
             await _auth.createUserWithEmailAndPassword(
               email: email, 
               password: password);
 
             await _firestore.collection("users").doc(credential.user!.uid).set({
-              'name': name,
+              'firstname': firstname,
+              'lastname': lastname,              
               'email': email,
               'uid': credential.user!.uid,
               'role': 'user',
@@ -32,33 +34,37 @@ class AuthServices {
     return res;
   }
 
-  Future<String> signUpHealthCareProvider(
-      {required String email,
-      required String password,
-      required String name,}) async {
-    String res = " Some error occured";
-    try {
+  Future<String> signUpHealthCareProvider({
+  required String email,
+  required String password,
+  required String firstname,
+  required String lastname,
+  required String workplace,  // New parameter for workplace
+}) async {
+  String res = "Some error occurred";
+  try {
+    if (email.isNotEmpty || password.isNotEmpty || firstname.isNotEmpty || lastname.isNotEmpty || workplace.isNotEmpty) {
+      UserCredential credential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    if(email.isNotEmpty || password.isNotEmpty || name.isNotEmpty){
-    UserCredential credential =
-            await _auth.createUserWithEmailAndPassword(
-              email: email, 
-              password: password);
-
-            await _firestore.collection("healthcare_providers").doc(credential.user!.uid).set({
-              'name': name,
-              'email': email,
-              'uid': credential.user!.uid,
-              'role': 'healthcare_provider',
-              'isVerified': false,
-            });
-            res = "Success";
+      await _firestore.collection("healthcare_providers").doc(credential.user!.uid).set({
+        'firstname': firstname,
+        'lastname': lastname,
+        'email': email,
+        'uid': credential.user!.uid,
+        'role': 'healthcare_provider',
+        'isVerified': false,
+        'workplace': workplace,  // Store workplace in Firestore
+      });
+      res = "Success";
     }
-    } catch (e) {
-      return e.toString();
-    }
-    return res;
+  } catch (e) {
+    return e.toString();
   }
+  return res;
+}
 
 
 Future<String> logInUser({
@@ -75,6 +81,7 @@ Future<String> logInUser({
 
       String uid = userCredential.user!.uid;
 
+      // Check if the user is a healthcare provider
       DocumentSnapshot providerDoc = await _firestore.collection('healthcare_providers').doc(uid).get();
 
       if (providerDoc.exists) {
@@ -84,16 +91,27 @@ Future<String> logInUser({
         } else {
           res = "not_verified";  // Indicates that the account is not yet verified
         }
-      } else {
+      } 
+      // If not a healthcare provider, check if the user is a regular user
+      else {
         DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
         if (userDoc.exists) {
           res = "user";
-        } else {
+        } 
+        // If not a regular user, check if the user is an admin
+        else {
           DocumentSnapshot adminDoc = await _firestore.collection('admins').doc(uid).get();
           if (adminDoc.exists) {
             res = "admin";
-          } else {
-            res = "User not found in any role collection.";
+          } 
+          // Check if the user is a hospital admin
+          else {
+            DocumentSnapshot hospitalDoc = await _firestore.collection('hospital').doc(uid).get();
+            if (hospitalDoc.exists) {
+              res = "hospital_admin";
+            } else {
+              res = "User not found in any role collection.";
+            }
           }
         }
       }
