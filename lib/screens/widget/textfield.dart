@@ -5,7 +5,6 @@ class InputTextField extends StatelessWidget {
   final bool isPass;
   final String hintText;
   final IconData icon;
-  //final TextInputType textInputType;
 
   const InputTextField({
     super.key,
@@ -23,26 +22,35 @@ class InputTextField extends StatelessWidget {
         obscureText: isPass,
         controller: textEditingController,
         decoration: InputDecoration(
-            hintText: hintText,
-            hintStyle: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w300),
-            contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-            prefixIcon: Icon(icon),
-            border: InputBorder.none,
-            filled: true,
-            fillColor: Colors.white70,
-            enabledBorder: OutlineInputBorder(
-              borderSide: const BorderSide(
-                width: 1,
-              ),
-              borderRadius: BorderRadius.circular(30),
+          hintText: hintText,
+          hintStyle: const TextStyle(
+            color: Colors.black,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 12.0,
+            horizontal: 16.0,
+          ),
+          prefixIcon: Icon(icon, color: Colors.grey),
+          border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          filled: true,
+          fillColor: Colors.grey[200], // Light grey background
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+              width: 2,
+              color: Colors.blueGrey,
             ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(
-                width: 2,
-                color: Colors.blueGrey,
-              ),
-              borderRadius: BorderRadius.circular(30),
-            )),
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
       ),
     );
   }

@@ -3,7 +3,6 @@ import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:saludko/screens/Opening/signup_screen.dart';
 import 'package:saludko/screens/Opening/splash_screen.dart';
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -26,14 +25,11 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
   final String title;
 
-  
-
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Welcome to salud.ko',
+                  'Welcome to salud.ko ngcgcbvcvb',
                   style: TextStyle(
                     fontSize: 20,
                     fontStyle: FontStyle.italic,
@@ -57,38 +53,42 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 const SizedBox(height: 150),
                 ElevatedButton(
-                onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MyLogin()),
-                  );                
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  fixedSize: const Size(300, 50)
-                ),
-                child: const 
-                Text('Login',
-                  style: TextStyle(
-                  color: Colors.white),
-                ),
+                  onPressed: () {
+                    if (!mounted) {
+                      return; // Ensure the widget is still active before navigating
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MyLogin()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      fixedSize: const Size(300, 50)),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MySignup()),
-                  );                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  fixedSize: const Size(300, 50)
-                ),
-                child: 
-                const Text('Signup',
-                style: TextStyle(color: Colors.white),
-                )
-                ),
+                    onPressed: () {
+                      if (!mounted) {
+                        return; // Ensure the widget is still active before navigating
+                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MySignup()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        fixedSize: const Size(300, 50)),
+                    child: const Text(
+                      'Signup',
+                      style: TextStyle(color: Colors.white),
+                    )),
               ],
             ),
           ],
