@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/UserSide/profilepage.dart';
-import 'package:saludko/screens/widget/textfield.dart';
 
 class SaludkoAppBar extends StatefulWidget {
   const SaludkoAppBar({super.key});
@@ -23,14 +22,8 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
     return SliverAppBar(
       backgroundColor: const Color(0xFF1A62B7),
       automaticallyImplyLeading: false,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          bottomRight: Radius.circular(30),
-          bottomLeft: Radius.circular(30),
-        ),
-      ),
       pinned: true, // Keeps the top part of the app bar visible when scrolling
-      expandedHeight: 225.0, // Adjust height as needed
+      expandedHeight: 70.0, // Adjust height as needed
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -66,31 +59,8 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 10), // Adjusts the space to push content down
-              const Text(
-                "Hello!",
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Text(
-                "Welcome to salud.ko",
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
               const SizedBox(
-                  height: 20), // Space between the text and search box
-              InputTextField(
-                textEditingController: searchController,
-                hintText: "Search",
-                icon: Icons.search,
-              ),
+                  height: 20), // Adjusts the space to push content down
             ],
           ),
         ),
