@@ -17,24 +17,24 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    // Example of the home screen widget
     const Scaffold(
       body: CustomScrollView(
         slivers: [
           SaludkoAppBar(),
           SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(20, 20, 20, 0), // Adjust bottom padding to 0
+              padding: EdgeInsets.fromLTRB(
+                  20, 20, 20, 0), // Adjust bottom padding to 0
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                     "Healthcare Providers",
-                     style: TextStyle(
-                       fontWeight: FontWeight.bold,
-                       fontSize: 20,
-                     ),
+                    "Healthcare Providers",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
                   ),
                   VerifiedProvidersWidget(), // Ensure this widget is defined
                 ],
@@ -44,9 +44,9 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
         ],
       ),
     ),
-    const SavedScreen(), // Ensure this import is correct
-    const RecordsScreen(), // Ensure this import is correct
-    const HotlinesScreen(), // Ensure this import is correct
+    const SavedScreen(),
+    const RecordsScreen(),
+    const HotlinesScreen(),
   ];
 
   void _onItemTapped(int index) {
