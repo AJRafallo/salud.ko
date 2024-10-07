@@ -19,39 +19,7 @@ class MyHomeScreen extends StatefulWidget {
 class _MyHomeScreenState extends State<MyHomeScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    const Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SaludkoAppBar(),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                  20, 20, 20, 0), // Adjust bottom padding to 0
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    "Healthcare Providers",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                  VerifiedProvidersWidget(), // Ensure this widget is defined
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-    const SavedScreen(),
-    const RecordsScreen(),
-    const HotlinesScreen(),
-  ];
-
+  // Handle navigation between screens
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
