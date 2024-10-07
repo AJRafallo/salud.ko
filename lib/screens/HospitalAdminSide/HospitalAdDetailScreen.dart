@@ -4,22 +4,22 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-class ProviderDetailScreen extends StatefulWidget {
-  final Map<String, dynamic> provider;
+class HospitalAdDetailScreen extends StatefulWidget {
+  final Map<String, dynamic> facility;
 
-  const ProviderDetailScreen({super.key, required this.provider});
+  const HospitalAdDetailScreen({super.key, required this.facility});
 
   @override
-  _ProviderDetailScreenState createState() => _ProviderDetailScreenState();
+  _HospitalAdDetailScreenState createState() => _HospitalAdDetailScreenState();
 }
 
-class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
+class _HospitalAdDetailScreenState extends State<HospitalAdDetailScreen> {
   String? profileImageUrl;
 
   @override
   void initState() {
     super.initState();
-    profileImageUrl = widget.provider['profileImage'];
+    profileImageUrl = widget.facility['profileImage'];
   }
 
   Future<void> _uploadImage() async {
@@ -30,14 +30,14 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
       if (image != null) {
         final storageRef = FirebaseStorage.instance
             .ref()
-            .child('provider_images/${widget.provider['uid']}.jpg');
+            .child('facility_images/${widget.facility['uid']}.jpg');
 
         await storageRef.putFile(File(image.path));
         profileImageUrl = await storageRef.getDownloadURL();
 
         await FirebaseFirestore.instance
-            .collection('healthcare_providers')
-            .doc(widget.provider['uid'])
+            .collection('hospital')
+            .doc(widget.facility['uid'])
             .update({'profileImage': profileImageUrl});
 
         setState(() {});
@@ -59,7 +59,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
           child: Container(
             margin: const EdgeInsets.only(right: 16.0),
             child: const Text(
-              'Healthcare Provider Profile',
+              'Healthcare Facility Profile',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -80,7 +80,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(20, 50, 20, 50),
         child: Container(
           padding: const EdgeInsets.all(20.0), // Padding around the fields
           decoration: BoxDecoration(
@@ -129,7 +129,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                   children: [
                     Center(
                       child: Text(
-                        'Dr. ${widget.provider['firstname']} ${widget.provider['lastname']}',
+                        '${widget.facility['workplace']}',
                         style: const TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
@@ -138,19 +138,9 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                         ),
                       ),
                     ),
-                    Center(
-                      child: Text(
-                        '${widget.provider['specialization']}, ${widget.provider['workplace']}',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 20),
                     const Text(
-                      'About',
+                      'Facility Information',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -158,50 +148,16 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${widget.provider['description']}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Doctor\'s Information',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Email: ${widget.provider['email']}',
+                      'Email: ${widget.facility['email']}',
                       style: const TextStyle(
                         fontSize: 13,
                         color: Colors.black,
                       ),
                     ),
                     const SizedBox(height: 5),
-                    if (widget.provider['phone'] != null)
+                    if (widget.facility['address'] != null)
                       Text(
-                        'Phone: ${widget.provider['phone']}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.black,
-                        ),
-                      ),
-                    const SizedBox(height: 5),
-                    if (widget.provider['workplace'] != null)
-                      Text(
-                        'Workplace: ${widget.provider['workplace']}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.black,
-                        ),
-                      ),
-                    const SizedBox(height: 5),
-                    if (widget.provider['Address'] != null)
-                      Text(
-                        'Address: ${widget.provider['Address']}',
+                        'Address: ${widget.facility['address']}',
                         style: const TextStyle(
                           fontSize: 13,
                           color: Colors.black,

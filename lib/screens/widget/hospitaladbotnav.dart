@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/AdminSide/AdminHomepage.dart';
-import 'package:saludko/screens/AdminSide/VerificationPage.dart';
 import 'package:saludko/screens/HospitalAdminSide/HospitalAdHomepage.dart';
 import 'package:saludko/screens/HospitalAdminSide/HospitalAdVerificationPage.dart';
 

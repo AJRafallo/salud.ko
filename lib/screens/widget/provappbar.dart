@@ -60,7 +60,7 @@ class SaludkoProvAppBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Hello ${provider['firstname']}",
+                "Hello, Dr. ${provider['firstname']}!",
                 style: const TextStyle(
                   fontSize: 25,
                   color: Colors.white,

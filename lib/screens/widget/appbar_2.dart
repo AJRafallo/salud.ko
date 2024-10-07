@@ -52,14 +52,14 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
           ),
         ],
       ),
-      flexibleSpace: FlexibleSpaceBar(
+      flexibleSpace: const FlexibleSpaceBar(
         background: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(
+              SizedBox(
                   height: 20), // Adjusts the space to push content down
             ],
           ),

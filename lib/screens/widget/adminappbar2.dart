@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:saludko/screens/HospitalAdminSide/HospitalAdProfile.dart';
 import 'package:saludko/screens/UserSide/profilepage.dart';
+import 'package:saludko/screens/widget/textfield.dart';
 
-class SaludkoAppBar extends StatefulWidget {
-  final String userId;
-  final Map<String, dynamic> userData;
-
-  const SaludkoAppBar({
-    super.key,
-    required this.userId,
-    required this.userData,
-  });
+class AdminAppBar2 extends StatefulWidget {
+  const AdminAppBar2({super.key});
 
   @override
-  _SaludkoAppBarState createState() => _SaludkoAppBarState();
+  _AdminAppBar2State createState() => _AdminAppBar2State();
 }
 
-class _SaludkoAppBarState extends State<SaludkoAppBar> {
+class _AdminAppBar2State extends State<AdminAppBar2> {
   final TextEditingController searchController = TextEditingController();
 
   @override
@@ -27,7 +22,7 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      backgroundColor: const Color(0xFF1A62B7),
+      backgroundColor: Colors.redAccent,
       automaticallyImplyLeading: false,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -41,7 +36,7 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
-            "salud.ko",
+            "Hospital Admin Dashboard",
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -53,7 +48,7 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ProfilePage(),
+                  builder: (context) => const HospitalAdProfile(),
                 ),
               );
             },
@@ -65,24 +60,24 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
           ),
         ],
       ),
-      flexibleSpace: FlexibleSpaceBar(
+      flexibleSpace: const FlexibleSpaceBar(
         background: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 0), // Adjusts the space to push content down
+              SizedBox(height:10), // Adjusts the space to push content down
               Text(
-                "Hello, ${widget.userData['firstname']}!", // Display user's first name
-                style: const TextStyle(
+                "Hello, Admin!",
+                style: TextStyle(
                   fontSize: 25,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Text(
-                "Welcome to salud.ko",
+              Text(
+                "Manage healthcare providers.",
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.white,
@@ -90,14 +85,18 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
                   fontStyle: FontStyle.italic,
                 ),
               ),
-              /* Uncomment this to include the search field
-              const SizedBox(height: 20), // Space between the text and search box
-              InputTextField(
-                textEditingController: searchController,
-                hintText: "Search",
-                icon: Icons.search,
-              ),
-              */
+              SizedBox(height: 20), // Space between the text and search box
+              /*Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: InputTextField(
+                  textEditingController: searchController,
+                  hintText: "search",
+                  icon: Icons.search,
+                ),
+              ),*/
             ],
           ),
         ),

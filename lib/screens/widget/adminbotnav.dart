@@ -41,7 +41,7 @@ class _AdminbotnavState extends State<Adminbotnav> {
     return BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Colors.blueAccent, // Color for the selected item
+        selectedItemColor: Colors.grey, // Color for the selected item
         unselectedItemColor: Colors.grey, // Color for the unselected items
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(

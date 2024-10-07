@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:saludko/screens/widget/VerifList2.dart';
+import 'package:saludko/screens/widget/healthcarefacilitieslist.dart';
 import 'package:saludko/screens/widget/provappbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -36,35 +38,47 @@ class ProviderHomeScreen extends StatelessWidget {
           final provider = snapshot.data!.data() as Map<String, dynamic>;
 
           return CustomScrollView(
-            slivers: [
-              SaludkoProvAppBar(
+              slivers: [
+                SaludkoProvAppBar(
                 provider: provider, 
                 providerId: currentUser.uid, // Pass the provider's UID here
               ),
-              SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(20, 1500, 20, 20),
-                        child: Column(
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "This is the Provider HomeScreen",
+                              "Healthcare Facilities",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
                                 fontSize: 20,
                               ),
                             ),
+                            HealthcareFacilities(),
+                            SizedBox(height: 10),
+                            Text(
+                              "Healthcare Providers",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                                fontSize: 20,
+                              ),
+                            ),
+                            VerifiedProvidersWidget2(),
                           ],
                         ),
-                      ),
+                      ],
                     ),
-                    // Add more widgets as needed
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
           );
         },
       ),
