@@ -9,14 +9,14 @@ import 'package:saludko/screens/widget/button.dart';
 import 'package:saludko/screens/widget/genderdropdown.dart';
 import 'dart:io';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class HospitalAdProfile extends StatefulWidget {
+  const HospitalAdProfile({super.key});
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _HospitalAdProfileState createState() => _HospitalAdProfileState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _HospitalAdProfileState extends State<HospitalAdProfile> {
   final TextStyle labelStyle = const TextStyle(
     color: Colors.black,
     fontSize: 15,
@@ -61,14 +61,14 @@ class _ProfilePageState extends State<ProfilePage> {
         // Upload the image to Firebase Storage
         final storageRef = FirebaseStorage.instance
             .ref()
-            .child('profile_images/${currentUser!.uid}.jpg');
+            .child('facility_images/${currentUser!.uid}.jpg');
 
         await storageRef.putFile(File(image.path));
         // Get the download URL
         profileImageUrl = await storageRef.getDownloadURL();
         // Update Firestore with new profile image URL
         await FirebaseFirestore.instance
-            .collection('users')
+            .collection('hospital')
             .doc(currentUser!.uid)
             .update({'profileImage': profileImageUrl});
 
@@ -89,14 +89,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A62B7),
+        backgroundColor:  Colors.red,
         title: Align(
           alignment: Alignment.topRight, // Align the title to the right
           child: Container(
             margin: const EdgeInsets.only(right: 16.0), // Add margin if needed
 
             child: const Text(
-              'User Profile',
+              'Hospital Admin Profile',
               style: TextStyle(
                 color: Colors.white, // Change the text color
                 fontSize: 20, // Change the font size
@@ -118,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('users')
+            .collection('hospital')
             .doc(currentUser!.uid)
             .snapshots(),
         builder: (context, snapshot) {
@@ -134,35 +134,35 @@ class _ProfilePageState extends State<ProfilePage> {
             return const Center(child: Text('User data not found.'));
           }
 
-          final user = snapshot.data!.data() as Map<String, dynamic>;
+          final facility = snapshot.data!.data() as Map<String, dynamic>;
 
           // Initialize the controllers only if they are not already set
           if (firstNameController.text.isEmpty) {
-            firstNameController.text = user['firstname'] ?? '';
+            firstNameController.text = facility['firstname'] ?? '';
           }
           if (middleNameController.text.isEmpty) {
-            middleNameController.text = user['middlename'] ?? '';
+            middleNameController.text = facility['middlename'] ?? '';
           }
           if (lastNameController.text.isEmpty) {
-            lastNameController.text = user['lastname'] ?? '';
+            lastNameController.text = facility['lastname'] ?? '';
           }
           if (emailController.text.isEmpty) {
-            emailController.text = user['email'] ?? '';
+            emailController.text = facility['email'] ?? '';
           }
           if (phoneController.text.isEmpty) {
-            phoneController.text = user['phone'] ?? '';
+            phoneController.text = facility['phone'] ?? '';
           }
           if (addressController.text.isEmpty) {
-            addressController.text = user['Address'] ?? '';
+            addressController.text = facility['Address'] ?? '';
           }
 
           // Load existing profile image URL if available
-          profileImageUrl = user['profileImage'] ?? '';
+          profileImageUrl = facility['profileImage'] ?? '';
 
           // Ensure selectedGender is set correctly only if it's not set
           selectedGender ??=
-              (user['gender'] == 'Male' || user['gender'] == 'Female')
-                  ? user['gender']
+              (facility['gender'] == 'Male' || facility['gender'] == 'Female')
+                  ? facility['gender']
                   : null;
 
           return SingleChildScrollView(
@@ -290,7 +290,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         onTap: () async {
                           try {
                             // Prepare user data for update
-                            final updatedUser = {
+                            final updatedFacility = {
                               'firstname': firstNameController.text,
                               'middlename': middleNameController.text,
                               'lastname': lastNameController.text,
@@ -303,9 +303,9 @@ class _ProfilePageState extends State<ProfilePage> {
                             };
 
                             await FirebaseFirestore.instance
-                                .collection('users')
+                                .collection('hospital')
                                 .doc(currentUser!.uid)
-                                .update(updatedUser);
+                                .update(updatedFacility);
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

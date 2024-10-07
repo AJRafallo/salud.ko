@@ -9,6 +9,7 @@ import 'package:saludko/screens/UserSide/home_screen.dart';
 import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:saludko/screens/Opening/splash_screen.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saludko/screens/AdminSide/AdminProfile.dart';
 import 'package:saludko/screens/UserSide/profilepage.dart';
 import 'package:saludko/screens/widget/textfield.dart';
 
@@ -30,7 +31,7 @@ class _AdminAppBarState extends State<AdminAppBar> {
         ),
       ),
       pinned: true, // Keeps the top part of the app bar visible when scrolling
-      expandedHeight: 225.0, // Adjust height as needed
+      expandedHeight: 150.0, // Adjust height as needed
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -47,7 +48,7 @@ class _AdminAppBarState extends State<AdminAppBar> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ProfilePage(),
+                  builder: (context) => const AdminProfile(),
                 ),
               );
             },
@@ -59,15 +60,15 @@ class _AdminAppBarState extends State<AdminAppBar> {
           ),
         ],
       ),
-      flexibleSpace: FlexibleSpaceBar(
+      flexibleSpace: const FlexibleSpaceBar(
         background: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 10), // Adjusts the space to push content down
-              const Text(
+              SizedBox(height: 10), // Adjusts the space to push content down
+              Text(
                 "Hello, Admin!",
                 style: TextStyle(
                   fontSize: 25,
@@ -75,8 +76,8 @@ class _AdminAppBarState extends State<AdminAppBar> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Text(
-                "Manage healthcare providers.",
+              Text(
+                "Manage salud.ko",
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.white,
@@ -84,8 +85,8 @@ class _AdminAppBarState extends State<AdminAppBar> {
                   fontStyle: FontStyle.italic,
                 ),
               ),
-              const SizedBox(height: 20), // Space between the text and search box
-              Container(
+              SizedBox(height: 20), // Space between the text and search box
+              /*Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
@@ -95,7 +96,7 @@ class _AdminAppBarState extends State<AdminAppBar> {
                   hintText: "search",
                   icon: Icons.search,
                 ),
-              ),
+              ),*/
             ],
           ),
         ),
