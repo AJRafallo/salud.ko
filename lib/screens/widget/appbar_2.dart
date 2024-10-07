@@ -59,8 +59,7 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                  height: 20), // Adjusts the space to push content down
+              SizedBox(height: 20), // Adjusts the space to push content down
             ],
           ),
         ),

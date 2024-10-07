@@ -13,7 +13,6 @@ class _HospitaladbotnavState extends State<Hospitaladbotnav> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
-
     setState(() {
       _selectedIndex = index;
     });
@@ -30,7 +29,8 @@ class _HospitaladbotnavState extends State<Hospitaladbotnav> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const HospitalAdDashboard(), // Admin verification route
+          builder: (context) =>
+              const HospitalAdDashboard(), // Admin verification route
         ),
       );
     }
@@ -39,20 +39,20 @@ class _HospitaladbotnavState extends State<Hospitaladbotnav> {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: Colors.blueAccent, // Color for the selected item
-        unselectedItemColor: Colors.grey, // Color for the unselected items
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.pending),
-            label: 'Verify Providers',
-          ),
-        ],
-      );
+      currentIndex: _selectedIndex,
+      onTap: _onItemTapped,
+      selectedItemColor: Colors.blueAccent, // Color for the selected item
+      unselectedItemColor: Colors.grey, // Color for the unselected items
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.pending),
+          label: 'Verify Providers',
+        ),
+      ],
+    );
   }
 }
