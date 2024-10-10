@@ -171,7 +171,6 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   // Profile Picture Upload
                   Center(
                     child: GestureDetector(
@@ -354,6 +353,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     color: Colors.grey,
                     thickness: 1,
                     height: 10,
+                    indent: 50,
+                    endIndent: 50,
                   ),
 
                   // Logout Button

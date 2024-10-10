@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saludko/screens/widget/UploadRecords.dart';
 
 class MedicalFilesPage extends StatelessWidget {
   const MedicalFilesPage({super.key});
@@ -6,8 +7,19 @@ class MedicalFilesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //appBar: AppBar(title: const Text('Medical Files')),
-      body: const Center(child: Text('Medical Files Content')),
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: const Text('Medical Files Content'),
+            ),
+          ),
+          // Directly include the UploadWidget at the bottom
+          Expanded(
+            child: UploadWidget(), // Show UploadWidget directly
+          ),
+        ],
+      ),
     );
   }
 }

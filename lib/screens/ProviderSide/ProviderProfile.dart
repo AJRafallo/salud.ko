@@ -39,8 +39,8 @@ class _ProviderProfileState extends State<ProviderProfile> {
   final TextEditingController ageController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController workaddressController = TextEditingController();
-  final TextEditingController specializationController = TextEditingController();
-
+  final TextEditingController specializationController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -174,14 +174,17 @@ class _ProviderProfileState extends State<ProviderProfile> {
             ageController.text = provider['age']?.toString() ?? '';
           }
           if (descriptionController.text.isEmpty) {
-            descriptionController.text = provider['description']?.toString() ?? '';
+            descriptionController.text =
+                provider['description']?.toString() ?? '';
           }
           if (workaddressController.text.isEmpty) {
-            workaddressController.text = provider['workaddress']?.toString() ?? '';
+            workaddressController.text =
+                provider['workaddress']?.toString() ?? '';
           }
 
           if (specializationController.text.isEmpty) {
-            specializationController.text = provider['specialization']?.toString() ?? '';
+            specializationController.text =
+                provider['specialization']?.toString() ?? '';
           }
 
           // Load existing profile image URL if available
@@ -478,7 +481,6 @@ class _ProviderProfileState extends State<ProviderProfile> {
                         ),
                         const SizedBox(height: 10),
                       ],
-                      
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -503,7 +505,7 @@ class _ProviderProfileState extends State<ProviderProfile> {
                               'description': descriptionController.text,
                               'workaddress': workaddressController.text,
                               'specialization': specializationController.text,
-                              'age':ageController.text,
+                              'age': ageController.text,
                             };
 
                             await FirebaseFirestore.instance

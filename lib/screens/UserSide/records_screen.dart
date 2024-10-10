@@ -3,7 +3,7 @@ import 'package:saludko/screens/widget/RecordsTabBar.dart';
 import 'package:saludko/screens/UserSide/records_overview_page.dart';
 import 'package:saludko/screens/UserSide/medicine_reminders_page.dart';
 import 'package:saludko/screens/UserSide/medical_files_page.dart';
-import 'package:saludko/screens/widget/appbar_2.dart'; // Custom app bar
+import 'package:saludko/screens/widget/appbar_2.dart';
 
 class RecordsScreen extends StatefulWidget {
   const RecordsScreen({super.key});

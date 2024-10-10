@@ -35,6 +35,7 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
     }
 
     return Scaffold(
+      backgroundColor: const Color(0xFFDEEDFF), // Set background color
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users') // Fetch data from the 'users' collection
@@ -58,6 +59,7 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
 
           // Define the screens with user data being passed to SavedScreen and SaludkoAppBar
           final homeScreen = Scaffold(
+            backgroundColor: const Color(0xFFDEEDFF), // Set background color
             body: CustomScrollView(
               slivers: [
                 SaludkoAppBar(
@@ -84,7 +86,7 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
                               ),
                             ),
                             HealthcareFacilities(),
-                            SizedBox(height: 10),
+                            SizedBox(height: 20),
                             Text(
                               "Healthcare Providers",
                               style: TextStyle(
@@ -115,6 +117,8 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
           ];
 
           return Scaffold(
+            backgroundColor:
+                const Color(0xFFDEEDFF), // Set background color here too
             body: screens[_selectedIndex],
             bottomNavigationBar: CustomNavBar(
               selectedIndex: _selectedIndex,

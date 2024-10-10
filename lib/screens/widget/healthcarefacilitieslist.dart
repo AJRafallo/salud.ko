@@ -54,20 +54,24 @@ class _HealthcareFacilitiesState extends State<HealthcareFacilities> {
                     controller: _pageController,
                     itemCount: facilities.length,
                     itemBuilder: (context, index) {
-                      final facility = facilities[index].data() as Map<String, dynamic>;
-                      var profileImageUrl = facility['facility_image'] ?? ''; // Get facility's profile image URL, if available
+                      final facility =
+                          facilities[index].data() as Map<String, dynamic>;
+                      var profileImageUrl = facility['facility_image'] ??
+                          ''; // Get facility's profile image URL, if available
 
                       return GestureDetector(
                         onTap: () {
                           // Navigate to the provider detail screen
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => HospitalAdDetailScreen(facility: facility),
+                              builder: (context) =>
+                                  HospitalAdDetailScreen(facility: facility),
                             ),
                           );
                         },
                         child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 5.0, horizontal: 5.0),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8.0),
@@ -88,19 +92,23 @@ class _HealthcareFacilitiesState extends State<HealthcareFacilities> {
                                 radius: 30,
                                 backgroundImage: profileImageUrl.isNotEmpty
                                     ? NetworkImage(profileImageUrl)
-                                    : const AssetImage('lib/assets/images/avatar.png')
+                                    : const AssetImage(
+                                            'lib/assets/images/avatar.png')
                                         as ImageProvider,
                                 onBackgroundImageError: (_, __) {
                                   setState(() {
-                                    profileImageUrl = ''; // Reset to default avatar
+                                    profileImageUrl =
+                                        ''; // Reset to default avatar
                                   });
                                 },
                               ),
-                              const SizedBox(height: 10), // Spacing between image and text
+                              const SizedBox(
+                                  height: 10), // Spacing between image and text
 
                               // Provider's Name
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+                                padding:
+                                    const EdgeInsets.fromLTRB(30, 0, 30, 0),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -112,7 +120,9 @@ class _HealthcareFacilitiesState extends State<HealthcareFacilities> {
                                         color: Colors.black,
                                       ),
                                     ),
-                                    const SizedBox(height: 5), // Spacing between name and email
+                                    const SizedBox(
+                                        height:
+                                            5), // Spacing between name and email
                                     // Provider's Address
                                     Text(
                                       facility['address'],
