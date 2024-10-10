@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/widget/adminappbar.dart';
 import 'package:saludko/screens/widget/adminappbar2.dart';
 import 'package:saludko/screens/widget/hospitaladbotnav.dart';
 
@@ -29,7 +28,8 @@ class _HospitalAdDashboardState extends State<HospitalAdDashboard> {
       if (userId != null) {
         final doc = await FirebaseFirestore.instance
             .collection('hospital')
-            .doc(userId) // Assuming hospital admin document ID is the same as user UID
+            .doc(
+                userId) // Assuming hospital admin document ID is the same as user UID
             .get();
 
         if (doc.exists) {
@@ -65,7 +65,9 @@ class _HospitalAdDashboardState extends State<HospitalAdDashboard> {
                     stream: FirebaseFirestore.instance
                         .collection('healthcare_providers')
                         .where('isVerified', isEqualTo: false)
-                        .where('workplace', isEqualTo: adminWorkplace) // Filter by admin's workplace
+                        .where('workplace',
+                            isEqualTo:
+                                adminWorkplace) // Filter by admin's workplace
                         .snapshots(),
                     builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {

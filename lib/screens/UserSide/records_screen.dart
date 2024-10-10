@@ -1,36 +1,53 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/widget/appbar_2.dart';
+import 'package:saludko/screens/widget/RecordsTabBar.dart';
+import 'package:saludko/screens/UserSide/records_overview_page.dart';
+import 'package:saludko/screens/UserSide/medicine_reminders_page.dart';
+import 'package:saludko/screens/UserSide/medical_files_page.dart';
+import 'package:saludko/screens/widget/appbar_2.dart'; // Custom app bar
 
-class RecordsScreen extends StatelessWidget {
+class RecordsScreen extends StatefulWidget {
   const RecordsScreen({super.key});
+
+  @override
+  _RecordsScreenState createState() => _RecordsScreenState();
+}
+
+class _RecordsScreenState extends State<RecordsScreen> {
+  String _selectedPage = "Overview"; // Default to "Overview"
+
+  // This method will return the selected content based on the current tab
+  Widget _getSelectedPage() {
+    switch (_selectedPage) {
+      case "Medicine Reminders":
+        return const MedicineRemindersPage();
+      case "Medical Files":
+        return const MedicalFilesPage();
+      case "Overview":
+      default:
+        return const OverviewPage();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          const SaludkoAppBar(), // Use your custom app bar here
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(20, 100, 20, 20),
-                    child: Column(
-                      children: [
-                        Text(
-                          "This is the Health Records Screen",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                        // Add more widgets as needed
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+          const SaludkoAppBar(),
+          SliverToBoxAdapter(
+            child: RecordsNavigation(
+              selectedPage: _selectedPage,
+              onPageSelected: (String page) {
+                setState(() {
+                  _selectedPage = page;
+                });
+              },
+            ),
+          ),
+          SliverFillRemaining(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: _getSelectedPage(),
             ),
           ),
         ],
