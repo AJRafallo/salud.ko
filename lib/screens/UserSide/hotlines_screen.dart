@@ -25,8 +25,8 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
       child: Column(
         mainAxisSize:
             MainAxisSize.min, // Ensure the column takes up only required space
-        crossAxisAlignment: CrossAxisAlignment.center, // Aligns center
-        mainAxisAlignment: MainAxisAlignment.start, // Align to top
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           // Use Transform to nudge the icon upwards if needed
           Transform.translate(
@@ -131,12 +131,11 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
 
   static Widget _buildPage3() {
     return const Padding(
-      padding:
-          EdgeInsets.symmetric(horizontal: 16.0), // Padding on left and right
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.warning, size: 50, color: Colors.red), // Emergency icon
+          Icon(Icons.warning, size: 50, color: Colors.red),
           SizedBox(height: 15),
           Text(
             "Please use Emergency Hotlines responsibly!",
@@ -179,12 +178,12 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      SizedBox(height: 25),
+                      SizedBox(height: 22),
 
                       // First Container
                       HotlineContainer(),
 
-                      SizedBox(height: 20),
+                      SizedBox(height: 10),
 
                       Center(
                         child: SizedBox(
@@ -196,9 +195,43 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
                         ),
                       ),
 
-                      SizedBox(height: 20),
+                      SizedBox(height: 10),
 
                       // Second Container
+                      HotlineContainer(),
+
+                      SizedBox(height: 10),
+
+                      Center(
+                        child: SizedBox(
+                          width: 340,
+                          child: Divider(
+                            color: Color(0xFFA1A1A1),
+                            thickness: 1,
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 10),
+
+                      // Third Container
+                      HotlineContainer(),
+
+                      SizedBox(height: 10),
+
+                      Center(
+                        child: SizedBox(
+                          width: 340,
+                          child: Divider(
+                            color: Color(0xFFA1A1A1),
+                            thickness: 1,
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 10),
+
+                      // Fourth Container
                       HotlineContainer(),
                     ],
                   ),
@@ -245,17 +278,16 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
                     ),
                   ),
                   _pages[_currentPage], // Display the current page content
-                  const SizedBox(height: 30), // Reduced space before dots
+                  const SizedBox(height: 30),
 
                   // Progress indicators
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(3, (index) {
                       return Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 2), // Reduced spacing
-                        width: 8, // Smaller width
-                        height: 8, // Smaller height
+                        margin: const EdgeInsets.symmetric(horizontal: 2),
+                        width: 8,
+                        height: 8,
                         decoration: BoxDecoration(
                           color: index == _currentPage
                               ? Colors.black // Black for the current page
@@ -269,13 +301,13 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
                       );
                     }),
                   ),
-                  const SizedBox(height: 13), // Closer to the next button
+                  const SizedBox(height: 13),
 
                   // Next button
                   SizedBox(
                     width: double.infinity,
                     child: SizedBox(
-                      height: 50, // Set your desired height here
+                      height: 50,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1A62B7),
@@ -294,14 +326,13 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
                           });
                         },
                         child: const Text(
-                          "Next", // Button text
-                          style: TextStyle(
-                              color: Colors.white), // White text color
+                          "Next",
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8), // Add space after the button
+                  const SizedBox(height: 8),
                 ],
               );
             },
@@ -341,7 +372,7 @@ class HotlineContainer extends StatelessWidget {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      "+63 911 12345678 | +63 911 12345678",
+                      "+63 961 7272688 | +63 961 7272688",
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 12,
@@ -575,7 +606,7 @@ class HotlineContainer extends StatelessWidget {
 
                       ElevatedButton(
                         onPressed: () async {
-                          const phoneNumber = '+6391112345678';
+                          const phoneNumber = '+639617272688';
                           final Uri launchUri = Uri(
                             scheme: 'tel',
                             path: phoneNumber,
@@ -594,7 +625,7 @@ class HotlineContainer extends StatelessWidget {
                             borderRadius: BorderRadius.circular(5),
                           ),
                         ),
-                        child: const Text("+63 911 12345678"),
+                        child: const Text("+63 961 7272688"),
                       ),
 
                       // Divider
@@ -608,7 +639,7 @@ class HotlineContainer extends StatelessWidget {
 
                       ElevatedButton(
                         onPressed: () async {
-                          const phoneNumber = '+6391112345678';
+                          const phoneNumber = '+639617272688';
                           final Uri launchUri = Uri(
                             scheme: 'tel',
                             path: phoneNumber,
@@ -627,7 +658,7 @@ class HotlineContainer extends StatelessWidget {
                             borderRadius: BorderRadius.circular(5),
                           ),
                         ),
-                        child: const Text("+63 911 12345678"),
+                        child: const Text("+63 961 7272688"),
                       ),
 
                       TextButton(

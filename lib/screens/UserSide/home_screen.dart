@@ -61,7 +61,8 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
             body: CustomScrollView(
               slivers: [
                 SaludkoAppBar(
-                  userData: userData, // Pass the fetched user data to the app bar
+                  userData:
+                      userData, // Pass the fetched user data to the app bar
                   userId: currentUser.uid, // Pass the user ID
                 ),
                 const SliverToBoxAdapter(
@@ -106,7 +107,9 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
           // Update screens with the correct home screen
           final List<Widget> screens = [
             homeScreen,
-            SavedScreen(userData: userData, userId: currentUser.uid), // Pass userData to SavedScreen
+            SavedScreen(
+                userData: userData,
+                userId: currentUser.uid), // Pass userData to SavedScreen
             const RecordsScreen(),
             const HotlinesScreen(),
           ];

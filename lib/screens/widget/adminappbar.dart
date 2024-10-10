@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/AdminSide/AdminProfile.dart';
-import 'package:saludko/screens/UserSide/profilepage.dart';
-import 'package:saludko/screens/widget/textfield.dart';
 
 class AdminAppBar extends StatefulWidget {
   const AdminAppBar({super.key});
