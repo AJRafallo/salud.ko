@@ -5,9 +5,9 @@ class MedicineRemindersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       //appBar: AppBar(title: const Text('Medicine Reminders')),
-      body: const Center(child: Text('Medicine Reminders Content')),
+      body: Center(child: Text('Medicine Reminders Content')),
     );
   }
 }

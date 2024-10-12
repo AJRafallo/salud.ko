@@ -49,7 +49,7 @@ class _SavedScreenState extends State<SavedScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SaludkoAppBar(), // Corrected app bar usage
+          const SaludkoAppBar(), // Corrected app bar usage
           SliverList(
             delegate: SliverChildListDelegate(
               [
@@ -84,7 +84,7 @@ class _SavedScreenState extends State<SavedScreen> {
                             return Container(
                               margin: const EdgeInsets.symmetric(vertical: 5),
                               decoration: BoxDecoration(
-                                color: Color(0xFFD1DBE1),
+                                color: const Color(0xFFD1DBE1),
                                 borderRadius: BorderRadius.circular(8.0),
                                 boxShadow: [
                                   BoxShadow(
