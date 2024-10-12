@@ -4,6 +4,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UploadWidget extends StatefulWidget {
+  const UploadWidget({super.key});
+
   @override
   _UploadWidgetState createState() => _UploadWidgetState();
 }
@@ -85,7 +87,7 @@ class _UploadWidgetState extends State<UploadWidget> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black26,
                   blurRadius: 10,
@@ -96,7 +98,7 @@ class _UploadWidgetState extends State<UploadWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 selectedFile == null
-                    ? Text('No file selected.')
+                    ? const Text('No file selected.')
                     : Text('Selected: ${selectedFile!.path}'),
                 const SizedBox(height: 8),
                 ElevatedButton.icon(
@@ -106,8 +108,8 @@ class _UploadWidgetState extends State<UploadWidget> {
                       builder: (context) => _buildUploadOptions(),
                     );
                   },
-                  icon: Icon(Icons.upload_file),
-                  label: Text('Upload File'),
+                  icon: const Icon(Icons.upload_file),
+                  label: const Text('Upload File'),
                 ),
               ],
             ),
@@ -124,32 +126,32 @@ class _UploadWidgetState extends State<UploadWidget> {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            leading: Icon(Icons.photo),
-            title: Text('Browse Photos/Videos'),
+            leading: const Icon(Icons.photo),
+            title: const Text('Browse Photos/Videos'),
             onTap: () {
               Navigator.pop(context);
               _pickMedia(ImageSource.gallery);
             },
           ),
           ListTile(
-            leading: Icon(Icons.file_copy),
-            title: Text('Browse Documents'),
+            leading: const Icon(Icons.file_copy),
+            title: const Text('Browse Documents'),
             onTap: () {
               Navigator.pop(context);
               _pickDocument();
             },
           ),
           ListTile(
-            leading: Icon(Icons.camera_alt),
-            title: Text('Take a Photo'),
+            leading: const Icon(Icons.camera_alt),
+            title: const Text('Take a Photo'),
             onTap: () {
               Navigator.pop(context);
               _takePhoto();
             },
           ),
           ListTile(
-            leading: Icon(Icons.scanner),
-            title: Text('Scan a Document'),
+            leading: const Icon(Icons.scanner),
+            title: const Text('Scan a Document'),
             onTap: () {
               Navigator.pop(context);
               _scanDocument();

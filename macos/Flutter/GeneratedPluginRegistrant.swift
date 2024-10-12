@@ -11,7 +11,7 @@ import firebase_auth
 import firebase_core
 import firebase_storage
 import shared_preferences_foundation
-import sqflite
+import sqflite_darwin
 import url_launcher_macos
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {

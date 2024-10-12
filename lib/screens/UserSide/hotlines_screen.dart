@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:saludko/screens/widget/appbar_2.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 
 class HotlinesScreen extends StatefulWidget {
   const HotlinesScreen({super.key});
@@ -20,22 +21,17 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
 
   static Widget _buildPage1() {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: 16.0), // Padding on left and right
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
-        mainAxisSize:
-            MainAxisSize.min, // Ensure the column takes up only required space
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          // Use Transform to nudge the icon upwards if needed
           Transform.translate(
-            offset: const Offset(
-                0, -5), // Adjust the -10 to fine-tune vertical position
+            offset: const Offset(0, -5),
             child: const Icon(Icons.warning, size: 50, color: Colors.red),
           ),
-
-          const SizedBox(height: 10), // Leave space below icon as required
+          const SizedBox(height: 10),
           const Text(
             "FOR EMERGENCY PURPOSES ONLY",
             style: TextStyle(
@@ -74,8 +70,7 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
 
   static Widget _buildPage2() {
     return const Padding(
-      padding:
-          EdgeInsets.symmetric(horizontal: 16.0), // Padding on left and right
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -164,7 +159,7 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
             delegate: SliverChildListDelegate(
               [
                 const Padding(
-                  padding: EdgeInsets.fromLTRB(20, 30, 20, 20),
+                  padding: EdgeInsets.fromLTRB(20, 30, 20, 5),
                   child: Column(
                     children: [
                       Center(
@@ -178,64 +173,29 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      SizedBox(height: 22),
-
-                      // First Container
-                      HotlineContainer(),
-
-                      SizedBox(height: 10),
-
-                      Center(
-                        child: SizedBox(
-                          width: 340,
-                          child: Divider(
-                            color: Color(0xFFA1A1A1),
-                            thickness: 1,
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 10),
-
-                      // Second Container
-                      HotlineContainer(),
-
-                      SizedBox(height: 10),
-
-                      Center(
-                        child: SizedBox(
-                          width: 340,
-                          child: Divider(
-                            color: Color(0xFFA1A1A1),
-                            thickness: 1,
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 10),
-
-                      // Third Container
-                      HotlineContainer(),
-
-                      SizedBox(height: 10),
-
-                      Center(
-                        child: SizedBox(
-                          width: 340,
-                          child: Divider(
-                            color: Color(0xFFA1A1A1),
-                            thickness: 1,
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 10),
-
-                      // Fourth Container
-                      HotlineContainer(),
+                      SizedBox(height: 20),
                     ],
                   ),
                 ),
+                ...hotlines.map((hotline) {
+                  return Column(
+                    children: [
+                      HotlineContainer(
+                          hotline: hotline), // Pass the hotline data
+                      const SizedBox(height: 10),
+                      Center(
+                        child: SizedBox(
+                          width: 340,
+                          child: Divider(
+                            color: Color(0xFFA1A1A1),
+                            thickness: 1,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  );
+                }).toList(),
               ],
             ),
           ),
@@ -255,29 +215,25 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
             borderRadius: BorderRadius.circular(25.0),
           ),
           backgroundColor: const Color(0xFFFFF0EE),
-          contentPadding:
-              const EdgeInsets.fromLTRB(20, 0, 20, 10), // Set top padding to 0
+          contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
           content: StatefulBuilder(
             builder: (context, setState) {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Close button with custom position
                   Align(
                     alignment: Alignment.topRight,
                     child: Transform.translate(
-                      offset: const Offset(
-                          8.0, 8.0), // Move closer to the top-right
+                      offset: const Offset(8.0, 8.0),
                       child: IconButton(
-                        icon: const Icon(Icons.close,
-                            size: 18), // Smaller icon size
+                        icon: const Icon(Icons.close, size: 18),
                         onPressed: () {
                           Navigator.of(context).pop(); // Close the dialog
                         },
                       ),
                     ),
                   ),
-                  _pages[_currentPage], // Display the current page content
+                  _pages[_currentPage],
                   const SizedBox(height: 30),
 
                   // Progress indicators
@@ -289,12 +245,12 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: index == _currentPage
-                              ? Colors.black // Black for the current page
-                              : Colors.white, // White for unselected dots
+                          color: index <= _currentPage
+                              ? Colors.black // Black for completed steps
+                              : Colors.white, // White for upcoming steps
                           border: Border.all(
                             color: Colors.black,
-                            width: 1.5, // Thicker border for hollow dots
+                            width: 1.5, // Thicker border for the circles
                           ),
                           shape: BoxShape.circle,
                         ),
@@ -303,7 +259,6 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
                   ),
                   const SizedBox(height: 13),
 
-                  // Next button
                   SizedBox(
                     width: double.infinity,
                     child: SizedBox(
@@ -318,10 +273,9 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
                         onPressed: () {
                           setState(() {
                             if (_currentPage < 2) {
-                              _currentPage++; // Go to next page
+                              _currentPage++;
                             } else {
-                              Navigator.of(context)
-                                  .pop(); // Close dialog after last page
+                              Navigator.of(context).pop();
                             }
                           });
                         },
@@ -343,61 +297,90 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
   }
 }
 
+class Hotline {
+  final String name;
+  final List<String> numbers;
+
+  Hotline({required this.name, required this.numbers});
+}
+
+final List<Hotline> hotlines = [
+  Hotline(
+    name: "ONE HOSPITAL COMMAND",
+    numbers: ["+63 961 7272688", "+63 911 1234567"],
+  ),
+  Hotline(
+    name: "BICOL MEDICAL CENTER",
+    numbers: ["+63 927 3579961", "+63 919 4701201"],
+  ),
+  Hotline(
+    name: "NAGA CITY HOSPITAL",
+    numbers: ["+63 970 4911691", "+63 926-0972071"],
+  ),
+  Hotline(
+    name: "NICC HOSPITAL",
+    numbers: ["+54 475 0000", "+54 472-60-94"],
+  ),
+];
+
 // hotlines interface
 class HotlineContainer extends StatelessWidget {
-  const HotlineContainer({super.key});
+  final Hotline hotline;
+
+  const HotlineContainer({Key? key, required this.hotline}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Container(
-          padding: const EdgeInsets.all(15),
-          decoration: BoxDecoration(
-            color: const Color(0xFFD1DBE1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: [
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "ONE HOSPITAL COMMAND",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        //margin: const EdgeInsets.symmetric(vertical: 5),
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: const Color(0xFFD1DBE1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    hotline.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      "+63 961 7272688 | +63 961 7272688",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 12,
-                      ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    hotline.numbers.join(" | "),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              IconButton(
-                onPressed: () {
-                  showDisclaimerDialog(context);
-                },
-                icon: const Icon(Icons.call),
-                color: const Color(0xFF188b15),
-                iconSize: 40,
-              ),
-            ],
-          ),
-        );
-      },
+            ),
+            IconButton(
+              onPressed: () {
+                showDisclaimerDialog(context, hotline); // Pass the hotline data
+              },
+              icon: const Icon(Icons.call),
+              color: const Color(0xFF188b15),
+              iconSize: 40,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   // Disclaimer dialog function (Red pop-up)
-  void showDisclaimerDialog(BuildContext context) {
+  void showDisclaimerDialog(BuildContext context, Hotline hotline) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -446,7 +429,7 @@ class HotlineContainer extends StatelessWidget {
                           "You might have mistakenly tapped the call button.",
                           style: TextStyle(
                             fontWeight: FontWeight.w300,
-                            fontSize: 13, // Adjust font size
+                            fontSize: 13,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -485,7 +468,8 @@ class HotlineContainer extends StatelessWidget {
                         onPressed: () {
                           // Close the red pop-up and open the green one
                           Navigator.of(context).pop();
-                          showNumberSelectionDialog(context);
+                          showNumberSelectionDialog(context,
+                              hotline); // Pass hotline to number selection
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFDB0000),
@@ -532,8 +516,7 @@ class HotlineContainer extends StatelessWidget {
     );
   }
 
-  // Number selection dialog with call action (Green pop-up)
-  void showNumberSelectionDialog(BuildContext context) {
+  void showNumberSelectionDialog(BuildContext context, Hotline hotline) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -547,16 +530,16 @@ class HotlineContainer extends StatelessWidget {
           content: ConstrainedBox(
             constraints: const BoxConstraints(
               maxWidth: 300,
-              // Reduce max height to minimize space after the Cancel button
-              maxHeight: 410, // Adjust this value as needed
+              maxHeight: 405,
             ),
             child: Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 30, vertical: 20), // Reduce vertical padding
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 20),
                       const Icon(
@@ -564,7 +547,7 @@ class HotlineContainer extends StatelessWidget {
                         size: 50,
                         color: Color(0xFF088205),
                       ),
-                      const SizedBox(height: 15), // Reduced space here
+                      const SizedBox(height: 15),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 15),
                         child: Text(
@@ -577,8 +560,7 @@ class HotlineContainer extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      const SizedBox(height: 10), // Reduced space here
-
+                      const SizedBox(height: 10),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 15),
                         child: Text(
@@ -590,11 +572,11 @@ class HotlineContainer extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 15),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
                         child: Text(
-                          "ONE HOSPITAL COMMAND",
-                          style: TextStyle(
+                          hotline.name,
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                             color: Colors.black54,
@@ -604,66 +586,53 @@ class HotlineContainer extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
 
-                      ElevatedButton(
-                        onPressed: () async {
-                          const phoneNumber = '+639617272688';
-                          final Uri launchUri = Uri(
-                            scheme: 'tel',
-                            path: phoneNumber,
-                          );
-                          try {
-                            await launchUrl(launchUri);
-                          } catch (e) {
-                            print('Error: $e');
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF088205),
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size(double.infinity, 36),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                        child: const Text("+63 961 7272688"),
-                      ),
+                      // Call Buttons
+                      ...hotline.numbers.map((number) {
+                        return Column(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                var status = await Permission.phone.status;
+                                if (status.isDenied) {
+                                  status = await Permission.phone.request();
+                                }
 
-                      // Divider
-                      const SizedBox(
-                        width: 150,
-                        child: Divider(
-                          color: Color(0xFFA1A1A1),
-                          thickness: 1,
-                        ),
-                      ),
-
-                      ElevatedButton(
-                        onPressed: () async {
-                          const phoneNumber = '+639617272688';
-                          final Uri launchUri = Uri(
-                            scheme: 'tel',
-                            path: phoneNumber,
-                          );
-                          try {
-                            await launchUrl(launchUri);
-                          } catch (e) {
-                            print('Error: $e');
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF088205),
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size(double.infinity, 36),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                        child: const Text("+63 961 7272688"),
-                      ),
+                                if (status.isGranted) {
+                                  try {
+                                    await FlutterPhoneDirectCaller.callNumber(
+                                        number);
+                                  } catch (e) {
+                                    print("Error calling: $e");
+                                  }
+                                } else {
+                                  print("Permission denied to make calls.");
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF088205),
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size(double.infinity, 36),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                              child: Text(number),
+                            ),
+                            if (number != hotline.numbers.last)
+                              Container(
+                                width: 150, // Adjust the width as needed
+                                child: const Divider(
+                                  color: Color(0xFFA1A1A1),
+                                  thickness: 1,
+                                ),
+                              ),
+                          ],
+                        );
+                      }).toList(),
 
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop(); // Cancel action
+                          Navigator.of(context).pop();
                         },
                         child: const Text(
                           "Cancel",

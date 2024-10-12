@@ -6,12 +6,12 @@ class MedicalFilesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Column(
         children: [
           Expanded(
             child: Center(
-              child: const Text('Medical Files Content'),
+              child: Text('Medical Files Content'),
             ),
           ),
           // Directly include the UploadWidget at the bottom
