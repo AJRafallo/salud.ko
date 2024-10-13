@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/AdminSide/AProfile.dart';
+import 'package:saludko/screens/AdminSide/AdminProfile.dart';
 
 class AdminAppBar extends StatefulWidget {
   const AdminAppBar({super.key});

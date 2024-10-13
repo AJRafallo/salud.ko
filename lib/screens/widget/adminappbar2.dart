@@ -66,7 +66,7 @@ class _AdminAppBar2State extends State<AdminAppBar2> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height:10), // Adjusts the space to push content down
+              SizedBox(height: 10), // Adjusts the space to push content down
               Text(
                 "Hello, Admin!",
                 style: TextStyle(

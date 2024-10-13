@@ -8,6 +8,7 @@ plugins {
 
 android {
     namespace = "com.example.saludko"
+    compileSdkVersion 33
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -23,6 +24,7 @@ android {
     defaultConfig {
         applicationId = "com.example.saludko"
         minSdkVersion 23         
+        targetSdkVersion 31
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

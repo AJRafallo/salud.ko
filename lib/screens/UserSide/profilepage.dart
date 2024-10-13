@@ -369,6 +369,31 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ],
                   ),
+
+
+                  const SizedBox(height: 10),
+
+                  const Divider(
+                    // Horizontal line after the button
+                    color: Colors.grey,
+                    thickness: 1,
+                    height: 10,
+                    indent: 50,
+                    endIndent: 50,
+                  ),
+
+                  // Logout Button
+                  MyButton(
+                    onTab: () async {
+                      await AuthServices().signOut();
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                            builder: (context) => const MyLogin()),
+                      );
+                    },
+                    text: "Logout",
+                  ),
+
                 ],
               ),
             ),
