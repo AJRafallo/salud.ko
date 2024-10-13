@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/widget/adminappbar.dart';
 import 'package:saludko/screens/widget/adminappbar2.dart';
 import 'package:saludko/screens/widget/hospitaladbotnav.dart';
 

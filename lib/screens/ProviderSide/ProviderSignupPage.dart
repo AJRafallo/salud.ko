@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:saludko/screens/ProviderSide/ProviderVerificationStatusPage.dart';
 import 'package:saludko/screens/Services/authentication.dart';
 import 'package:saludko/screens/Opening/login_screen.dart';
@@ -26,8 +26,7 @@ class _SignupScreenState extends State<ProviderSignup> {
 
   final List<String> workplaces = [
     "Mother Seton",
-    "Bicol Medical Center",
-    "Our Lady of Fatima",
+    "Our Lady of Lourdes Infirmary",
     // Add more workplace options here
   ];
 
@@ -40,35 +39,42 @@ class _SignupScreenState extends State<ProviderSignup> {
     firstnameController.dispose();
   }
 
+  // Function to convert to Title Case
+  String toTitleCase(String input) {
+    return input.split(' ').map((word) {
+      if (word.isEmpty) return '';
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
   void signUpHealthCareProvider() async {
-  if (selectedWorkplace == null) {
-    showSnackBar(context, 'Please select a workplace.');
-    return;
-  }
+    if (selectedWorkplace == null) {
+      showSnackBar(context, 'Please select a workplace.');
+      return;
+    }
 
-  // Force unwrap selectedWorkplace since it's confirmed to be non-null
-  String res = await AuthServices().signUpHealthCareProvider(
-    email: emailController.text,
-    password: passwordController.text,
-    lastname: lastnameController.text,
-    firstname: firstnameController.text,
-    workplace: selectedWorkplace!, // Use the non-null assertion here
-  );
+    String res = await AuthServices().signUpHealthCareProvider(
+      email: emailController.text,
+      password: passwordController.text,
+      lastname: toTitleCase(lastnameController.text), // Convert to Title Case
+      firstname: toTitleCase(firstnameController.text), // Convert to Title Case
+      workplace: selectedWorkplace!, // Use the non-null assertion here
+    );
 
-  if (res == "Success") {
-    setState(() {
-      isLoading = true;
-    });
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (context) => const ProviderVerificationStatusScreen(),
-    ));
-  } else {
-    setState(() {
-      isLoading = false;
-    });
-    showSnackBar(context, res);
+    if (res == "Success") {
+      setState(() {
+        isLoading = true;
+      });
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => const ProviderVerificationStatusScreen(),
+      ));
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      showSnackBar(context, res);
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -117,17 +123,15 @@ class _SignupScreenState extends State<ProviderSignup> {
                   isPass: true,
                   icon: Icons.lock_rounded,
                 ),
-                
-              WorkplaceDropdown(
-                selectedWorkplace: selectedWorkplace,
-                workplaces: workplaces,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedWorkplace = newValue;
-                  });
-                },
-              ),
-
+                WorkplaceDropdown(
+                  selectedWorkplace: selectedWorkplace,
+                  workplaces: workplaces,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedWorkplace = newValue;
+                    });
+                  },
+                ),
                 const SizedBox(height: 20),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,

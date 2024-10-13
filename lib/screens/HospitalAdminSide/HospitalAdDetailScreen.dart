@@ -1,8 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:saludko/screens/widget/ListbyWorkplace.dart';
 import 'dart:io';
+
+import 'package:saludko/screens/widget/mapscreen.dart';
+
+
 
 class HospitalAdDetailScreen extends StatefulWidget {
   final Map<String, dynamic> facility;
@@ -15,14 +21,44 @@ class HospitalAdDetailScreen extends StatefulWidget {
 
 class _HospitalAdDetailScreenState extends State<HospitalAdDetailScreen> {
   String? profileImageUrl;
+  String? currentUserUid;
+  String? currentUserRole;
 
   @override
   void initState() {
     super.initState();
     profileImageUrl = widget.facility['profileImage'];
+    _getCurrentUserUid();
+  }
+
+  Future<void> _getCurrentUserUid() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        currentUserUid = user.uid;
+      });
+      // Fetch user role from Firestore
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('admins')
+          .doc(user.uid) // Replace with your collection and document structure
+          .get();
+      setState(() {
+        currentUserRole =
+            userDoc['role']; // Adjust based on your Firestore structure
+      });
+    }
   }
 
   Future<void> _uploadImage() async {
+    // Check if the current user is authorized to upload the image
+    if (currentUserUid != widget.facility['uid']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('You are not authorized to edit this profile.')),
+      );
+      return;
+    }
+
     try {
       final picker = ImagePicker();
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -49,9 +85,56 @@ class _HospitalAdDetailScreenState extends State<HospitalAdDetailScreen> {
     }
   }
 
+  Future<void> _deleteFacility() async {
+    // Show confirmation dialog
+    bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this profile?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () =>
+                  Navigator.of(context).pop(false), // User clicked No
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () =>
+                  Navigator.of(context).pop(true), // User clicked Yes
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // If the user confirmed the deletion, proceed
+    if (confirm == true) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('hospital')
+            .doc(widget.facility['uid'])
+            .delete();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Facility deleted successfully.')),
+        );
+
+        // Navigate back or to a different screen after deletion
+        Navigator.of(context).pop();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete facility: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 222, 237, 255),
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A62B7),
         title: Align(
@@ -80,95 +163,184 @@ class _HospitalAdDetailScreenState extends State<HospitalAdDetailScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 50, 20, 50),
-        child: Container(
-          padding: const EdgeInsets.all(20.0), // Padding around the fields
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.black), // Optional border
-            borderRadius: BorderRadius.circular(15), // Rounded corners
-            color: const Color(0xFF1A62B7),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: GestureDetector(
-                  onTap: _uploadImage,
-                  child: CircleAvatar(
-                    radius: 100,
-                    backgroundImage:
-                        profileImageUrl != null && profileImageUrl!.isNotEmpty
-                            ? NetworkImage(profileImageUrl!)
-                            : const AssetImage('lib/assets/images/avatar.png')
-                                as ImageProvider,
-                    child: (profileImageUrl == null || profileImageUrl!.isEmpty)
-                        ? const Icon(Icons.camera_alt,
-                            size: 40, color: Colors.grey)
-                        : null,
+        child: Column(
+          children: [
+            Center(
+              child: GestureDetector(
+                onTap: _uploadImage, // Trigger image upload
+                child: Container(
+                  width: 500, // Adjust width
+                  height: 300, // Adjust height
+                  decoration: BoxDecoration(
+                    image: profileImageUrl != null &&
+                            profileImageUrl!.isNotEmpty
+                        ? DecorationImage(
+                            image: NetworkImage(profileImageUrl!),
+                            fit: BoxFit
+                                .cover, // Ensures the image covers the container
+                          )
+                        : const DecorationImage(
+                            image: AssetImage('lib/assets/images/avatar.png'),
+                            fit: BoxFit.cover,
+                          ),
+                    color: Colors.grey[
+                        300], // Background color if image is not available
                   ),
+                  child: (profileImageUrl == null || profileImageUrl!.isEmpty)
+                      ? const Icon(Icons.camera_alt,
+                          size: 40, color: Colors.grey)
+                      : null, // Show camera icon if no profile image is available
                 ),
               ),
-              const SizedBox(height: 20),
-              // Wrap name until specialization inside a container
-              Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3), // changes position of shadow
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.all(25.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${widget.facility['workplace']?.toUpperCase()}',
+                          style: const TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF1A62B7),
+                          ),
+                        ),
+                        Text(
+                          '${widget.facility['address']}',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.black,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(
-                        '${widget.facility['workplace']}',
-                        style: const TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A62B7),
-                          fontStyle: FontStyle.italic,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'CONTACT INFORMATION',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                        child: Icon(
+                          Icons.email_rounded,
+                          size: 30,
+                          color: Colors.black,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Facility Information',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Email: ${widget.facility['email']}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    if (widget.facility['address'] != null)
                       Text(
-                        'Address: ${widget.facility['address']}',
+                        '${widget.facility['email']}',
                         style: const TextStyle(
                           fontSize: 13,
                           color: Colors.black,
                         ),
                       ),
-                  ],
-                ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                        child: Icon(
+                          Icons.call_rounded,
+                          size: 30,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Flexible(
+                        child: Text(
+                          '${widget.facility['phone']}',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  ProviderListByWorkplace(
+                      workplace: widget.facility['workplace']),
+
+                  // Button to open MapScreen
+                  InkWell(
+                    onTap: () {
+                      // Extract latitude and longitude from the Firestore document
+                      final GeoPoint location = widget.facility['location'];
+                      final double latitude = location.latitude;
+                      final double longitude = location.longitude;
+
+                      // Navigate to MapScreen, passing the latitude and longitude
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => MapScreen(
+                            latitude: latitude,
+                            longitude: longitude,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12.0, horizontal: 20.0),
+                        decoration: ShapeDecoration(
+                          color: Colors.blue, // Button color
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(30), // Rounded corners
+                          ),
+                        ),
+                        child: const Text(
+                          'View on Map',
+                          style: TextStyle(
+                            fontStyle: FontStyle.normal,
+                            fontSize: 15,
+                            color: Colors.white, // Text color
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Delete button for admin users
+                  if (currentUserRole ==
+                      'admin') // Adjust based on your role-checking logic
+                    ElevatedButton(
+                      onPressed: _deleteFacility,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            Colors.red, // Change color to red for deletion
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12.0, horizontal: 30.0),
+                      ),
+                      child: const Text(
+                        'Delete Facility',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                ],
               ),
-              const SizedBox(height: 20),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
