@@ -8,6 +8,7 @@ import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:saludko/screens/widget/button.dart';
 import 'package:saludko/screens/widget/genderdropdown.dart';
 import 'dart:io';
+import 'package:saludko/screens/widget/mapscreen.dart';
 
 class HospitalAdProfile extends StatefulWidget {
   const HospitalAdProfile({super.key});
@@ -31,6 +32,7 @@ class _HospitalAdProfileState extends State<HospitalAdProfile> {
   TextEditingController emailController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController addressController = TextEditingController();
+  TextEditingController workplaceController = TextEditingController();
 
   String? profileImageUrl; // Variable to store profile image URL
   final currentUser = FirebaseAuth.instance.currentUser;
@@ -49,6 +51,7 @@ class _HospitalAdProfileState extends State<HospitalAdProfile> {
     emailController.dispose();
     phoneController.dispose();
     addressController.dispose();
+    workplaceController.dispose();
     super.dispose();
   }
 
@@ -89,7 +92,7 @@ class _HospitalAdProfileState extends State<HospitalAdProfile> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:  Colors.red,
+        backgroundColor: Colors.red,
         title: Align(
           alignment: Alignment.topRight, // Align the title to the right
           child: Container(
@@ -153,7 +156,10 @@ class _HospitalAdProfileState extends State<HospitalAdProfile> {
             phoneController.text = facility['phone'] ?? '';
           }
           if (addressController.text.isEmpty) {
-            addressController.text = facility['Address'] ?? '';
+            addressController.text = facility['address'] ?? '';
+          }
+          if (workplaceController.text.isEmpty) {
+            workplaceController.text = facility['workplace'] ?? '';
           }
 
           // Load existing profile image URL if available
@@ -171,115 +177,155 @@ class _HospitalAdProfileState extends State<HospitalAdProfile> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   // Profile Picture Upload
                   Center(
-                    child: GestureDetector(
-                      onTap: _uploadImage,
-                      child: CircleAvatar(
-                        radius: 100,
-                        backgroundImage: profileImageUrl != null &&
-                                profileImageUrl!.isNotEmpty
-                            ? NetworkImage(profileImageUrl!)
-                            : const AssetImage('lib/assets/images/avatar.png')
-                                as ImageProvider,
-                        child: (profileImageUrl == null ||
-                                profileImageUrl!.isEmpty)
-                            ? const Icon(Icons.camera_alt,
-                                size: 40, color: Colors.grey)
-                            : null,
-                      ),
+                    child: Column(
+                      children: [
+                        GestureDetector(
+                          onTap: _uploadImage,
+                          child: CircleAvatar(
+                            radius: 100,
+                            backgroundImage: profileImageUrl != null &&
+                                    profileImageUrl!.isNotEmpty
+                                ? NetworkImage(profileImageUrl!)
+                                : const AssetImage(
+                                        'lib/assets/images/avatar.png')
+                                    as ImageProvider,
+                            child: (profileImageUrl == null ||
+                                    profileImageUrl!.isEmpty)
+                                ? const Icon(Icons.camera_alt,
+                                    size: 40, color: Colors.grey)
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          "${facility['workplace']}",
+                          style: const TextStyle(
+                            color: Colors.black, // Change the text color
+                            fontSize: 25, // Change the font size
+                            fontWeight:
+                                FontWeight.bold, // Change the font weight
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  const Text(
+                    'Admin Information',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
 
                   const SizedBox(height: 10),
 
-                  // First Name Field
-                  Text('First Name', style: labelStyle),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: firstNameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
+                  Container(
+                    padding:
+                        const EdgeInsets.all(20.0), // Padding around the fields
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey), // Optional border
+                      borderRadius:
+                          BorderRadius.circular(15), // Rounded corners
                     ),
-                  ),
-                  const SizedBox(height: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // First Name Field
+                        Text('First Name', style: labelStyle),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: firstNameController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
 
-                  // Middle Name Field
-                  Text('Middle Name', style: labelStyle),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: middleNameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)),
+                        // Middle Name Field
+                        Text('Middle Name', style: labelStyle),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: middleNameController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Last Name Field
+                        Text('Last Name', style: labelStyle),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: lastNameController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Email Field
+                        Text('Email', style: labelStyle),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: emailController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Phone Field
+                        Text('Phone', style: labelStyle),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: phoneController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Address Field
+                        Text('Address', style: labelStyle),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: addressController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Gender Dropdown
+                        Text('Gender', style: labelStyle),
+                        const SizedBox(height: 5),
+                        GenderDropdown(
+                          selectedGender: selectedGender,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedGender = newValue;
+                              print(
+                                  'Selected Gender Updated: $newValue'); // Debug statement
+                            });
+                          },
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Last Name Field
-                  Text('Last Name', style: labelStyle),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: lastNameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Email Field
-                  Text('Email', style: labelStyle),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: emailController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Phone Field
-                  Text('Phone', style: labelStyle),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: phoneController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Address Field
-                  Text('Address', style: labelStyle),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: addressController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Gender Dropdown
-                  Text('Gender', style: labelStyle),
-                  const SizedBox(height: 5),
-                  GenderDropdown(
-                    selectedGender: selectedGender,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedGender = newValue;
-                        print(
-                            'Selected Gender Updated: $newValue'); // Debug statement
-                      });
-                    },
                   ),
                   const SizedBox(height: 20),
 
@@ -348,25 +394,6 @@ class _HospitalAdProfileState extends State<HospitalAdProfile> {
                   ),
 
                   const SizedBox(height: 10),
-
-                  const Divider(
-                    // Horizontal line after the button
-                    color: Colors.grey,
-                    thickness: 1,
-                    height: 10,
-                  ),
-
-                  // Logout Button
-                  MyButton(
-                    onTab: () async {
-                      await AuthServices().signOut();
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                            builder: (context) => const MyLogin()),
-                      );
-                    },
-                    text: "Logout",
-                  ),
                 ],
               ),
             ),

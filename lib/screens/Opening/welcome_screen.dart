@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:saludko/screens/Opening/signup_screen.dart';
 import 'package:saludko/screens/Opening/splash_screen.dart';
-import 'package:saludko/screens/ProviderSide/ProviderHomepage.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

@@ -3,9 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/Services/authentication.dart';
-import 'package:saludko/screens/Opening/login_screen.dart';
-import 'package:saludko/screens/widget/button.dart';
 import 'package:saludko/screens/widget/genderdropdown.dart';
 import 'dart:io';
 
@@ -89,7 +86,7 @@ class _AdminProfileState extends State<AdminProfile> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:  Colors.red,
+        backgroundColor: Colors.red,
         title: Align(
           alignment: Alignment.topRight, // Align the title to the right
           child: Container(
@@ -171,115 +168,147 @@ class _AdminProfileState extends State<AdminProfile> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   // Profile Picture Upload
-                  Center(
-                    child: GestureDetector(
-                      onTap: _uploadImage,
-                      child: CircleAvatar(
-                        radius: 100,
-                        backgroundImage: profileImageUrl != null &&
-                                profileImageUrl!.isNotEmpty
-                            ? NetworkImage(profileImageUrl!)
-                            : const AssetImage('lib/assets/images/avatar.png')
-                                as ImageProvider,
-                        child: (profileImageUrl == null ||
-                                profileImageUrl!.isEmpty)
-                            ? const Icon(Icons.camera_alt,
-                                size: 40, color: Colors.grey)
-                            : null,
+                  Container(
+                    padding: const EdgeInsets.all(25.0),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1A62B7),
+                      borderRadius:
+                          BorderRadius.circular(15), // Rounded corners
+                    ),
+                    child: Center(
+                      child: GestureDetector(
+                        onTap: _uploadImage,
+                        child: CircleAvatar(
+                          radius: 100,
+                          backgroundImage: profileImageUrl != null &&
+                                  profileImageUrl!.isNotEmpty
+                              ? NetworkImage(profileImageUrl!)
+                              : const AssetImage('lib/assets/images/avatar.png')
+                                  as ImageProvider,
+                          child: (profileImageUrl == null ||
+                                  profileImageUrl!.isEmpty)
+                              ? const Icon(Icons.camera_alt,
+                                  size: 40, color: Colors.grey)
+                              : null,
+                        ),
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
 
-                  // First Name Field
-                  Text('First Name', style: labelStyle),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: firstNameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
+                  const Text(
+                    'Admin Information',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   const SizedBox(height: 10),
 
-                  // Middle Name Field
-                  Text('Middle Name', style: labelStyle),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: middleNameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)),
+                  Container(
+                    padding:
+                        const EdgeInsets.all(20.0), // Padding around the fields
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey), // Optional border
+                      borderRadius:
+                          BorderRadius.circular(15), // Rounded corners
                     ),
-                  ),
-                  const SizedBox(height: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // First Name Field
+                        Text('First Name', style: labelStyle),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: firstNameController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
 
-                  // Last Name Field
-                  Text('Last Name', style: labelStyle),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: lastNameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)),
+                        // Middle Name Field
+                        Text('Middle Name', style: labelStyle),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: middleNameController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Last Name Field
+                        Text('Last Name', style: labelStyle),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: lastNameController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Email Field
+                        Text('Email', style: labelStyle),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: emailController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Phone Field
+                        Text('Phone', style: labelStyle),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: phoneController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Address Field
+                        Text('Address', style: labelStyle),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: addressController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Gender Dropdown
+                        Text('Gender', style: labelStyle),
+                        const SizedBox(height: 5),
+                        GenderDropdown(
+                          selectedGender: selectedGender,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedGender = newValue;
+                              print(
+                                  'Selected Gender Updated: $newValue'); // Debug statement
+                            });
+                          },
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Email Field
-                  Text('Email', style: labelStyle),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: emailController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Phone Field
-                  Text('Phone', style: labelStyle),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: phoneController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Address Field
-                  Text('Address', style: labelStyle),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: addressController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Gender Dropdown
-                  Text('Gender', style: labelStyle),
-                  const SizedBox(height: 5),
-                  GenderDropdown(
-                    selectedGender: selectedGender,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedGender = newValue;
-                        print(
-                            'Selected Gender Updated: $newValue'); // Debug statement
-                      });
-                    },
                   ),
                   const SizedBox(height: 20),
 
@@ -312,6 +341,7 @@ class _AdminProfileState extends State<AdminProfile> {
                                   content:
                                       Text('Profile updated successfully!')),
                             );
+                            Navigator.pop(context);
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -348,25 +378,6 @@ class _AdminProfileState extends State<AdminProfile> {
                   ),
 
                   const SizedBox(height: 10),
-
-                  const Divider(
-                    // Horizontal line after the button
-                    color: Colors.grey,
-                    thickness: 1,
-                    height: 10,
-                  ),
-
-                  // Logout Button
-                  MyButton(
-                    onTab: () async {
-                      await AuthServices().signOut();
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                            builder: (context) => const MyLogin()),
-                      );
-                    },
-                    text: "Logout",
-                  ),
                 ],
               ),
             ),

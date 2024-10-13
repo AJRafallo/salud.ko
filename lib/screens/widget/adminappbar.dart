@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:saludko/screens/AdminSide/AProfile.dart';
 import 'package:saludko/screens/AdminSide/AdminProfile.dart';
-import 'package:saludko/screens/UserSide/profilepage.dart';
-import 'package:saludko/screens/widget/textfield.dart';
 
 class AdminAppBar extends StatefulWidget {
   const AdminAppBar({super.key});
@@ -48,7 +47,7 @@ class _AdminAppBarState extends State<AdminAppBar> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AdminProfile(),
+                  builder: (context) => const AdminShowProfile(),
                 ),
               );
             },

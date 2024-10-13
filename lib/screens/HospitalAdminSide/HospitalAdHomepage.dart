@@ -1,11 +1,6 @@
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:saludko/screens/widget/VerifList2.dart';
-import 'package:saludko/screens/widget/adminappbar.dart';
 import 'package:saludko/screens/widget/adminappbar2.dart';
 import 'package:saludko/screens/widget/healthcarefacilitieslist.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,7 +21,8 @@ class HospitalAdHomeScreen extends StatelessWidget {
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('hospital')
-            .doc(currentUser.uid) // Use the logged-in user's ID to get their data
+            .doc(currentUser
+                .uid) // Use the logged-in user's ID to get their data
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -44,44 +40,44 @@ class HospitalAdHomeScreen extends StatelessWidget {
           final hospital = snapshot.data!.data() as Map<String, dynamic>;
 
           return const CustomScrollView(
-              slivers: [
-                AdminAppBar2(),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Healthcare Facilities",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic,
-                                fontSize: 20,
-                              ),
+            slivers: [
+              AdminAppBar2(),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Healthcare Facilities",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                              fontSize: 20,
                             ),
-                            HealthcareFacilities(),
-                            SizedBox(height: 10),
-                            Text(
-                              "Healthcare Providers",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic,
-                                fontSize: 20,
-                              ),
+                          ),
+                          HealthcareFacilities(),
+                          SizedBox(height: 10),
+                          Text(
+                            "Healthcare Providers",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                              fontSize: 20,
                             ),
-                            VerifiedProvidersWidget2(),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                          VerifiedProvidersWidget2(),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
+            ],
           );
         },
       ),

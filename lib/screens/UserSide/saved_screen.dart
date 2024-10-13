@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/ProviderSide/DetailsPage.dart';
 import 'package:saludko/screens/Services/databasehelper.dart';
-import 'package:saludko/screens/widget/appbar.dart'; // Reuse the same appbar file
+import 'package:saludko/screens/widget/appbar_2.dart';
 
 class SavedScreen extends StatefulWidget {
   final Map<String, dynamic> userData; // Accept userData
@@ -49,10 +49,7 @@ class _SavedScreenState extends State<SavedScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SaludkoAppBar(
-            userData: widget.userData, // Pass userData
-            userId: widget.userId, // Pass userId
-          ),
+          const SaludkoAppBar(), // Corrected app bar usage
           SliverList(
             delegate: SliverChildListDelegate(
               [
@@ -62,7 +59,7 @@ class _SavedScreenState extends State<SavedScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "Bookmarked Healthcare Providers",
+                        "Saved Profiles",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -72,7 +69,7 @@ class _SavedScreenState extends State<SavedScreen> {
                         const Padding(
                           padding: EdgeInsets.only(top: 20),
                           child: Text(
-                            "No bookmarked providers available.",
+                            "You have no saved healthcare providers available.",
                             style: TextStyle(fontSize: 16),
                           ),
                         )
@@ -84,10 +81,16 @@ class _SavedScreenState extends State<SavedScreen> {
                           itemCount: _bookmarkedProviders.length,
                           itemBuilder: (context, index) {
                             final provider = _bookmarkedProviders[index];
+                            var profileImageUrl = provider['profileImage'] ??
+                                ''; // Get provider's profile image URL, if available
+                            print('Provider: $provider'); // Debugging
+                            print(
+                                'Provider Image URL: $profileImageUrl'); // Debugging
+
                             return Container(
                               margin: const EdgeInsets.symmetric(vertical: 5),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: const Color(0xFFD1DBE1),
                                 borderRadius: BorderRadius.circular(8.0),
                                 boxShadow: [
                                   BoxShadow(
@@ -99,6 +102,22 @@ class _SavedScreenState extends State<SavedScreen> {
                                 ],
                               ),
                               child: ListTile(
+                                leading: CircleAvatar(
+                                  radius: 20,
+                                  backgroundImage: profileImageUrl.isNotEmpty
+                                      ? NetworkImage(profileImageUrl)
+                                      : const AssetImage(
+                                              'lib/assets/images/avatar.png')
+                                          as ImageProvider,
+                                  onBackgroundImageError: (error, stackTrace) {
+                                    print(
+                                        'Error loading image: $error'); // Log the error
+                                    setState(() {
+                                      profileImageUrl =
+                                          ''; // Reset to show the default avatar
+                                    });
+                                  },
+                                ),
                                 title: Text(
                                   provider['firstname'],
                                   style: const TextStyle(
