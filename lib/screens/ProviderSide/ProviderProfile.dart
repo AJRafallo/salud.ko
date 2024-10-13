@@ -9,6 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:saludko/screens/widget/genderdropdown.dart';
+import 'package:saludko/screens/widget/provmapscreen.dart';
 
 class ProviderProfile extends StatefulWidget {
   const ProviderProfile({super.key});
@@ -147,45 +148,52 @@ class _ProviderProfileState extends State<ProviderProfile> {
           }
 
           final provider = snapshot.data!.data() as Map<String, dynamic>;
+// Setting the text only if the TextEditingController is empty
+          firstNameController.text = firstNameController.text.isEmpty
+              ? provider['firstname'] ?? ''
+              : firstNameController.text;
 
-          // Initialize the controllers only if they are not already set
-          if (firstNameController.text.isEmpty) {
-            firstNameController.text = provider['firstname'] ?? '';
-          }
-          if (middleNameController.text.isEmpty) {
-            middleNameController.text = provider['middlename'] ?? '';
-          }
-          if (lastNameController.text.isEmpty) {
-            lastNameController.text = provider['lastname'] ?? '';
-          }
-          if (emailController.text.isEmpty) {
-            emailController.text = provider['email'] ?? '';
-          }
-          if (phoneController.text.isEmpty) {
-            phoneController.text = provider['phone'] ?? '';
-          }
-          if (addressController.text.isEmpty) {
-            addressController.text = provider['Address'] ?? '';
-          }
-          if (workplaceController.text.isEmpty) {
-            workplaceController.text = provider['workplace'] ?? '';
-          }
-          if (ageController.text.isEmpty) {
-            ageController.text = provider['age']?.toString() ?? '';
-          }
-          if (descriptionController.text.isEmpty) {
-            descriptionController.text =
-                provider['description']?.toString() ?? '';
-          }
-          if (workaddressController.text.isEmpty) {
-            workaddressController.text =
-                provider['workaddress']?.toString() ?? '';
-          }
 
-          if (specializationController.text.isEmpty) {
-            specializationController.text =
-                provider['specialization']?.toString() ?? '';
-          }
+          middleNameController.text = middleNameController.text.isEmpty
+              ? provider['middlename'] ?? ''
+              : middleNameController.text;
+
+          lastNameController.text = lastNameController.text.isEmpty
+              ? provider['lastname'] ?? ''
+              : lastNameController.text;
+
+          emailController.text = emailController.text.isEmpty
+              ? provider['email'] ?? ''
+              : emailController.text;
+
+          phoneController.text = phoneController.text.isEmpty
+              ? provider['phone'] ?? ''
+              : phoneController.text;
+
+          addressController.text = addressController.text.isEmpty
+              ? provider['Address'] ?? ''
+              : addressController.text;
+
+          workplaceController.text = workplaceController.text.isEmpty
+              ? provider['workplace'] ?? ''
+              : workplaceController.text;
+
+          ageController.text = ageController.text.isEmpty
+              ? provider['age']?.toString() ?? ''
+              : ageController.text;
+
+          descriptionController.text = descriptionController.text.isEmpty
+              ? provider['description']?.toString() ?? ''
+              : descriptionController.text;
+
+          workaddressController.text = workaddressController.text.isEmpty
+              ? provider['workaddress']?.toString() ?? ''
+              : workaddressController.text;
+
+          specializationController.text = specializationController.text.isEmpty
+              ? provider['specialization']?.toString() ?? ''
+              : specializationController.text;
+
 
           // Load existing profile image URL if available
           profileImageUrl = provider['profileImage'] ?? '';
@@ -221,6 +229,7 @@ class _ProviderProfileState extends State<ProviderProfile> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 30),
 
                   const Text(
@@ -552,27 +561,6 @@ class _ProviderProfileState extends State<ProviderProfile> {
                       ),
                     ],
                   ),
-
-                  const SizedBox(height: 10),
-
-                  const Divider(
-                    // Horizontal line after the button
-                    color: Colors.grey,
-                    thickness: 1,
-                    height: 10,
-                  ),
-
-                  // Logout Button
-                  MyButton(
-                    onTab: () async {
-                      await AuthServices().signOut();
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                            builder: (context) => const MyLogin()),
-                      );
-                    },
-                    text: "Logout",
-                  ),
                 ],
               ),
             ),
@@ -581,4 +569,19 @@ class _ProviderProfileState extends State<ProviderProfile> {
       ),
     );
   }
+}
+
+Future<GeoPoint?> getFacilityLocation(String workplace) async {
+  final QuerySnapshot facilitySnapshot = await FirebaseFirestore.instance
+      .collection('hospital')
+      .where('workplace', isEqualTo: workplace)
+      .get();
+
+  if (facilitySnapshot.docs.isNotEmpty) {
+    // Assuming location is stored as a GeoPoint in your facility documents
+    final facilityData =
+        facilitySnapshot.docs.first.data() as Map<String, dynamic>;
+    return facilityData['location'] as GeoPoint?;
+  }
+  return null; // Return null if no facility is found
 }

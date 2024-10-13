@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/UserSide/profilepage.dart';
+import 'package:saludko/screens/UserSide/UProfile.dart';
 
 class SaludkoAppBar extends StatefulWidget {
   final String userId;
@@ -53,7 +53,7 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ProfilePage(),
+                  builder: (context) => const ShowProfilePage(),
                 ),
               );
             },

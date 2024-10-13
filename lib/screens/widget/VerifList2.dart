@@ -41,7 +41,7 @@ class _VerifiedProvidersWidget2State extends State<VerifiedProvidersWidget2> {
               itemBuilder: (context, index) {
                 final provider =
                     providers[index].data() as Map<String, dynamic>;
-                var profileImageUrl = provider['profile_image'] ?? ''; // Get provider's profile image URL, if available
+                var profileImageUrl = provider['profileImage'] ?? ''; // Get provider's profile image URL, if available
 
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 5.0),
@@ -73,7 +73,7 @@ class _VerifiedProvidersWidget2State extends State<VerifiedProvidersWidget2> {
                       },
                     ),
                     title: Text(
-                      provider['firstname'],
+                      "Dr. ${provider['firstname']}",
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -81,9 +81,9 @@ class _VerifiedProvidersWidget2State extends State<VerifiedProvidersWidget2> {
                       ),
                     ),
                     subtitle: Text(
-                      provider['email'],
+                      "${provider['specialization']}, ${provider['workplace']}",
                       style: const TextStyle(
-                        fontSize: 15,
+                        fontSize: 12,
                         fontStyle: FontStyle.italic,
                         color: Colors.black,
                       ),

@@ -30,7 +30,8 @@ class DatabaseHelper {
             description TEXT,
             phone TEXT,
             workplace TEXT,
-            Address TEXT
+            Address TEXT,
+            profileImage TEXT
           )
         ''');
       },

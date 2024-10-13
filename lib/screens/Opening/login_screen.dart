@@ -10,6 +10,7 @@ import 'package:saludko/screens/widget/button.dart';
 import 'package:saludko/screens/widget/snackbar.dart';
 import 'package:saludko/screens/widget/textfield.dart';
 
+
 class MyLogin extends StatefulWidget {
   const MyLogin({super.key});
 
@@ -127,7 +128,7 @@ class _MyLoginState extends State<MyLogin> {
                 isPass: true,
                 icon: Icons.lock_rounded,
               ),
-              const Padding(
+              /*const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Align(
                   alignment: Alignment.centerRight,
@@ -139,7 +140,7 @@ class _MyLoginState extends State<MyLogin> {
                     ),
                   ),
                 ),
-              ),
+              ),*/
               const SizedBox(height: 20),
               MyButton(onTab: logInUser, text: "Login"),
               const SizedBox(height: 15),

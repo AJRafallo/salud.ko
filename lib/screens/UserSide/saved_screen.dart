@@ -81,6 +81,12 @@ class _SavedScreenState extends State<SavedScreen> {
                           itemCount: _bookmarkedProviders.length,
                           itemBuilder: (context, index) {
                             final provider = _bookmarkedProviders[index];
+                            var profileImageUrl = provider['profileImage'] ??
+                                ''; // Get provider's profile image URL, if available
+                            print('Provider: $provider'); // Debugging
+                            print(
+                                'Provider Image URL: $profileImageUrl'); // Debugging
+
                             return Container(
                               margin: const EdgeInsets.symmetric(vertical: 5),
                               decoration: BoxDecoration(
@@ -96,6 +102,22 @@ class _SavedScreenState extends State<SavedScreen> {
                                 ],
                               ),
                               child: ListTile(
+                                leading: CircleAvatar(
+                                  radius: 20,
+                                  backgroundImage: profileImageUrl.isNotEmpty
+                                      ? NetworkImage(profileImageUrl)
+                                      : const AssetImage(
+                                              'lib/assets/images/avatar.png')
+                                          as ImageProvider,
+                                  onBackgroundImageError: (error, stackTrace) {
+                                    print(
+                                        'Error loading image: $error'); // Log the error
+                                    setState(() {
+                                      profileImageUrl =
+                                          ''; // Reset to show the default avatar
+                                    });
+                                  },
+                                ),
                                 title: Text(
                                   provider['firstname'],
                                   style: const TextStyle(

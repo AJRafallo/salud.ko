@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saludko/screens/HospitalAdminSide/HAProfile.dart';
 import 'package:saludko/screens/HospitalAdminSide/HospitalAdProfile.dart';
 
 class AdminAppBar2 extends StatefulWidget {
@@ -46,7 +47,7 @@ class _AdminAppBar2State extends State<AdminAppBar2> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const HospitalAdProfile(),
+                  builder: (context) => const HospitalAdShowProfile(),
                 ),
               );
             },

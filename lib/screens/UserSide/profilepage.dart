@@ -1,11 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/Services/authentication.dart';
-import 'package:saludko/screens/Opening/login_screen.dart';
-import 'package:saludko/screens/widget/button.dart';
 import 'package:saludko/screens/widget/genderdropdown.dart';
 import 'dart:io';
 
@@ -31,6 +29,7 @@ class _ProfilePageState extends State<ProfilePage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController addressController = TextEditingController();
+  TextEditingController ageController = TextEditingController();
 
   String? profileImageUrl; // Variable to store profile image URL
   final currentUser = FirebaseAuth.instance.currentUser;
@@ -49,6 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
     emailController.dispose();
     phoneController.dispose();
     addressController.dispose();
+    ageController.dispose();
     super.dispose();
   }
 
@@ -155,6 +155,9 @@ class _ProfilePageState extends State<ProfilePage> {
           if (addressController.text.isEmpty) {
             addressController.text = user['Address'] ?? '';
           }
+          ageController.text = ageController.text.isEmpty
+              ? user['age']?.toString() ?? ''
+              : ageController.text;
 
           // Load existing profile image URL if available
           profileImageUrl = user['profileImage'] ?? '';
@@ -255,6 +258,26 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   const SizedBox(height: 10),
 
+// Age Field
+                  Text('Age', style: labelStyle), // Age label
+                  const SizedBox(height: 5),
+                  TextField(
+                    controller: ageController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 5.0, horizontal: 10.0), // Adjust padding
+                    ),
+                    keyboardType:
+                        TextInputType.number, // Allows only numeric input
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter
+                          .digitsOnly, // Restricts input to digits only
+                    ],
+                  ),
+                  const SizedBox(height: 10),
                   // Address Field
                   Text('Address', style: labelStyle),
                   const SizedBox(height: 5),
@@ -298,7 +321,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               'Address': addressController.text,
                               'gender': selectedGender,
                               'profileImage':
-                                  profileImageUrl // Save the profile image URL
+                                  profileImageUrl, // Save the profile image URL
+                              'age': ageController.text,
                             };
 
                             await FirebaseFirestore.instance
@@ -346,6 +370,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
 
+
                   const SizedBox(height: 10),
 
                   const Divider(
@@ -368,6 +393,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     },
                     text: "Logout",
                   ),
+
                 ],
               ),
             ),

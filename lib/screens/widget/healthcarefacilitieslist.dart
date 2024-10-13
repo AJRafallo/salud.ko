@@ -54,10 +54,9 @@ class _HealthcareFacilitiesState extends State<HealthcareFacilities> {
                     controller: _pageController,
                     itemCount: facilities.length,
                     itemBuilder: (context, index) {
-                      final facility =
-                          facilities[index].data() as Map<String, dynamic>;
-                      var profileImageUrl = facility['facility_image'] ??
-                          ''; // Get facility's profile image URL, if available
+
+                      final facility = facilities[index].data() as Map<String, dynamic>;
+                      var profileImageUrl = facility['profileImage'] ?? ''; // Get facility's profile image URL, if available
 
                       return GestureDetector(
                         onTap: () {

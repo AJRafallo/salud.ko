@@ -5,18 +5,18 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-import 'package:saludko/screens/widget/provmapscreen.dart';
+import 'package:saludko/screens/widget/mapscreen.dart';
 
-class ProviderDetailScreen extends StatefulWidget {
-  final Map<String, dynamic> provider;
+class HospitalAdDetailScreen extends StatefulWidget {
+  final Map<String, dynamic> facility;
 
-  const ProviderDetailScreen({super.key, required this.provider});
+  const HospitalAdDetailScreen({super.key, required this.facility});
 
   @override
-  _ProviderDetailScreenState createState() => _ProviderDetailScreenState();
+  _HospitalAdDetailScreenState createState() => _HospitalAdDetailScreenState();
 }
 
-class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
+class _HospitalAdDetailScreenState extends State<HospitalAdDetailScreen> {
   String? profileImageUrl;
   String? currentUserUid;
   String? currentUserRole;
@@ -24,7 +24,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
   @override
   void initState() {
     super.initState();
-    profileImageUrl = widget.provider['profileImage'];
+    profileImageUrl = widget.facility['profileImage'];
     _getCurrentUserUid();
   }
 
@@ -34,18 +34,21 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
       setState(() {
         currentUserUid = user.uid;
       });
+      // Fetch user role from Firestore
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('admins')
-          .doc(user.uid)
+          .doc(user.uid) // Replace with your collection and document structure
           .get();
       setState(() {
-        currentUserRole = userDoc['role'];
+        currentUserRole =
+            userDoc['role']; // Adjust based on your Firestore structure
       });
     }
   }
 
   Future<void> _uploadImage() async {
-    if (currentUserUid != widget.provider['uid']) {
+    // Check if the current user is authorized to upload the image
+    if (currentUserUid != widget.facility['uid']) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('You are not authorized to edit this profile.')),
@@ -60,14 +63,14 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
       if (image != null) {
         final storageRef = FirebaseStorage.instance
             .ref()
-            .child('provider_images/${widget.provider['uid']}.jpg');
+            .child('facility_images/${widget.facility['uid']}.jpg');
 
         await storageRef.putFile(File(image.path));
         profileImageUrl = await storageRef.getDownloadURL();
 
         await FirebaseFirestore.instance
-            .collection('healthcare_providers')
-            .doc(widget.provider['uid'])
+            .collection('hospital')
+            .doc(widget.facility['uid'])
             .update({'profileImage': profileImageUrl});
 
         setState(() {});
@@ -79,7 +82,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
     }
   }
 
-  Future<void> _deleteProvider() async {
+  Future<void> _deleteFacility() async {
+    // Show confirmation dialog
     bool? confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -88,11 +92,13 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
           content: const Text('Are you sure you want to delete this profile?'),
           actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
+              onPressed: () =>
+                  Navigator.of(context).pop(false), // User clicked No
               child: const Text('No'),
             ),
             TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
+              onPressed: () =>
+                  Navigator.of(context).pop(true), // User clicked Yes
               child: const Text('Yes'),
             ),
           ],
@@ -100,21 +106,23 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
       },
     );
 
+    // If the user confirmed the deletion, proceed
     if (confirm == true) {
       try {
         await FirebaseFirestore.instance
-            .collection('healthcare_providers')
-            .doc(widget.provider['uid'])
+            .collection('hospital')
+            .doc(widget.facility['uid'])
             .delete();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Provider deleted successfully.')),
+          const SnackBar(content: Text('Facility deleted successfully.')),
         );
 
+        // Navigate back or to a different screen after deletion
         Navigator.of(context).pop();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete provider: $e')),
+          SnackBar(content: Text('Failed to delete facility: $e')),
         );
       }
     }
@@ -130,7 +138,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
           child: Container(
             margin: const EdgeInsets.only(right: 16.0),
             child: const Text(
-              'Healthcare Provider Profile',
+              'Healthcare Facility Profile',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -151,7 +159,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(20, 50, 20, 50),
         child: Container(
           padding: const EdgeInsets.all(20.0),
           decoration: BoxDecoration(
@@ -180,6 +188,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                 ),
               ),
               const SizedBox(height: 20),
+
               Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
@@ -198,109 +207,102 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Center(
-                      child: Text(
-                        'Dr. ${widget.provider['firstname'] ?? '[No firstname provided]'} ${widget.provider['lastname'] ?? '[No lastname provided]'}',
-                        style: const TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A62B7),
-                          fontStyle: FontStyle.italic,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        '${widget.provider['specialization'] ?? '[No specialization provided]'}, ${widget.provider['workplace'] ?? '[No workplace provided]'}',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    const Text(
-                      'About',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      '${widget.provider['description'] ?? '[No description provided]'}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Doctor\'s Information',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Email: ${widget.provider['email'] ?? '[No email provided]'}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      'Phone: ${widget.provider['phone'] ?? '[No phone number provided]'}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      'Workplace: ${widget.provider['workplace'] ?? '[No workplace provided]'}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      'Address: ${widget.provider['Address'] ?? '[No address provided]'}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.black,
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () async {
-                        final String workplace =
-                            widget.provider['workplace'] ?? '';
-                        final GeoPoint? facilityLocation =
-                            await getFacilityLocation(workplace);
-
-                        if (facilityLocation != null) {
-                          final double latitude = facilityLocation.latitude;
-                          final double longitude = facilityLocation.longitude;
-
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => ProvMapScreen(
-                                latitude: latitude,
-                                longitude: longitude,
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              '${widget.facility['workplace']}',
+                              style: const TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
                               ),
+                              textAlign: TextAlign.center,
                             ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Facility location not found.')),
-                          );
-                        }
+                            Text(
+                              '${widget.facility['address']}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.black,
+                                fontStyle: FontStyle.italic,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'FACILITY INFORMATION',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                          child: Icon(
+                            Icons.email_rounded,
+                            size: 30,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          '${widget.facility['email']}',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                          child: Icon(
+                            Icons.call_rounded,
+                            size: 30,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Flexible(
+                          child: Text(
+                            '${widget.facility['phone']}',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+                    // Button to open MapScreen
+                    InkWell(
+                      onTap: () {
+                        // Extract latitude and longitude from the Firestore document
+                        final GeoPoint location = widget.facility['location'];
+                        final double latitude = location.latitude;
+                        final double longitude = location.longitude;
+
+                        // Navigate to MapScreen, passing the latitude and longitude
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => MapScreen(
+                              latitude: latitude,
+                              longitude: longitude, 
+                            ),
+                          ),
+                        );
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(20),
@@ -309,53 +311,49 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                           padding: const EdgeInsets.symmetric(
                               vertical: 12.0, horizontal: 20.0),
                           decoration: ShapeDecoration(
-                            color: Colors.blue,
+                            color: Colors.blue, // Button color
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                              borderRadius:
+                                  BorderRadius.circular(30), // Rounded corners
                             ),
                           ),
                           child: const Text(
                             'View on Map',
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.normal,
+                              fontSize: 15,
+                              color: Colors.white, // Text color
                             ),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    if (currentUserRole == 'admin') ...[
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: _deleteProvider,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                          ),
-                          child: const Text('Delete Profile'),
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
+              const SizedBox(height: 20),
+              // Delete button for admin users
+              if (currentUserRole ==
+                  'admin') // Adjust based on your role-checking logic
+                Center(
+                  child: ElevatedButton(
+                    onPressed: _deleteFacility,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Colors.red, // Change color to red for deletion
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12.0, horizontal: 30.0),
+                    ),
+                    child: const Text(
+                      'Delete Facility',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  Future<GeoPoint?> getFacilityLocation(String workplace) async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('hospital')
-        .where('workplace', isEqualTo: workplace)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      return querySnapshot.docs.first.get('location') as GeoPoint?;
-    }
-    return null;
   }
 }

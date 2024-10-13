@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saludko/screens/ProviderSide/PProfile.dart';
 import 'package:saludko/screens/ProviderSide/ProviderProfile.dart';
 
 class SaludkoProvAppBar extends StatelessWidget {
@@ -40,7 +41,7 @@ class SaludkoProvAppBar extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ProviderProfile(),
+                  builder: (context) => const ProviderShowProfile(),
                 ),
               );
             },
