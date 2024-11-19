@@ -75,8 +75,11 @@ flutter:
 
   assets:
     - lib/assets/images/avatar.png
-
-    
+    - lib/assets/images/salud.ko_logo.png
+    - lib/assets/images/ob1.png
+    - lib/assets/images/ob2.png
+    - lib/assets/images/ob3.png
+    - lib/assets/images/ob4.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

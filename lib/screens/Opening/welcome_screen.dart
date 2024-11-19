@@ -6,7 +6,6 @@ import 'package:saludko/screens/Opening/splash_screen.dart';
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -51,11 +50,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     fontStyle: FontStyle.italic,
                   ),
                 ),
-                const SizedBox(height: 150),
+                const SizedBox(height: 250),
                 ElevatedButton(
                   onPressed: () {
                     if (!mounted) {
-                      return; // Ensure the widget is still active before navigating
+                      return; 
                     }
                     Navigator.push(
                       context,
@@ -63,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
+                      backgroundColor: const Color(0xFF1A62B7),
                       fixedSize: const Size(300, 50)),
                   child: const Text(
                     'Login',
@@ -74,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ElevatedButton(
                     onPressed: () {
                       if (!mounted) {
-                        return; // Ensure the widget is still active before navigating
+                        return; 
                       }
                       Navigator.push(
                         context,
@@ -83,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
+                        backgroundColor: const Color(0xFF1A62B7),
                         fixedSize: const Size(300, 50)),
                     child: const Text(
                       'Signup',

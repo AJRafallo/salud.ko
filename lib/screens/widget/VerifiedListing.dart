@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:saludko/screens/ProviderSide/DetailsPage.dart';
-import 'package:saludko/screens/Services/databasehelper.dart'; // Import the DatabaseHelper
+import 'package:saludko/screens/Services/databasehelper.dart';
 
 class VerifiedProvidersWidget extends StatefulWidget {
   const VerifiedProvidersWidget({super.key});
@@ -13,16 +13,15 @@ class VerifiedProvidersWidget extends StatefulWidget {
 
 class _VerifiedProvidersWidgetState extends State<VerifiedProvidersWidget> {
   final DatabaseHelper _dbHelper =
-      DatabaseHelper(); // Initialize DatabaseHelper
-  Set<String> _bookmarkedProviders = {}; // Track bookmarked providers
+      DatabaseHelper(); 
+  Set<String> _bookmarkedProviders = {}; 
 
   @override
   void initState() {
     super.initState();
-    _loadBookmarkedProviders(); // Load bookmarks from SQLite on initialization
+    _loadBookmarkedProviders(); 
   }
 
-  // Load the bookmarked providers from SQLite
   Future<void> _loadBookmarkedProviders() async {
     final bookmarks = await _dbHelper.getBookmarks();
     setState(() {
@@ -30,7 +29,6 @@ class _VerifiedProvidersWidgetState extends State<VerifiedProvidersWidget> {
     });
   }
 
-  // Toggle bookmark state and store/remove in/from SQLite
   Future<void> _toggleBookmark(
       String providerId, Map<String, dynamic> providerData) async {
     if (_bookmarkedProviders.contains(providerId)) {
@@ -39,13 +37,14 @@ class _VerifiedProvidersWidgetState extends State<VerifiedProvidersWidget> {
       await _dbHelper.addBookmark({
       'id': providerId,
       'firstname': providerData['firstname'],
-      'lastname': providerData['lastname'], // Include lastname
+      'lastname': providerData['lastname'], 
       'email': providerData['email'],
-      'specialization': providerData['specialization'], // Include specialization
-      'description': providerData['description'], // Include description
-      'phone': providerData['phone'], // Include phone if needed
-      'workplace': providerData['workplace'], // Include workplace if needed
-      'Address': providerData['Address'], // Include Address if needed
+      'specialization': providerData['specialization'],
+      'description': providerData['description'], 
+      'phone': providerData['phone'], 
+      'workplace': providerData['workplace'], 
+      'Address': providerData['Address'], 
+      'profileImage': providerData['profileImage'],
     });
     }
     setState(() {
@@ -87,9 +86,9 @@ class _VerifiedProvidersWidgetState extends State<VerifiedProvidersWidget> {
               itemBuilder: (context, index) {
                 final provider =
                     providers[index].data() as Map<String, dynamic>;
-                final providerId = providers[index].id; // Get provider ID
+                final providerId = providers[index].id; 
                 var profileImageUrl = provider['profileImage'] ??
-                    ''; // Get provider's profile image URL, if available
+                    ''; 
 
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 5.0),
@@ -113,15 +112,14 @@ class _VerifiedProvidersWidgetState extends State<VerifiedProvidersWidget> {
                           : const AssetImage('lib/assets/images/avatar.png')
                               as ImageProvider,
                       onBackgroundImageError: (_, __) {
-                        // Fallback to default avatar if there's an error loading the image
                         setState(() {
                           profileImageUrl =
-                              ''; // Reset to show the default avatar
+                              ''; 
                         });
                       },
                     ),
                     title: Text(
-                      provider['firstname'],
+                      "Dr. ${provider['firstname']}",
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
