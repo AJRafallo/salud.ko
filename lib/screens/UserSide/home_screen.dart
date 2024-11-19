@@ -111,7 +111,7 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
             homeScreen,
             SavedScreen(
                 userData: userData,
-                userId: currentUser.uid), // Pass userData to SavedScreen
+                userId: currentUser.uid,), // Pass userData to SavedScreen
             const RecordsScreen(),
             const HotlinesScreen(),
           ];

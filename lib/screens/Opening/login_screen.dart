@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/AdminSide/VerificationPage.dart';
+import 'package:saludko/screens/AdminSide/AdminHomepage.dart';
 import 'package:saludko/screens/HospitalAdminSide/HospitalAdHomepage.dart';
 import 'package:saludko/screens/ProviderSide/ProviderHomepage.dart';
 import 'package:saludko/screens/ProviderSide/ProviderVerificationStatusPage.dart';
@@ -70,7 +70,7 @@ class _MyLoginState extends State<MyLogin> {
       // Navigate to the admin's home screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const AdminDashboard(),
+          builder: (context) => const AdminHomepage(),
         ),
       );
     } else if (role == "hospital_admin") {
@@ -89,20 +89,6 @@ class _MyLoginState extends State<MyLogin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              'salud.ko',
-              style: TextStyle(
-                fontSize: 15,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
-        ),
-      ),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SizedBox(
@@ -128,19 +114,6 @@ class _MyLoginState extends State<MyLogin> {
                 isPass: true,
                 icon: Icons.lock_rounded,
               ),
-              /*const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    "Forgot Password?",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),*/
               const SizedBox(height: 20),
               MyButton(onTab: logInUser, text: "Login"),
               const SizedBox(height: 15),

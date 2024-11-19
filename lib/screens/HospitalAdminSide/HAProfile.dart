@@ -28,14 +28,6 @@ class _HospitalAdShowProfileState extends State<HospitalAdShowProfile> {
     fontStyle: FontStyle.italic,
   );
 
-  String? selectedGender;
-  TextEditingController firstNameController = TextEditingController();
-  TextEditingController middleNameController = TextEditingController();
-  TextEditingController lastNameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
-  TextEditingController workplaceController = TextEditingController();
 
   String? profileImageUrl; // Variable to store profile image URL
   final currentUser = FirebaseAuth.instance.currentUser;
@@ -46,17 +38,6 @@ class _HospitalAdShowProfileState extends State<HospitalAdShowProfile> {
     // This is where you can initialize any values if necessary
   }
 
-  @override
-  void dispose() {
-    firstNameController.dispose();
-    middleNameController.dispose();
-    lastNameController.dispose();
-    emailController.dispose();
-    phoneController.dispose();
-    addressController.dispose();
-    workplaceController.dispose();
-    super.dispose();
-  }
 
   Future<void> _uploadImage() async {
     try {
@@ -142,37 +123,9 @@ class _HospitalAdShowProfileState extends State<HospitalAdShowProfile> {
 
           final facility = snapshot.data!.data() as Map<String, dynamic>;
 
-          // Initialize the controllers only if they are not already set
-          if (firstNameController.text.isEmpty) {
-            firstNameController.text = facility['firstname'] ?? '';
-          }
-          if (middleNameController.text.isEmpty) {
-            middleNameController.text = facility['middlename'] ?? '';
-          }
-          if (lastNameController.text.isEmpty) {
-            lastNameController.text = facility['lastname'] ?? '';
-          }
-          if (emailController.text.isEmpty) {
-            emailController.text = facility['email'] ?? '';
-          }
-          if (phoneController.text.isEmpty) {
-            phoneController.text = facility['phone'] ?? '';
-          }
-          if (addressController.text.isEmpty) {
-            addressController.text = facility['address'] ?? '';
-          }
-          if (workplaceController.text.isEmpty) {
-            workplaceController.text = facility['workplace'] ?? '';
-          }
-
-          // Load existing profile image URL if available
           profileImageUrl = facility['profileImage'] ?? '';
 
-          // Ensure selectedGender is set correctly only if it's not set
-          selectedGender ??=
-              (facility['gender'] == 'Male' || facility['gender'] == 'Female')
-                  ? facility['gender']
-                  : null;
+
 
           return SingleChildScrollView(
             child: Padding(
