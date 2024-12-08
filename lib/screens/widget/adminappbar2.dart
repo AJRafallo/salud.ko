@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/HospitalAdminSide/HAProfile.dart';
-import 'package:saludko/screens/HospitalAdminSide/HospitalAdProfile.dart';
 
 class AdminAppBar2 extends StatefulWidget {
   const AdminAppBar2({super.key});

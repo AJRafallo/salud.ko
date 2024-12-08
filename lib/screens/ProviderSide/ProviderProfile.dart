@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
-import 'package:saludko/screens/Services/authentication.dart';
-import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:saludko/screens/widget/button.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:saludko/screens/widget/genderdropdown.dart';
-import 'package:saludko/screens/widget/provmapscreen.dart';
 
 class ProviderProfile extends StatefulWidget {
   const ProviderProfile({super.key});
@@ -153,7 +149,6 @@ class _ProviderProfileState extends State<ProviderProfile> {
               ? provider['firstname'] ?? ''
               : firstNameController.text;
 
-
           middleNameController.text = middleNameController.text.isEmpty
               ? provider['middlename'] ?? ''
               : middleNameController.text;
@@ -193,7 +188,6 @@ class _ProviderProfileState extends State<ProviderProfile> {
           specializationController.text = specializationController.text.isEmpty
               ? provider['specialization']?.toString() ?? ''
               : specializationController.text;
-
 
           // Load existing profile image URL if available
           profileImageUrl = provider['profileImage'] ?? '';

@@ -110,8 +110,9 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
           final List<Widget> screens = [
             homeScreen,
             SavedScreen(
-                userData: userData,
-                userId: currentUser.uid,), // Pass userData to SavedScreen
+              userData: userData,
+              userId: currentUser.uid,
+            ), // Pass userData to SavedScreen
             const RecordsScreen(),
             const HotlinesScreen(),
           ];
