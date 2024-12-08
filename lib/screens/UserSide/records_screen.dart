@@ -13,9 +13,9 @@ class RecordsScreen extends StatefulWidget {
 }
 
 class _RecordsScreenState extends State<RecordsScreen> {
-  String _selectedPage = "Overview"; // Default to "Overview"
+  String _selectedPage = "Overview";
 
-  // This method will return the selected content based on the current tab
+  // return the selected content based on the current tab
   Widget _getSelectedPage() {
     switch (_selectedPage) {
       case "Medicine Reminders":
@@ -45,10 +45,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
             ),
           ),
           SliverFillRemaining(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: _getSelectedPage(),
-            ),
+            child: _getSelectedPage(),
           ),
         ],
       ),

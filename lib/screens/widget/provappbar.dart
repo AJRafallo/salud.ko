@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/ProviderSide/PProfile.dart';
-import 'package:saludko/screens/ProviderSide/ProviderProfile.dart';
 
 class SaludkoProvAppBar extends StatelessWidget {
   final Map<String, dynamic> provider;
