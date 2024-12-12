@@ -7,16 +7,24 @@ class Onboarding3 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Image(
-                image: AssetImage('lib/assets/images/ob3.png'),
+              SizedBox(
+                height: screenHeight * 0.35, // Adjust image height dynamically
+                child: const Image(
+                  image: AssetImage('lib/assets/images/ob3.png'),
+                  fit: BoxFit.contain,
+                ),
               ),
+              const SizedBox(height: 20),
               const Text(
                 "MANAGE YOUR MEDICAL RECORDS",
                 style: TextStyle(
@@ -38,13 +46,14 @@ class Onboarding3 extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               buildDotsIndicator(2),
-              const SizedBox(height: 50),
+              const SizedBox(
+                  height: 30), // Reduce spacing to fit content better
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   TextButton(
                     onPressed: () {
-                      // Navigate to the last page (get started)
+                      // Navigate to the previous page
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -79,7 +88,10 @@ class Onboarding3 extends StatelessWidget {
                         borderRadius: BorderRadius.all(
                             Radius.circular(25)), // Optional: Rounded corners
                       ),
-                      padding: const EdgeInsets.fromLTRB(70, 10, 70, 10),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.2, // Adjust button width
+                        vertical: 10, // Keep vertical padding fixed
+                      ),
                       child: const Text(
                         'Continue',
                         style: TextStyle(
