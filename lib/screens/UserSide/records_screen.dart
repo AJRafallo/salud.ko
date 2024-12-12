@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/widget/records_tab_bar.dart';
+import 'package:saludko/screens/widget/MedicalFiles/records_tab_bar.dart';
 import 'package:saludko/screens/UserSide/records_overview_page.dart';
 import 'package:saludko/screens/UserSide/medicine_reminders_page.dart';
 import 'package:saludko/screens/UserSide/medical.dart';
