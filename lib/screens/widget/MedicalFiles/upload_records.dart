@@ -20,7 +20,7 @@ class _UploadWidgetState extends State<UploadWidget> {
   final ImagePicker _picker = ImagePicker();
   bool isUploading = false;
 
-  // Pick a document (logic only)
+  // Pick a document
   Future<void> _pickDocument() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -39,7 +39,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // Pick media (logic only)
+  // Pick media
   Future<void> _pickMedia(ImageSource source) async {
     try {
       final XFile? media = await _picker.pickImage(source: source);
@@ -55,7 +55,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // Capture photo (logic only)
+  // Capture photo
   Future<void> _takePhoto() async {
     try {
       final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
@@ -71,7 +71,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // Scan document (logic only)
+  // Scan document
   Future<void> _scanDocument() async {
     try {
       final XFile? scannedDoc =
@@ -88,7 +88,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // Delete the selected file (logic calls UI method to show dialog)
+  // Delete the selected file
   Future<void> _deleteFile() async {
     UploadWidgetUI.showDeleteDialog(
       context: context,
@@ -101,7 +101,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     );
   }
 
-  // Upload file to Firebase (logic only, UI for snackbars called via UI file)
+  // Upload file to Firebase
   Future<void> _uploadFileToFirebase(String folderId, String folderName) async {
     if (selectedFile == null) return;
 
@@ -155,7 +155,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // Show folder selection dialog (logic only, UI in separate file)
+  // Show folder selection dialog (for moving the file)
   Future<void> _showFolderSelectionDialog() async {
     final userId = FirebaseAuth.instance.currentUser!.uid;
     final foldersSnapshot = await FirebaseFirestore.instance
@@ -170,7 +170,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
 
     final otherFolders = foldersSnapshot.docs
-        .where((doc) => doc['name'] != "All Files")
+        .where((doc) => doc.data()['name'] != "All Files")
         .toList();
 
     UploadWidgetUI.showFolderSelectionDialog(
@@ -182,7 +182,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     );
   }
 
-  // Show upload options dialog (logic only, UI in separate file)
+  // Show upload options dialog
   void _showUploadOptions() {
     UploadWidgetUI.showUploadOptionsDialog(
       context: context,
@@ -190,6 +190,56 @@ class _UploadWidgetState extends State<UploadWidget> {
       onPickDocument: _pickDocument,
       onTakePhoto: _takePhoto,
       onScanDocument: _scanDocument,
+    );
+  }
+
+  // When a menu action (Rename, Move, Delete) is selected
+  void _onFileMenuSelected(String choice) {
+    switch (choice) {
+      case 'rename':
+        _showRenameDialog();
+        break;
+      case 'move':
+        _showFolderSelectionDialog();
+        break;
+      case 'delete':
+        _deleteFile();
+        break;
+    }
+  }
+
+  // Show dialog to rename the file
+  void _showRenameDialog() {
+    final controller = TextEditingController(text: displayText);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Rename File'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(labelText: 'New Name'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newName = controller.text.trim();
+                if (newName.isNotEmpty) {
+                  setState(() {
+                    displayText = newName;
+                  });
+                }
+                Navigator.pop(context);
+              },
+              child: const Text("Rename"),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -202,6 +252,7 @@ class _UploadWidgetState extends State<UploadWidget> {
       onUploadOrAddPressed: selectedFile == null
           ? _showUploadOptions
           : _showFolderSelectionDialog,
+      onFileMenuSelected: _onFileMenuSelected,
     );
   }
 }

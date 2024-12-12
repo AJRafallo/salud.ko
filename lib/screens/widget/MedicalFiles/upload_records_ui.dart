@@ -6,14 +6,16 @@ class UploadWidgetUI extends StatelessWidget {
   final String? displayText;
   final VoidCallback onDeleteFile;
   final VoidCallback onUploadOrAddPressed;
+  final void Function(String choice) onFileMenuSelected;
 
   const UploadWidgetUI({
-    super.key,
+    Key? key,
     required this.isFileSelected,
     required this.displayText,
     required this.onDeleteFile,
     required this.onUploadOrAddPressed,
-  });
+    required this.onFileMenuSelected,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,32 +31,55 @@ class UploadWidgetUI extends StatelessWidget {
         children: [
           Flexible(
             flex: 3,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 0),
-              child: Row(
-                children: [
-                  if (isFileSelected)
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      color: const Color(0xFFDB0000),
-                      onPressed: onDeleteFile,
-                      padding: const EdgeInsets.all(0),
-                      constraints: const BoxConstraints(),
-                    ),
-                  Expanded(
-                    child: Text(
-                      displayText ?? "Got Medical Records?\nUpload them Here",
-                      style: const TextStyle(
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+            child: Row(
+              children: [
+                if (isFileSelected)
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    color: const Color(0xFFDB0000),
+                    onPressed: onDeleteFile,
+                    padding: const EdgeInsets.all(0),
+                    constraints: const BoxConstraints(),
                   ),
-                ],
-              ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          displayText ??
+                              "Got Medical Records?\nUpload them Here",
+                          style: const TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (isFileSelected)
+                        PopupMenuButton<String>(
+                          onSelected: onFileMenuSelected,
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'rename',
+                              child: Text('Rename'),
+                            ),
+                            const PopupMenuItem(
+                              value: 'move',
+                              child: Text('Move'),
+                            ),
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Delete'),
+                            ),
+                          ],
+                          icon: const Icon(Icons.more_vert),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 16),
@@ -79,7 +104,6 @@ class UploadWidgetUI extends StatelessWidget {
     );
   }
 
-  // Static helper method to show Delete Confirmation Dialog
   static void showDeleteDialog({
     required BuildContext context,
     required VoidCallback onConfirmDelete,
@@ -172,7 +196,6 @@ class UploadWidgetUI extends StatelessWidget {
     );
   }
 
-  // Static method to show Folder Selection Dialog
   static void showFolderSelectionDialog({
     required BuildContext context,
     required List<QueryDocumentSnapshot> folders,
@@ -208,7 +231,6 @@ class UploadWidgetUI extends StatelessWidget {
     );
   }
 
-  // Static method to show the Upload Options Dialog
   static void showUploadOptionsDialog({
     required BuildContext context,
     required VoidCallback onPickMedia,
@@ -292,7 +314,6 @@ class UploadWidgetUI extends StatelessWidget {
     );
   }
 
-  // Static method to show a SnackBar
   static void showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
