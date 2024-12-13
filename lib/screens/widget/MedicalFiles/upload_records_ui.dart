@@ -9,13 +9,13 @@ class UploadWidgetUI extends StatelessWidget {
   final void Function(String choice) onFileMenuSelected;
 
   const UploadWidgetUI({
-    Key? key,
+    super.key,
     required this.isFileSelected,
     required this.displayText,
     required this.onDeleteFile,
     required this.onUploadOrAddPressed,
     required this.onFileMenuSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

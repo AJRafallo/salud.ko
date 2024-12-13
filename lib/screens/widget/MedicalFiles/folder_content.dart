@@ -15,17 +15,29 @@ class FolderContentPage extends StatelessWidget {
     required this.folderId,
   });
 
-  // Get current user (non-null because the user must be logged in)
   User get currentUser => FirebaseAuth.instance.currentUser!;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(folderName),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        centerTitle: true,
+        title: Text(
+          folderName,
+          style:
+              const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        ),
         actions: [
           if (isDeletable)
             PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: Colors.black),
               onSelected: (value) {
                 if (value == 'edit') {
                   _showEditFolderDialog(context);
@@ -86,26 +98,12 @@ class FolderContentPage extends StatelessWidget {
               return ListTile(
                 title: Text(fileName),
                 subtitle: Text(file['uploadedAt'].toDate().toString()),
-                leading: const Icon(Icons.file_present),
+                leading: const Icon(Icons.file_present, color: Colors.black),
                 onTap: () =>
                     _openFile(context, file.data() as Map<String, dynamic>),
-                trailing: PopupMenuButton<String>(
-                  onSelected: (choice) =>
-                      _onFileMenuSelected(context, file, choice),
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'rename',
-                      child: Text('Rename'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'move',
-                      child: Text('Move'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: Text('Delete'),
-                    ),
-                  ],
+                trailing: IconButton(
+                  icon: const Icon(Icons.more_horiz, color: Colors.black),
+                  onPressed: () => _showFileActionsBottomSheet(context, file),
                 ),
               );
             },
@@ -115,7 +113,6 @@ class FolderContentPage extends StatelessWidget {
     );
   }
 
-  // Opens the file: if image, show in new screen; else attempt to launch URL
   void _openFile(BuildContext context, Map<String, dynamic> fileData) {
     final filePath = fileData['filePath'] as String?;
     final fileName = fileData['name'] as String? ?? 'Unnamed';
@@ -124,12 +121,25 @@ class FolderContentPage extends StatelessWidget {
 
     final extension = fileName.split('.').last.toLowerCase();
     if (['png', 'jpg', 'jpeg', 'gif'].contains(extension)) {
-      // Show image in a new page
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => Scaffold(
-            appBar: AppBar(title: Text(fileName)),
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.chevron_left, color: Colors.black),
+                onPressed: () => Navigator.pop(context),
+              ),
+              centerTitle: true,
+              title: Text(
+                fileName,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.black),
+              ),
+            ),
             body: Center(
               child: Image.network(filePath),
             ),
@@ -137,7 +147,6 @@ class FolderContentPage extends StatelessWidget {
         ),
       );
     } else {
-      // Try launching the file in browser or other external application
       _launchURL(context, filePath);
     }
   }
@@ -152,51 +161,182 @@ class FolderContentPage extends StatelessWidget {
     }
   }
 
-  void _onFileMenuSelected(
-      BuildContext context, QueryDocumentSnapshot file, String choice) {
-    final fileId = file.id;
+  void _showFileActionsBottomSheet(
+      BuildContext context, QueryDocumentSnapshot file) {
     final fileData = file.data() as Map<String, dynamic>;
     final fileName = fileData['name'] as String? ?? 'Unnamed';
+    final fileIcon = _getFileIcon(fileName);
 
-    switch (choice) {
-      case 'rename':
-        _showRenameDialog(context, fileId, fileName);
-        break;
-      case 'move':
-        _moveFile(context, fileId, fileData);
-        break;
-      case 'delete':
-        _deleteFile(context, fileId);
-        break;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(fileIcon, color: Colors.black),
+                      const SizedBox(width: 10),
+                      Text(
+                        fileName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(Icons.close, color: Colors.black),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Divider(thickness: 0.5, color: Colors.black54, height: 0),
+            const SizedBox(height: 10),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+              leading: const Icon(Icons.edit, color: Colors.black),
+              title: const Text('Rename',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+              onTap: () {
+                Navigator.pop(context);
+                _showRenameDialog(context, file.id, fileName);
+              },
+            ),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+              leading: const Icon(Icons.folder_open, color: Colors.black),
+              title: const Text('Move',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+              onTap: () {
+                Navigator.pop(context);
+                _moveFile(context, file.id, fileData, fileName);
+              },
+            ),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+              leading: const Icon(Icons.delete, color: Colors.black),
+              title: const Text('Delete',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteFileDialog(context, file.id, fileName);
+              },
+            ),
+            const SizedBox(height: 20),
+          ],
+        );
+      },
+    );
+  }
+
+  IconData _getFileIcon(String fileName) {
+    final extension = fileName.split('.').last.toLowerCase();
+    if (['png', 'jpg', 'jpeg', 'gif'].contains(extension)) {
+      return Icons.image;
+    } else {
+      return Icons.insert_drive_file;
     }
   }
 
-  // Show dialog to rename the file
   void _showRenameDialog(BuildContext context, String fileId, String oldName) {
     final controller = TextEditingController(text: oldName);
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Rename File'),
-          content: TextField(
-            controller: controller,
-            decoration: const InputDecoration(labelText: 'New Name'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
+          backgroundColor: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          title: const Center(
+            child: Text(
+              "Rename File",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                final newName = controller.text.trim();
-                if (newName.isNotEmpty) {
-                  await _renameFile(fileId, newName);
-                }
-                Navigator.pop(context);
-              },
-              child: const Text("Rename"),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD9D9D9),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: TextField(
+                  controller: controller,
+                  decoration: const InputDecoration(
+                    hintText: "New Name",
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actionsPadding:
+              const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 15),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFF1A62B7)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                        color: Color(0xFF1A62B7),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(width: 15),
+                ElevatedButton(
+                  onPressed: () async {
+                    final newName = controller.text.trim();
+                    if (newName.isNotEmpty) {
+                      await _renameFile(fileId, newName);
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1A62B7),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 25, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text(
+                    "Rename",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
             ),
           ],
         );
@@ -215,9 +355,8 @@ class FolderContentPage extends StatelessWidget {
         .update({'name': newName});
   }
 
-  // Move file to another folder
-  Future<void> _moveFile(BuildContext context, String fileId,
-      Map<String, dynamic> fileData) async {
+  void _moveFile(BuildContext context, String fileId,
+      Map<String, dynamic> fileData, String fileName) async {
     final userId = currentUser.uid;
     final foldersSnapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -235,42 +374,23 @@ class FolderContentPage extends StatelessWidget {
       return;
     }
 
-    // Show dialog to select folder
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Move File to Folder"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: otherFolders.map((doc) {
-              final folderData = doc.data();
-              final targetFolderName =
-                  folderData['name'] as String? ?? 'Unnamed';
-              return ListTile(
-                title: Text(targetFolderName),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _moveFileToFolder(fileId, fileData, doc.id);
-                },
-              );
-            }).toList(),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-          ],
-        );
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SelectFolderDestinationPage(
+          folders: otherFolders,
+          onFolderSelected: (targetFolderId) async {
+            await _moveFileToFolder(fileId, fileData, targetFolderId);
+            Navigator.pop(context); // Go back after moving the file
+          },
+        ),
+      ),
     );
   }
 
   Future<void> _moveFileToFolder(String fileId, Map<String, dynamic> fileData,
       String targetFolderId) async {
     final userId = currentUser.uid;
-    // Add file to the target folder
     await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -279,7 +399,6 @@ class FolderContentPage extends StatelessWidget {
         .collection('files')
         .add(fileData);
 
-    // Delete file from the current folder
     await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -290,15 +409,15 @@ class FolderContentPage extends StatelessWidget {
         .delete();
   }
 
-  // Delete file from current folder
-  Future<void> _deleteFile(BuildContext context, String fileId) async {
+  void _showDeleteFileDialog(
+      BuildContext context, String fileId, String fileName) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+          backgroundColor: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           title: const Center(
@@ -307,16 +426,25 @@ class FolderContentPage extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          content: const Column(
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: 5),
-              Text(
+              const SizedBox(height: 5),
+              const Text(
                 "Are you sure you want to delete this file?",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: Colors.black),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
+              Text(
+                "$fileName will be deleted forever.",
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.black54,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
             ],
           ),
           actions: [
@@ -327,30 +455,23 @@ class FolderContentPage extends StatelessWidget {
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    side: const BorderSide(
-                      color: Color(0xFF1A62B7),
-                    ),
+                    side: const BorderSide(color: Color(0xFF1A62B7)),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
-                      vertical: 10,
-                    ),
+                        horizontal: 30, vertical: 10),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                   child: const Text(
                     "Cancel",
                     style: TextStyle(
-                      color: Color(0xFF1A62B7),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        color: Color(0xFF1A62B7),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () async {
-                    // Delete from Firestore
                     await FirebaseFirestore.instance
                         .collection('users')
                         .doc(currentUser.uid)
@@ -365,20 +486,16 @@ class FolderContentPage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFDB0000),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 35,
-                      vertical: 10,
-                    ),
+                        horizontal: 35, vertical: 10),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                   child: const Text(
                     "Delete",
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -394,9 +511,9 @@ class FolderContentPage extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+          backgroundColor: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           title: const Center(
@@ -434,24 +551,18 @@ class FolderContentPage extends StatelessWidget {
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    side: const BorderSide(
-                      color: Color(0xFF1A62B7),
-                    ),
+                    side: const BorderSide(color: Color(0xFF1A62B7)),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
+                        horizontal: 20, vertical: 10),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                   child: const Text(
                     "Cancel",
                     style: TextStyle(
-                      color: Color(0xFF1A62B7),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        color: Color(0xFF1A62B7),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -463,27 +574,22 @@ class FolderContentPage extends StatelessWidget {
                         .collection('folders')
                         .doc(folderId)
                         .delete();
-
                     Navigator.pop(context); // Close dialog
                     Navigator.pop(context); // Return to previous screen
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFDB0000),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 25,
-                      vertical: 10,
-                    ),
+                        horizontal: 25, vertical: 10),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                   child: const Text(
                     "Delete",
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -501,9 +607,9 @@ class FolderContentPage extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+          backgroundColor: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           title: const Center(
             child: Text(
               "Edit Folder",
@@ -531,12 +637,8 @@ class FolderContentPage extends StatelessWidget {
               ),
             ],
           ),
-          actionsPadding: const EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 10,
-            bottom: 15,
-          ),
+          actionsPadding:
+              const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 15),
           actions: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -547,24 +649,18 @@ class FolderContentPage extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      side: const BorderSide(
-                        color: Color(0xFF1A62B7),
-                      ),
+                      side: const BorderSide(color: Color(0xFF1A62B7)),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
+                          horizontal: 20, vertical: 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                     child: const Text(
                       "Cancel",
                       style: TextStyle(
-                        color: Color(0xFF1A62B7),
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
+                          color: Color(0xFF1A62B7),
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                   const SizedBox(width: 15),
@@ -585,20 +681,16 @@ class FolderContentPage extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1A62B7),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 25,
-                        vertical: 10,
-                      ),
+                          horizontal: 25, vertical: 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                     child: const Text(
                       "Save",
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -607,6 +699,68 @@ class FolderContentPage extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+// Select Folder Destination
+class SelectFolderDestinationPage extends StatelessWidget {
+  final List<QueryDocumentSnapshot> folders;
+  final Future<void> Function(String folderId) onFolderSelected;
+
+  const SelectFolderDestinationPage({
+    super.key,
+    required this.folders,
+    required this.onFolderSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: const Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Icon(Icons.close, color: Colors.black),
+          ),
+        ),
+        centerTitle: false,
+        titleSpacing: 0,
+        title: const Text(
+          "Select Folder Destination",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        ),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 15),
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.only(bottom: 10),
+              itemCount: folders.length,
+              itemBuilder: (context, index) {
+                final folder = folders[index];
+                final folderData = folder.data() as Map<String, dynamic>;
+                final folderName = folderData['name'] as String? ?? 'Unnamed';
+
+                return ListTile(
+                  title: Text(folderName),
+                  leading: const Icon(Icons.folder, color: Color(0xFF1A62B7)),
+                  onTap: () async {
+                    await onFolderSelected(folder.id);
+                  },
+                );
+              },
+              separatorBuilder: (context, index) => const SizedBox(height: 15),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

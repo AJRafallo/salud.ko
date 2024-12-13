@@ -85,11 +85,10 @@ class Onboarding3 extends StatelessWidget {
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
-                        borderRadius: BorderRadius.all(
-                            Radius.circular(25)), // Optional: Rounded corners
+                        borderRadius: BorderRadius.all(Radius.circular(25)),
                       ),
                       padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.2, // Adjust button width
+                        horizontal: screenWidth * 0.2,
                         vertical: 10, // Keep vertical padding fixed
                       ),
                       child: const Text(
