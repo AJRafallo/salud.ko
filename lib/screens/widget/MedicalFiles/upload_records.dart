@@ -20,7 +20,7 @@ class _UploadWidgetState extends State<UploadWidget> {
   final ImagePicker _picker = ImagePicker();
   bool isUploading = false;
 
-  // Pick a document
+  // Pick document
   Future<void> _pickDocument() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -118,7 +118,7 @@ class _UploadWidgetState extends State<UploadWidget> {
 
       final downloadUrl = await storageRef.getDownloadURL();
 
-      // Save file metadata to Firestore
+      // Save file metadata to the chosen folder
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
@@ -131,13 +131,12 @@ class _UploadWidgetState extends State<UploadWidget> {
         'uploadedAt': Timestamp.now(),
       });
 
-      // Upload to "All Files"
-      final allFilesFolder = FirebaseFirestore.instance
+      // Also add file to all_files collection
+      await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
-          .collection('folders')
-          .doc('all_files');
-      await allFilesFolder.collection('files').add({
+          .collection('all_files')
+          .add({
         'name': fileName,
         'filePath': downloadUrl,
         'uploadedAt': Timestamp.now(),
@@ -155,7 +154,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // Show folder selection dialog (for moving the file)
+  // Show folder selection dialog
   Future<void> _showFolderSelectionDialog() async {
     final userId = FirebaseAuth.instance.currentUser!.uid;
     final foldersSnapshot = await FirebaseFirestore.instance
@@ -169,9 +168,7 @@ class _UploadWidgetState extends State<UploadWidget> {
       return;
     }
 
-    final otherFolders = foldersSnapshot.docs
-        .where((doc) => doc.data()['name'] != "All Files")
-        .toList();
+    final otherFolders = foldersSnapshot.docs.toList();
 
     UploadWidgetUI.showFolderSelectionDialog(
       context: context,

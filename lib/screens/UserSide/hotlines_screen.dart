@@ -307,7 +307,7 @@ class Hotline {
 final List<Hotline> hotlines = [
   Hotline(
     name: "ONE HOSPITAL COMMAND",
-    numbers: ["+63 961 7272688", "+63 911 1234567"],
+    numbers: ["+63 961 7272688", "+63 977 2780385"],
   ),
   Hotline(
     name: "BICOL MEDICAL CENTER",
