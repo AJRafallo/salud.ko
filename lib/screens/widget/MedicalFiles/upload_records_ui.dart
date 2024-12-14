@@ -9,22 +9,62 @@ class UploadWidgetUI extends StatelessWidget {
   final void Function(String choice) onFileMenuSelected;
 
   const UploadWidgetUI({
-    super.key,
+    Key? key,
     required this.isFileSelected,
     required this.displayText,
     required this.onDeleteFile,
     required this.onUploadOrAddPressed,
     required this.onFileMenuSelected,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
+    Widget textWidget;
+    if (!isFileSelected) {
+      // No file selected
+      // "Got Medical Records?" bold and "Upload them Here" lighter, two lines
+      textWidget = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Got Medical Records?",
+            style: TextStyle(
+              fontSize: 14.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          Text(
+            "Upload them Here",
+            style: TextStyle(
+              fontSize: 14.0,
+              fontWeight: FontWeight.w300, // lighter
+              color: Colors.black,
+            ),
+          ),
+        ],
+      );
+    } else {
+      // File selected, show file name truncated
+      textWidget = Text(
+        displayText ?? '',
+        style: TextStyle(
+          fontSize: 14.0,
+          fontWeight: FontWeight.w500,
+          color: Colors.black,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
     return Container(
-      color: const Color(0xFFD1DBE1),
+      color: Color(0xFFD1DBE1),
       width: screenWidth,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -35,66 +75,28 @@ class UploadWidgetUI extends StatelessWidget {
               children: [
                 if (isFileSelected)
                   IconButton(
-                    icon: const Icon(Icons.close),
-                    color: const Color(0xFFDB0000),
+                    icon: Icon(Icons.close),
+                    color: Color(0xFFDB0000),
                     onPressed: onDeleteFile,
-                    padding: const EdgeInsets.all(0),
-                    constraints: const BoxConstraints(),
+                    padding: EdgeInsets.all(0),
+                    constraints: BoxConstraints(),
                   ),
-                Expanded(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          displayText ??
-                              "Got Medical Records?\nUpload them Here",
-                          style: const TextStyle(
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (isFileSelected)
-                        PopupMenuButton<String>(
-                          onSelected: onFileMenuSelected,
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'rename',
-                              child: Text('Rename'),
-                            ),
-                            const PopupMenuItem(
-                              value: 'move',
-                              child: Text('Move'),
-                            ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Text('Delete'),
-                            ),
-                          ],
-                          icon: const Icon(Icons.more_vert),
-                        ),
-                    ],
-                  ),
-                ),
+                Expanded(child: textWidget),
               ],
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           ElevatedButton.icon(
             onPressed: onUploadOrAddPressed,
-            icon: const Icon(Icons.upload, color: Colors.white, size: 16.0),
+            icon: Icon(Icons.upload, color: Colors.white, size: 16.0),
             label: Text(
               isFileSelected ? "Upload to Folders" : "Add Health Records",
-              style: const TextStyle(color: Colors.white, fontSize: 14.0),
+              style: TextStyle(color: Colors.white, fontSize: 14.0),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2555FF),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-              shape: const RoundedRectangleBorder(
+              backgroundColor: Color(0xFF2555FF),
+              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.zero,
               ),
             ),
@@ -115,15 +117,14 @@ class UploadWidgetUI extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          title: const Center(
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          title: Center(
             child: Text(
               "Delete File",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          content: const Column(
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(height: 5),
@@ -143,10 +144,10 @@ class UploadWidgetUI extends StatelessWidget {
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    side: const BorderSide(
+                    side: BorderSide(
                       color: Color(0xFF1A62B7),
                     ),
-                    padding: const EdgeInsets.symmetric(
+                    padding: EdgeInsets.symmetric(
                       horizontal: 30,
                       vertical: 10,
                     ),
@@ -154,7 +155,7 @@ class UploadWidgetUI extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     "Cancel",
                     style: TextStyle(
                       color: Color(0xFF1A62B7),
@@ -163,15 +164,15 @@ class UploadWidgetUI extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 20),
+                SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context);
                     onConfirmDelete();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFDB0000),
-                    padding: const EdgeInsets.symmetric(
+                    backgroundColor: Color(0xFFDB0000),
+                    padding: EdgeInsets.symmetric(
                       horizontal: 35,
                       vertical: 10,
                     ),
@@ -179,7 +180,7 @@ class UploadWidgetUI extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     "Delete",
                     style: TextStyle(
                       color: Colors.white,
@@ -201,31 +202,83 @@ class UploadWidgetUI extends StatelessWidget {
     required List<QueryDocumentSnapshot> folders,
     required void Function(String folderId, String folderName) onFolderSelected,
   }) {
-    showDialog(
+    // Instead of AlertDialog, show a bottom sheet styled similarly to file action popups
+    showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      isScrollControlled: true, // allow bottom sheet to use available space
       builder: (context) {
-        return AlertDialog(
-          title: const Text("Upload to Folder"),
-          content: Column(
+        return SafeArea(
+          top: false,
+          child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: folders.map((doc) {
-              final folderData = doc.data() as Map<String, dynamic>;
-              final folderName = folderData['name'] as String? ?? 'Unnamed';
-              return ListTile(
-                title: Text(folderName),
-                onTap: () {
-                  Navigator.pop(context);
-                  onFolderSelected(doc.id, folderName);
-                },
-              );
-            }).toList(),
+            children: [
+              // Header
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: Row(
+                  children: [
+                    Icon(Icons.upload, color: Colors.black),
+                    SizedBox(width: 10),
+                    Text(
+                      "Upload to which folder?",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Spacer(),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Icon(Icons.close, color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Divider(
+                thickness: 0.5,
+                color: Colors.black.withOpacity(0.2),
+                height: 0,
+              ),
+              SizedBox(height: 5),
+              // Use a ListView to handle variable number of folders and prevent overflow
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: BouncingScrollPhysics(),
+                  padding: EdgeInsets.only(bottom: 10),
+                  itemCount: folders.length,
+                  itemBuilder: (context, index) {
+                    final doc = folders[index];
+                    final folderData = doc.data() as Map<String, dynamic>;
+                    final folderName =
+                        folderData['name'] as String? ?? 'Unnamed';
+
+                    return ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                      leading: Icon(Icons.folder, color: Color(0xFF1A62B7)),
+                      title: Text(
+                        folderName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        onFolderSelected(doc.id, folderName);
+                      },
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 10),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-          ],
         );
       },
     );
@@ -248,45 +301,44 @@ class UploadWidgetUI extends StatelessWidget {
           child: Stack(
             children: [
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SizedBox(height: 20),
-                    const Text(
+                    SizedBox(height: 20),
+                    Text(
                       'Upload Options',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     ListTile(
-                      leading: const Icon(Icons.photo),
-                      title: const Text('Browse Photos/Videos'),
+                      leading: Icon(Icons.photo),
+                      title: Text('Browse Photos/Videos'),
                       onTap: () {
                         Navigator.pop(context);
                         onPickMedia();
                       },
                     ),
                     ListTile(
-                      leading: const Icon(Icons.file_copy),
-                      title: const Text('Browse Documents'),
+                      leading: Icon(Icons.file_copy),
+                      title: Text('Browse Documents'),
                       onTap: () {
                         Navigator.pop(context);
                         onPickDocument();
                       },
                     ),
                     ListTile(
-                      leading: const Icon(Icons.camera_alt),
-                      title: const Text('Take a Photo'),
+                      leading: Icon(Icons.camera_alt),
+                      title: Text('Take a Photo'),
                       onTap: () {
                         Navigator.pop(context);
                         onTakePhoto();
                       },
                     ),
                     ListTile(
-                      leading: const Icon(Icons.scanner),
-                      title: const Text('Scan a Document'),
+                      leading: Icon(Icons.scanner),
+                      title: Text('Scan a Document'),
                       onTap: () {
                         Navigator.pop(context);
                         onScanDocument();
@@ -300,7 +352,7 @@ class UploadWidgetUI extends StatelessWidget {
                 right: 20,
                 child: GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: const Icon(
+                  child: Icon(
                     Icons.close,
                     color: Colors.grey,
                     size: 24,
