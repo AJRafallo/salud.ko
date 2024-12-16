@@ -61,7 +61,7 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
       final allFolders =
           snapshot.docs.map((doc) => {"id": doc.id, ...doc.data()}).toList();
 
-      // Separate "All Files" and other folders explicitly
+      // Separate "All Files" and other folders
       Map<String, dynamic>? allFilesFolder;
       final otherFolders = <Map<String, dynamic>>[];
 

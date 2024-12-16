@@ -31,7 +31,7 @@ class FolderContentPage extends StatelessWidget {
         body: _buildFolderFilesStream(userId, folderId!),
       );
     } else {
-      // "All Files": we must combine all folder files into one view
+      // Combine all folder files into one view (to see in All Files)
       return Scaffold(
         backgroundColor: Colors.white,
         appBar: _buildAppBar(context),
@@ -58,7 +58,7 @@ class FolderContentPage extends StatelessWidget {
               );
             }
 
-            // Build a stream that combines all folders' files
+            // stream that combines all folders' files
             return StreamBuilder<List<Map<String, dynamic>>>(
               stream: _combineAllFolderFiles(userId, folders),
               builder: (context, snapshot) {
@@ -80,7 +80,6 @@ class FolderContentPage extends StatelessWidget {
                   );
                 }
 
-                // Sort by uploadedAt descending
                 allFiles.sort((a, b) {
                   final aTime = a['uploadedAt'] as Timestamp;
                   final bTime = b['uploadedAt'] as Timestamp;
@@ -234,7 +233,7 @@ class FolderContentPage extends StatelessWidget {
     }).toList();
 
     // Combine all folder file lists into one list
-    // We'll use combineLatest to combine all folder streams into one
+    // use combineLatest to combine all folder streams into one
     return Rx.combineLatest<List<Map<String, dynamic>>,
         List<Map<String, dynamic>>>(
       folderFileStreams,
@@ -480,11 +479,9 @@ class FolderContentPage extends StatelessWidget {
   Future<void> _renameFile(
       Map<String, dynamic> fileData, String newName) async {
     final userId = currentUser.uid;
-    final fId =
-        fileData['folderId'] as String; // original folderId from file data
+    final fId = fileData['folderId'] as String;
     final filePath = fileData['filePath'];
 
-    // Update in original folder
     final fileDoc = await _getFileDocByPath(userId, fId, filePath);
     if (fileDoc != null) {
       await fileDoc.reference.update({'name': newName});
@@ -861,7 +858,6 @@ class FolderContentPage extends StatelessWidget {
   }
 }
 
-// The SelectFolderDestinationPage remains the same as previously implemented
 class SelectFolderDestinationPage extends StatelessWidget {
   final List<QueryDocumentSnapshot> folders;
   final Future<void> Function(String folderId) onFolderSelected;

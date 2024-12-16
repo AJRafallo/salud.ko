@@ -23,8 +23,6 @@ class UploadWidgetUI extends StatelessWidget {
 
     Widget textWidget;
     if (!isFileSelected) {
-      // No file selected
-      // "Got Medical Records?" bold and "Upload them Here" lighter, two lines
       textWidget = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -41,14 +39,14 @@ class UploadWidgetUI extends StatelessWidget {
             "Upload them Here",
             style: TextStyle(
               fontSize: 14.0,
-              fontWeight: FontWeight.w300, // lighter
+              fontWeight: FontWeight.w300,
               color: Colors.black,
             ),
           ),
         ],
       );
     } else {
-      // File selected, show file name truncated
+      // File selected
       textWidget = Text(
         displayText ?? '',
         style: TextStyle(
@@ -202,21 +200,19 @@ class UploadWidgetUI extends StatelessWidget {
     required List<QueryDocumentSnapshot> folders,
     required void Function(String folderId, String folderName) onFolderSelected,
   }) {
-    // Instead of AlertDialog, show a bottom sheet styled similarly to file action popups
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      isScrollControlled: true, // allow bottom sheet to use available space
+      isScrollControlled: true,
       builder: (context) {
         return SafeArea(
           top: false,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Header
               Padding(
                 padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
                 child: Row(
@@ -245,7 +241,7 @@ class UploadWidgetUI extends StatelessWidget {
                 height: 0,
               ),
               SizedBox(height: 5),
-              // Use a ListView to handle variable number of folders and prevent overflow
+              // ListView to handle number of folders and prevent overflow
               Flexible(
                 child: ListView.builder(
                   shrinkWrap: true,
