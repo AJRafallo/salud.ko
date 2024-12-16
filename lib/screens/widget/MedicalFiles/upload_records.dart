@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:io'; // File handling
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -88,7 +88,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // Delete the selected file
+  // Delete selected file
   Future<void> _deleteFile() async {
     UploadWidgetUI.showDeleteDialog(
       context: context,
@@ -179,7 +179,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     );
   }
 
-  // Show upload options dialog
+  // Show upload options
   void _showUploadOptions() {
     UploadWidgetUI.showUploadOptionsDialog(
       context: context,
@@ -205,7 +205,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // Show dialog to rename the file
+  // Show dialog to rename file
   void _showRenameDialog() {
     final controller = TextEditingController(text: displayText);
     showDialog(
