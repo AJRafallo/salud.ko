@@ -47,6 +47,13 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
         "createdAt": Timestamp.now(),
       });
     }
+
+    // Optionally, create an 'Uncategorized' folder
+    await userFolders.add({
+      "name": "Uncategorized",
+      "isDefault": true,
+      "createdAt": Timestamp.now(),
+    });
   }
 
   // Fetch and sort folders from Firestore

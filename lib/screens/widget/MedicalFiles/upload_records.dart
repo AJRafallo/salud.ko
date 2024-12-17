@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:saludko/screens/widget/MedicalFiles/upload_records_ui.dart';
+import 'upload_records_ui.dart';
 
 class UploadWidget extends StatefulWidget {
   const UploadWidget({super.key});
@@ -36,6 +36,7 @@ class _UploadWidgetState extends State<UploadWidget> {
       }
     } catch (e) {
       print("Error picking document: $e");
+      UploadWidgetUI.showSnackBar(context, 'Error picking document.');
     }
   }
 
@@ -52,6 +53,7 @@ class _UploadWidgetState extends State<UploadWidget> {
       }
     } catch (e) {
       print("Error picking media: $e");
+      UploadWidgetUI.showSnackBar(context, 'Error picking media.');
     }
   }
 
@@ -68,6 +70,7 @@ class _UploadWidgetState extends State<UploadWidget> {
       }
     } catch (e) {
       print("Error taking photo: $e");
+      UploadWidgetUI.showSnackBar(context, 'Error taking photo.');
     }
   }
 
@@ -85,20 +88,29 @@ class _UploadWidgetState extends State<UploadWidget> {
       }
     } catch (e) {
       print("Error scanning document: $e");
+      UploadWidgetUI.showSnackBar(context, 'Error scanning document.');
     }
   }
 
-  // Delete selected file
+  // Delete the selected file
   Future<void> _deleteFile() async {
-    UploadWidgetUI.showDeleteDialog(
-      context: context,
-      onConfirmDelete: () {
-        setState(() {
-          selectedFile = null;
-          displayText = "Got Medical Records?\nUpload them Here";
-        });
-      },
-    );
+    if (selectedFile != null) {
+      String fileName = selectedFile!.path.split('/').last;
+      UploadWidgetUI.showDeleteDialog(
+        context: context,
+        fileName: fileName,
+        onConfirmDelete: () {
+          setState(() {
+            selectedFile = null;
+            displayText = "Got Medical Records?\nUpload them Here";
+          });
+          UploadWidgetUI.showSnackBar(
+              context, 'File "$fileName" deleted successfully.');
+        },
+      );
+    } else {
+      UploadWidgetUI.showSnackBar(context, 'No file selected to delete.');
+    }
   }
 
   // Upload file to Firebase
@@ -106,6 +118,10 @@ class _UploadWidgetState extends State<UploadWidget> {
     if (selectedFile == null) return;
 
     try {
+      setState(() {
+        isUploading = true;
+      });
+
       final userId = FirebaseAuth.instance.currentUser!.uid;
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final fileName = selectedFile!.path.split('/').last;
@@ -118,20 +134,7 @@ class _UploadWidgetState extends State<UploadWidget> {
 
       final downloadUrl = await storageRef.getDownloadURL();
 
-      // Save file metadata to the chosen folder
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('folders')
-          .doc(folderId)
-          .collection('files')
-          .add({
-        'name': fileName,
-        'filePath': downloadUrl,
-        'uploadedAt': Timestamp.now(),
-      });
-
-      // Also add file to all_files collection
+      // Save file metadata to the all_files collection
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
@@ -140,6 +143,7 @@ class _UploadWidgetState extends State<UploadWidget> {
         'name': fileName,
         'filePath': downloadUrl,
         'uploadedAt': Timestamp.now(),
+        'folderId': folderId,
       });
 
       UploadWidgetUI.showSnackBar(
@@ -147,10 +151,14 @@ class _UploadWidgetState extends State<UploadWidget> {
       setState(() {
         selectedFile = null;
         displayText = "Got Medical Records?\nUpload them Here";
+        isUploading = false;
       });
     } catch (e) {
       print("Error uploading file: $e");
       UploadWidgetUI.showSnackBar(context, 'Failed to upload file.');
+      setState(() {
+        isUploading = false;
+      });
     }
   }
 
@@ -163,16 +171,18 @@ class _UploadWidgetState extends State<UploadWidget> {
         .collection('folders')
         .get();
 
-    if (foldersSnapshot.docs.isEmpty) {
+    final folders = foldersSnapshot.docs
+        .where((doc) => doc['name'] != 'All Files') // Exclude "All Files"
+        .toList();
+
+    if (folders.isEmpty) {
       UploadWidgetUI.showSnackBar(context, 'No folders available.');
       return;
     }
 
-    final otherFolders = foldersSnapshot.docs.toList();
-
     UploadWidgetUI.showFolderSelectionDialog(
       context: context,
-      folders: otherFolders,
+      folders: folders,
       onFolderSelected: (folderId, folderName) {
         _uploadFileToFirebase(folderId, folderName);
       },
@@ -190,56 +200,6 @@ class _UploadWidgetState extends State<UploadWidget> {
     );
   }
 
-  // When a menu action (Rename, Move, Delete) is selected
-  void _onFileMenuSelected(String choice) {
-    switch (choice) {
-      case 'rename':
-        _showRenameDialog();
-        break;
-      case 'move':
-        _showFolderSelectionDialog();
-        break;
-      case 'delete':
-        _deleteFile();
-        break;
-    }
-  }
-
-  // Show dialog to rename file
-  void _showRenameDialog() {
-    final controller = TextEditingController(text: displayText);
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Rename File'),
-          content: TextField(
-            controller: controller,
-            decoration: const InputDecoration(labelText: 'New Name'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final newName = controller.text.trim();
-                if (newName.isNotEmpty) {
-                  setState(() {
-                    displayText = newName;
-                  });
-                }
-                Navigator.pop(context);
-              },
-              child: const Text("Rename"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return UploadWidgetUI(
@@ -249,7 +209,7 @@ class _UploadWidgetState extends State<UploadWidget> {
       onUploadOrAddPressed: selectedFile == null
           ? _showUploadOptions
           : _showFolderSelectionDialog,
-      onFileMenuSelected: _onFileMenuSelected,
+      onFileMenuSelected: (String choice) {},
     );
   }
 }
