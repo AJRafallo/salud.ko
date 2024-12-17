@@ -1,3 +1,5 @@
+// lib/screens/widget/MedicalFiles/medical.dart
+
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/widget/MedicalFiles/upload_records.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,6 +15,7 @@ class MedicalFilesPage extends StatefulWidget {
 
 class _MedicalFilesPageState extends State<MedicalFilesPage> {
   final user = FirebaseAuth.instance.currentUser;
+  bool isUploading = false;
 
   final List<Map<String, dynamic>> defaultFolders = [
     {"name": "All Files"},
@@ -206,6 +209,63 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
     );
   }
 
+  // Navigate to folder content
+  void _navigateToFolder(BuildContext context, String folderName,
+      bool isDeletable, String folderId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FolderContentPage(
+          folderName: folderName,
+          isDeletable: isDeletable,
+          folderId: folderId,
+        ),
+      ),
+    );
+  }
+
+  // Folders UI
+  Widget _buildFolder({
+    required BuildContext context,
+    required String label,
+    required VoidCallback onTap,
+    IconData icon = Icons.folder,
+    bool isCreateFolder = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFDEEDFF),
+          border: Border.all(color: const Color(0xFF9ECBFF), width: 1.5),
+          borderRadius: BorderRadius.circular(4.0),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 25.0,
+              color: isCreateFolder
+                  ? const Color(0xFF2555FF)
+                  : const Color(0xFF555555),
+            ),
+            const SizedBox(height: 6.0),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13.0,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF555555),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (user == null) {
@@ -261,67 +321,30 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
                   },
                 ),
               ),
-              const UploadWidget(),
+              // Pass the upload callbacks to UploadWidget
+              UploadWidget(
+                onStartUpload: () {
+                  setState(() {
+                    isUploading = true;
+                  });
+                },
+                onEndUpload: () {
+                  setState(() {
+                    isUploading = false;
+                  });
+                },
+              ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  // Navigate to folder content
-  void _navigateToFolder(BuildContext context, String folderName,
-      bool isDeletable, String folderId) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FolderContentPage(
-          folderName: folderName,
-          isDeletable: isDeletable,
-          folderId: folderId,
-        ),
-      ),
-    );
-  }
-
-  // Folders UI
-  Widget _buildFolder({
-    required BuildContext context,
-    required String label,
-    required VoidCallback onTap,
-    IconData icon = Icons.folder,
-    bool isCreateFolder = false,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFDEEDFF),
-          border: Border.all(color: const Color(0xFF9ECBFF), width: 1.5),
-          borderRadius: BorderRadius.circular(4.0),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 25.0,
-              color: isCreateFolder
-                  ? const Color(0xFF2555FF)
-                  : const Color(0xFF555555),
-            ),
-            const SizedBox(height: 6.0),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 13.0,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF555555),
+          if (isUploading)
+            // Overlay the progress indicator
+            Container(
+              color: Colors.black54,
+              child: const Center(
+                child: CircularProgressIndicator(),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

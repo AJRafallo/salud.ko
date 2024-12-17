@@ -1,9 +1,10 @@
+// lib/screens/widget/MedicalFiles/folder_content.dart
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:saludko/screens/widget/MedicalFiles/upload_records_ui.dart';
-// import 'package:rxdart/rxdart.dart';
+import 'package:saludko/screens/widget/MedicalFiles/file_viewer.dart'; // Import the viewer
 
 class FolderContentPage extends StatelessWidget {
   final String folderName;
@@ -114,7 +115,7 @@ class FolderContentPage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 12),
               ),
-              leading: const Icon(Icons.file_present, color: Colors.black),
+              leading: _getFileIcon(fileName),
               onTap: () => _openFile(context, fileData),
               trailing: IconButton(
                 icon: const Icon(Icons.more_horiz, color: Colors.black),
@@ -171,7 +172,7 @@ class FolderContentPage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: Text(fileData['uploadedAt'].toDate().toString()),
-              leading: const Icon(Icons.file_present, color: Colors.black),
+              leading: _getFileIcon(fileName),
               onTap: () => _openFile(context, fileData),
               trailing: IconButton(
                 icon: const Icon(Icons.more_horiz, color: Colors.black),
@@ -186,54 +187,40 @@ class FolderContentPage extends StatelessWidget {
     );
   }
 
+  Icon _getFileIcon(String fileName) {
+    final extension = fileName.split('.').last.toLowerCase();
+    IconData iconData;
+
+    if (['png', 'jpg', 'jpeg', 'gif'].contains(extension)) {
+      iconData = Icons.image;
+    } else if (['pdf'].contains(extension)) {
+      iconData = Icons.picture_as_pdf;
+    } else if (['doc', 'docx'].contains(extension)) {
+      iconData = Icons.description;
+    } else if (['txt'].contains(extension)) {
+      iconData = Icons.text_snippet;
+    } else {
+      iconData = Icons.insert_drive_file;
+    }
+
+    return Icon(iconData, color: Colors.black);
+  }
+
   void _openFile(BuildContext context, Map<String, dynamic> fileData) {
     final filePath = fileData['filePath'] as String?;
     final fileName = fileData['name'] as String? ?? 'Unnamed';
 
     if (filePath == null) return;
 
-    final extension = fileName.split('.').last.toLowerCase();
-    if (['png', 'jpg', 'jpeg', 'gif'].contains(extension)) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              leading: IconButton(
-                icon: const Icon(Icons.chevron_left, color: Colors.black),
-                onPressed: () => Navigator.pop(context),
-              ),
-              centerTitle: true,
-              title: Text(
-                fileName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.black),
-              ),
-            ),
-            body: Center(
-              child: Image.network(filePath),
-            ),
-          ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FileViewerPage(
+          fileUrl: filePath,
+          fileName: fileName,
         ),
-      );
-    } else {
-      _launchURL(context, filePath);
-    }
-  }
-
-  Future<void> _launchURL(BuildContext context, String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Could not open file.')));
-    }
+      ),
+    );
   }
 
   void _showFileActionsBottomSheet(
@@ -256,7 +243,7 @@ class FolderContentPage extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: Row(
                 children: [
-                  Icon(fileIcon, color: Colors.black),
+                  fileIcon,
                   const SizedBox(width: 10),
                   Expanded(
                     // Ensures the text does not overflow
@@ -319,15 +306,6 @@ class FolderContentPage extends StatelessWidget {
         );
       },
     );
-  }
-
-  IconData _getFileIcon(String fileName) {
-    final extension = fileName.split('.').last.toLowerCase();
-    if (['png', 'jpg', 'jpeg', 'gif'].contains(extension)) {
-      return Icons.image;
-    } else {
-      return Icons.insert_drive_file;
-    }
   }
 
   void _showRenameDialog(BuildContext context, Map<String, dynamic> fileData) {

@@ -8,7 +8,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'upload_records_ui.dart';
 
 class UploadWidget extends StatefulWidget {
-  const UploadWidget({super.key});
+  final VoidCallback onStartUpload;
+  final VoidCallback onEndUpload;
+
+  const UploadWidget({
+    super.key,
+    required this.onStartUpload,
+    required this.onEndUpload,
+  });
 
   @override
   _UploadWidgetState createState() => _UploadWidgetState();
@@ -18,7 +25,7 @@ class _UploadWidgetState extends State<UploadWidget> {
   File? selectedFile;
   String? displayText = "Got Medical Records?\nUpload them Here";
   final ImagePicker _picker = ImagePicker();
-  bool isUploading = false;
+  double uploadProgress = 0.0;
 
   // Pick document
   Future<void> _pickDocument() async {
@@ -113,28 +120,40 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // Upload file to Firebase
+  // Upload file to Firebase with progress
   Future<void> _uploadFileToFirebase(String folderId, String folderName) async {
     if (selectedFile == null) return;
 
     try {
-      setState(() {
-        isUploading = true;
-      });
+      widget.onStartUpload(); // Notify parent to show progress indicator
 
       final userId = FirebaseAuth.instance.currentUser!.uid;
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final fileName = selectedFile!.path.split('/').last;
 
-      // Upload to Firebase Storage
+      // Reference to Firebase Storage
       final storageRef = FirebaseStorage.instance
           .ref()
           .child('users/$userId/$folderName/$timestamp-$fileName');
-      await storageRef.putFile(selectedFile!);
+
+      // Start the upload task
+      UploadTask uploadTask = storageRef.putFile(selectedFile!);
+
+      // Listen to progress changes
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        double progress =
+            snapshot.bytesTransferred / snapshot.totalBytes.toDouble();
+        setState(() {
+          uploadProgress = progress;
+        });
+      });
+
+      // Await completion
+      await uploadTask;
 
       final downloadUrl = await storageRef.getDownloadURL();
 
-      // Save file metadata to the all_files collection
+      // Save file metadata to Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
@@ -151,15 +170,29 @@ class _UploadWidgetState extends State<UploadWidget> {
       setState(() {
         selectedFile = null;
         displayText = "Got Medical Records?\nUpload them Here";
-        isUploading = false;
+        uploadProgress = 0.0;
       });
+
+      widget.onEndUpload(); // Notify parent to hide progress indicator
     } catch (e) {
       print("Error uploading file: $e");
       UploadWidgetUI.showSnackBar(context, 'Failed to upload file.');
       setState(() {
-        isUploading = false;
+        uploadProgress = 0.0;
       });
+      widget.onEndUpload(); // Notify parent to hide progress indicator
     }
+  }
+
+  // Show upload options
+  void _showUploadOptions() {
+    UploadWidgetUI.showUploadOptionsDialog(
+      context: context,
+      onPickMedia: () => _pickMedia(ImageSource.gallery),
+      onPickDocument: _pickDocument,
+      onTakePhoto: _takePhoto,
+      onScanDocument: _scanDocument,
+    );
   }
 
   // Show folder selection dialog
@@ -186,17 +219,6 @@ class _UploadWidgetState extends State<UploadWidget> {
       onFolderSelected: (folderId, folderName) {
         _uploadFileToFirebase(folderId, folderName);
       },
-    );
-  }
-
-  // Show upload options
-  void _showUploadOptions() {
-    UploadWidgetUI.showUploadOptionsDialog(
-      context: context,
-      onPickMedia: () => _pickMedia(ImageSource.gallery),
-      onPickDocument: _pickDocument,
-      onTakePhoto: _takePhoto,
-      onScanDocument: _scanDocument,
     );
   }
 
