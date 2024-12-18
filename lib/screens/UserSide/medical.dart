@@ -13,6 +13,7 @@ class MedicalFilesPage extends StatefulWidget {
 
 class _MedicalFilesPageState extends State<MedicalFilesPage> {
   final user = FirebaseAuth.instance.currentUser;
+  bool isUploading = false;
 
   final List<Map<String, dynamic>> defaultFolders = [
     {"name": "All Files"},
@@ -30,7 +31,6 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
     }
   }
 
-  // Ensure default folders exist
   Future<void> _setupDefaultFolders(String userId) async {
     final userFolders = FirebaseFirestore.instance
         .collection('users')
@@ -48,7 +48,6 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
       });
     }
 
-    // Optionally, create an 'Uncategorized' folder
     await userFolders.add({
       "name": "Uncategorized",
       "isDefault": true,
@@ -56,7 +55,6 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
     });
   }
 
-  // Fetch and sort folders from Firestore
   Stream<List<Map<String, dynamic>>> _getUserFolders(String userId) {
     return FirebaseFirestore.instance
         .collection('users')
@@ -64,11 +62,9 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
         .collection('folders')
         .snapshots()
         .map((snapshot) {
-      // Convert Firestore documents to a list of maps
       final allFolders =
           snapshot.docs.map((doc) => {"id": doc.id, ...doc.data()}).toList();
 
-      // Separate "All Files" and other folders
       Map<String, dynamic>? allFilesFolder;
       final otherFolders = <Map<String, dynamic>>[];
 
@@ -80,14 +76,12 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
         }
       }
 
-      // Sort the remaining folders
       otherFolders.sort((a, b) {
         final aTime = a["createdAt"] as Timestamp;
         final bTime = b["createdAt"] as Timestamp;
         return aTime.compareTo(bTime);
       });
 
-      // Ensure "All Files" is at the beginning
       if (allFilesFolder != null) {
         return [allFilesFolder, ...otherFolders];
       } else {
@@ -96,7 +90,6 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
     });
   }
 
-  // Create New Folder
   Future<void> _showCreateFolderDialog(String userId) async {
     final TextEditingController folderNameController = TextEditingController();
 
@@ -206,6 +199,61 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
     );
   }
 
+  void _navigateToFolder(BuildContext context, String folderName,
+      bool isDeletable, String folderId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FolderContentPage(
+          folderName: folderName,
+          isDeletable: isDeletable,
+          folderId: folderId,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFolder({
+    required BuildContext context,
+    required String label,
+    required VoidCallback onTap,
+    IconData icon = Icons.folder,
+    bool isCreateFolder = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFDEEDFF),
+          border: Border.all(color: const Color(0xFF9ECBFF), width: 1.5),
+          borderRadius: BorderRadius.circular(4.0),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 25.0,
+              color: isCreateFolder
+                  ? const Color(0xFF2555FF)
+                  : const Color(0xFF555555),
+            ),
+            const SizedBox(height: 6.0),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13.0,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF555555),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (user == null) {
@@ -261,67 +309,28 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
                   },
                 ),
               ),
-              const UploadWidget(),
+              UploadWidget(
+                onStartUpload: () {
+                  setState(() {
+                    isUploading = true;
+                  });
+                },
+                onEndUpload: () {
+                  setState(() {
+                    isUploading = false;
+                  });
+                },
+              ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  // Navigate to folder content
-  void _navigateToFolder(BuildContext context, String folderName,
-      bool isDeletable, String folderId) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FolderContentPage(
-          folderName: folderName,
-          isDeletable: isDeletable,
-          folderId: folderId,
-        ),
-      ),
-    );
-  }
-
-  // Folders UI
-  Widget _buildFolder({
-    required BuildContext context,
-    required String label,
-    required VoidCallback onTap,
-    IconData icon = Icons.folder,
-    bool isCreateFolder = false,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFDEEDFF),
-          border: Border.all(color: const Color(0xFF9ECBFF), width: 1.5),
-          borderRadius: BorderRadius.circular(4.0),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 25.0,
-              color: isCreateFolder
-                  ? const Color(0xFF2555FF)
-                  : const Color(0xFF555555),
-            ),
-            const SizedBox(height: 6.0),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 13.0,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF555555),
+          if (isUploading)
+            const Positioned.fill(
+              child: Align(
+                alignment: Alignment.center,
+                child: CircularProgressIndicator(),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
