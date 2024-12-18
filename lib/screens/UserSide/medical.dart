@@ -1,5 +1,3 @@
-// lib/screens/widget/MedicalFiles/medical.dart
-
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/widget/MedicalFiles/upload_records.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -33,7 +31,6 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
     }
   }
 
-  // Ensure default folders exist
   Future<void> _setupDefaultFolders(String userId) async {
     final userFolders = FirebaseFirestore.instance
         .collection('users')
@@ -51,7 +48,6 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
       });
     }
 
-    // Optionally, create an 'Uncategorized' folder
     await userFolders.add({
       "name": "Uncategorized",
       "isDefault": true,
@@ -59,7 +55,6 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
     });
   }
 
-  // Fetch and sort folders from Firestore
   Stream<List<Map<String, dynamic>>> _getUserFolders(String userId) {
     return FirebaseFirestore.instance
         .collection('users')
@@ -67,11 +62,9 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
         .collection('folders')
         .snapshots()
         .map((snapshot) {
-      // Convert Firestore documents to a list of maps
       final allFolders =
           snapshot.docs.map((doc) => {"id": doc.id, ...doc.data()}).toList();
 
-      // Separate "All Files" and other folders
       Map<String, dynamic>? allFilesFolder;
       final otherFolders = <Map<String, dynamic>>[];
 
@@ -83,14 +76,12 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
         }
       }
 
-      // Sort the remaining folders
       otherFolders.sort((a, b) {
         final aTime = a["createdAt"] as Timestamp;
         final bTime = b["createdAt"] as Timestamp;
         return aTime.compareTo(bTime);
       });
 
-      // Ensure "All Files" is at the beginning
       if (allFilesFolder != null) {
         return [allFilesFolder, ...otherFolders];
       } else {
@@ -99,7 +90,6 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
     });
   }
 
-  // Create New Folder
   Future<void> _showCreateFolderDialog(String userId) async {
     final TextEditingController folderNameController = TextEditingController();
 
@@ -209,7 +199,6 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
     );
   }
 
-  // Navigate to folder content
   void _navigateToFolder(BuildContext context, String folderName,
       bool isDeletable, String folderId) {
     Navigator.push(
@@ -224,7 +213,6 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
     );
   }
 
-  // Folders UI
   Widget _buildFolder({
     required BuildContext context,
     required String label,
@@ -321,7 +309,6 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
                   },
                 ),
               ),
-              // Pass the upload callbacks to UploadWidget
               UploadWidget(
                 onStartUpload: () {
                   setState(() {
@@ -337,10 +324,9 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
             ],
           ),
           if (isUploading)
-            // Overlay the progress indicator
-            Container(
-              color: Colors.black54,
-              child: const Center(
+            const Positioned.fill(
+              child: Align(
+                alignment: Alignment.center,
                 child: CircularProgressIndicator(),
               ),
             ),

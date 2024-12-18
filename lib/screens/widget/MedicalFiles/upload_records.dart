@@ -125,7 +125,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     if (selectedFile == null) return;
 
     try {
-      widget.onStartUpload(); // Notify parent to show progress indicator
+      widget.onStartUpload();
 
       final userId = FirebaseAuth.instance.currentUser!.uid;
       final timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -173,14 +173,14 @@ class _UploadWidgetState extends State<UploadWidget> {
         uploadProgress = 0.0;
       });
 
-      widget.onEndUpload(); // Notify parent to hide progress indicator
+      widget.onEndUpload();
     } catch (e) {
       print("Error uploading file: $e");
       UploadWidgetUI.showSnackBar(context, 'Failed to upload file.');
       setState(() {
         uploadProgress = 0.0;
       });
-      widget.onEndUpload(); // Notify parent to hide progress indicator
+      widget.onEndUpload();
     }
   }
 

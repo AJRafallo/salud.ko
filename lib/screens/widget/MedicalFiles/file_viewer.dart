@@ -1,5 +1,3 @@
-// lib/screens/widget/MedicalFiles/file_viewer.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
@@ -12,10 +10,10 @@ class FileViewerPage extends StatefulWidget {
   final String fileName;
 
   const FileViewerPage({
-    Key? key,
+    super.key,
     required this.fileUrl,
     required this.fileName,
-  }) : super(key: key);
+  });
 
   @override
   _FileViewerPageState createState() => _FileViewerPageState();
@@ -73,6 +71,14 @@ class _FileViewerPageState extends State<FileViewerPage> {
       );
     }
 
+    // Automatically open DOC/DOCX files directly
+    if (['doc', 'docx'].contains(extension)) {
+      OpenFile.open(localPath);
+      return const Scaffold(
+        body: Center(child: Text('Opening file ...')),
+      );
+    }
+
     if (['pdf'].contains(extension)) {
       return Scaffold(
         appBar: AppBar(
@@ -86,35 +92,22 @@ class _FileViewerPageState extends State<FileViewerPage> {
           pageFling: false,
         ),
       );
-    } else if (['doc', 'docx'].contains(extension)) {
-      // Open DOC/DOCX with external application
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.fileName),
-        ),
-        body: Center(
-          child: ElevatedButton(
-            onPressed: () async {
-              await OpenFile.open(localPath);
-            },
-            child: const Text('Open Document'),
-          ),
-        ),
-      );
-    } else if (['png', 'jpg', 'jpeg', 'gif'].contains(extension)) {
+    }
+
+    if (['png', 'jpg', 'jpeg', 'gif'].contains(extension)) {
       return Scaffold(
         appBar: AppBar(
           title: Text(widget.fileName),
         ),
         body: Image.file(File(localPath!)),
       );
-    } else {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.fileName),
-        ),
-        body: const Center(child: Text('Cannot view this file type.')),
-      );
     }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.fileName),
+      ),
+      body: const Center(child: Text('Cannot view this file type.')),
+    );
   }
 }

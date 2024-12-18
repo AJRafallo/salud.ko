@@ -1,10 +1,9 @@
-// lib/screens/widget/MedicalFiles/folder_content.dart
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import 'package:saludko/screens/widget/MedicalFiles/upload_records_ui.dart';
-import 'package:saludko/screens/widget/MedicalFiles/file_viewer.dart'; // Import the viewer
+import 'package:saludko/screens/widget/MedicalFiles/file_viewer.dart';
 
 class FolderContentPage extends StatelessWidget {
   final String folderName;
@@ -102,6 +101,11 @@ class FolderContentPage extends StatelessWidget {
             final file = files[index];
             final fileData = file.data() as Map<String, dynamic>;
             final fileName = fileData['name'] ?? 'Unnamed File';
+            final uploadedAt = fileData['uploadedAt'] as Timestamp;
+
+            final formattedDate =
+                DateFormat('MMMM d, yyyy ─ h:mm a').format(uploadedAt.toDate());
+
             return ListTile(
               title: Text(
                 fileName,
@@ -109,11 +113,14 @@ class FolderContentPage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontWeight: FontWeight.w500),
               ),
-              subtitle: Text(
-                fileData['uploadedAt'].toDate().toString(),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Text(
+                  formattedDate,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12),
+                ),
               ),
               leading: _getFileIcon(fileName),
               onTap: () => _openFile(context, fileData),
@@ -165,13 +172,27 @@ class FolderContentPage extends StatelessWidget {
             final file = files[index];
             final fileData = file.data() as Map<String, dynamic>;
             final fileName = fileData['name'] ?? 'Unnamed File';
+            final uploadedAt = fileData['uploadedAt'] as Timestamp;
+
+            final formattedDate =
+                DateFormat('MMMM d, yyyy ─ h:mm a').format(uploadedAt.toDate());
+
             return ListTile(
               title: Text(
                 fileName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w500),
               ),
-              subtitle: Text(fileData['uploadedAt'].toDate().toString()),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Text(
+                  formattedDate,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
               leading: _getFileIcon(fileName),
               onTap: () => _openFile(context, fileData),
               trailing: IconButton(
@@ -246,11 +267,10 @@ class FolderContentPage extends StatelessWidget {
                   fileIcon,
                   const SizedBox(width: 10),
                   Expanded(
-                    // Ensures the text does not overflow
                     child: Text(
                       fileName,
                       maxLines: 1,
-                      overflow: TextOverflow.ellipsis, // Add ellipsis
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
