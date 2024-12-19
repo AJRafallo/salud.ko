@@ -448,11 +448,15 @@ class FolderContentPage extends StatelessWidget {
         .collection('folders')
         .get();
 
-    final otherFolders = foldersSnapshot.docs.toList();
+    final otherFolders = foldersSnapshot.docs
+        .where(
+            (doc) => doc.data()['name'] != 'All Files') // Exclude "All Files"
+        .toList();
 
     if (otherFolders.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No other folders available.')));
+        const SnackBar(content: Text('No other folders available.')),
+      );
       return;
     }
 
