@@ -1,3 +1,4 @@
+// File: upload_records_ui.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -205,12 +206,13 @@ class UploadWidgetUI extends StatelessWidget {
     );
   }
 
-  static void showFolderSelectionDialog({
+  // **Modified Method: Return Future<void> and use generic types**
+  static Future<void> showFolderSelectionDialog({
     required BuildContext context,
-    required List<QueryDocumentSnapshot> folders,
+    required List<QueryDocumentSnapshot<Map<String, dynamic>>> folders,
     required void Function(String folderId, String folderName) onFolderSelected,
-  }) {
-    showModalBottomSheet(
+  }) async {
+    await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
@@ -260,7 +262,7 @@ class UploadWidgetUI extends StatelessWidget {
                   itemCount: folders.length,
                   itemBuilder: (context, index) {
                     final doc = folders[index];
-                    final folderData = doc.data() as Map<String, dynamic>;
+                    final folderData = doc.data();
                     final folderName =
                         folderData['name'] as String? ?? 'Unnamed';
 
@@ -277,8 +279,8 @@ class UploadWidgetUI extends StatelessWidget {
                             fontSize: 14, fontWeight: FontWeight.w500),
                       ),
                       onTap: () {
-                        Navigator.pop(context);
                         onFolderSelected(doc.id, folderName);
+                        Navigator.pop(context);
                       },
                     );
                   },
