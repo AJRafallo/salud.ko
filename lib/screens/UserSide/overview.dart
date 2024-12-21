@@ -366,7 +366,7 @@ class _OverviewPageState extends State<OverviewPage> {
                 child: Text(
                   _formatNumber(_weight),
                   style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.bold),
+                      fontSize: 19, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(width: 4),
@@ -374,7 +374,7 @@ class _OverviewPageState extends State<OverviewPage> {
                 child: Text(
                   "KG",
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 10,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1A62B7),
                   ),
@@ -400,7 +400,7 @@ class _OverviewPageState extends State<OverviewPage> {
                 child: Text(
                   _formatNumber(_height),
                   style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.bold),
+                      fontSize: 19, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(width: 4),
@@ -408,7 +408,7 @@ class _OverviewPageState extends State<OverviewPage> {
                 child: Text(
                   "CM",
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 10,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1A62B7),
                   ),
