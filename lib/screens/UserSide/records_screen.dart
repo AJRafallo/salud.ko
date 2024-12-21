@@ -31,23 +31,27 @@ class _RecordsScreenState extends State<RecordsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          const SaludkoAppBar(),
-          SliverToBoxAdapter(
-            child: RecordsNavigation(
-              selectedPage: _selectedPage,
-              onPageSelected: (String page) {
-                setState(() {
-                  _selectedPage = page;
-                });
-              },
+      body: SafeArea(
+        child: CustomScrollView(
+          physics: const NeverScrollableScrollPhysics(), // Disable scrolling
+          slivers: [
+            const SaludkoAppBar(),
+            SliverToBoxAdapter(
+              child: RecordsNavigation(
+                selectedPage: _selectedPage,
+                onPageSelected: (String page) {
+                  setState(() {
+                    _selectedPage = page;
+                  });
+                },
+              ),
             ),
-          ),
-          SliverFillRemaining(
-            child: _getSelectedPage(),
-          ),
-        ],
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _getSelectedPage(),
+            ),
+          ],
+        ),
       ),
     );
   }
