@@ -244,6 +244,9 @@ class FolderContentPage extends StatelessWidget {
     );
   }
 
+  /// ======================
+  ///  Bottom Sheet Actions
+  /// ======================
   void _showFileActionsBottomSheet(
       BuildContext context, Map<String, dynamic> fileData) {
     final fileName = fileData['name'] as String? ?? 'Unnamed';
@@ -260,6 +263,7 @@ class FolderContentPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header row
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: Row(
@@ -291,26 +295,40 @@ class FolderContentPage extends StatelessWidget {
               height: 0,
             ),
             const SizedBox(height: 5),
+            // Rename
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 20),
               leading: const Icon(Icons.edit, color: Colors.black),
-              title: const Text('Rename',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+              title: const Text(
+                'Rename',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _showRenameDialog(context, fileData);
               },
             ),
+            // Move or Copy
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 20),
               leading: const Icon(Icons.folder_open, color: Colors.black),
-              title: const Text('Move',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+              // If we are in "All Files", label is "Copy"; otherwise, "Move"
+              title: Text(
+                isAllFiles ? 'Copy' : 'Move',
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
               onTap: () {
                 Navigator.pop(context);
-                _moveFile(context, fileData);
+                // If we are in "All Files", call _copyFile; otherwise, _moveFile
+                if (isAllFiles) {
+                  _copyFile(context, fileData);
+                } else {
+                  _moveFile(context, fileData);
+                }
               },
             ),
+            // Delete
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 20),
               leading: const Icon(Icons.delete, color: Colors.black),
@@ -328,9 +346,13 @@ class FolderContentPage extends StatelessWidget {
     );
   }
 
+  /// ==============
+  ///  Rename File
+  /// ==============
   void _showRenameDialog(BuildContext context, Map<String, dynamic> fileData) {
     final oldName = fileData['name'] as String? ?? 'Unnamed';
     final controller = TextEditingController(text: oldName);
+
     showDialog(
       context: context,
       builder: (context) {
@@ -339,8 +361,10 @@ class FolderContentPage extends StatelessWidget {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           title: const Center(
-            child: Text("Rename File",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text(
+              "Rename File",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -375,16 +399,20 @@ class FolderContentPage extends StatelessWidget {
                     backgroundColor: Colors.white,
                     side: const BorderSide(color: Color(0xFF1A62B7)),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text(
                     "Cancel",
                     style: TextStyle(
-                        color: Color(0xFF1A62B7),
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
+                      color: Color(0xFF1A62B7),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 15),
@@ -392,23 +420,31 @@ class FolderContentPage extends StatelessWidget {
                   onPressed: () async {
                     final newName = controller.text.trim();
                     if (newName.isNotEmpty) {
-                      await _renameFile(fileData, newName);
-                      Navigator.pop(context);
+                      try {
+                        await _renameFile(fileData, newName);
+                      } catch (e) {
+                        debugPrint("Error renaming file: $e");
+                      }
+                      if (context.mounted) Navigator.pop(context);
                     }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1A62B7),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 25, vertical: 10),
+                      horizontal: 25,
+                      vertical: 10,
+                    ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text(
                     "Rename",
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -425,49 +461,57 @@ class FolderContentPage extends StatelessWidget {
     final fId = fileData['folderId'] as String?;
     final filePath = fileData['filePath'];
 
-    if (fId == null) {
-      // Handle files without a folder (Uncategorized)
-      final fileDoc = await _getFileDocByPath(userId, null, filePath);
-      if (fileDoc != null) {
-        await fileDoc.reference.update({'name': newName});
-      }
-    } else {
-      // Update in all_files collection
+    try {
       final fileDoc = await _getFileDocByPath(userId, fId, filePath);
       if (fileDoc != null) {
         await fileDoc.reference.update({'name': newName});
       }
+    } catch (e) {
+      rethrow;
     }
   }
 
+  /// =========================
+  ///  Move (for non–All Files)
+  /// =========================
   void _moveFile(BuildContext context, Map<String, dynamic> fileData) async {
     final userId = currentUser.uid;
-    final foldersSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('folders')
-        .get();
 
-    final otherFolders = foldersSnapshot.docs
-        .where(
-            (doc) => doc.data()['name'] != 'All Files') // Exclude "All Files"
-        .toList();
+    try {
+      final foldersSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('folders')
+          .get();
 
-    if (otherFolders.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No other folders available.')),
+      // Exclude "All Files" from moving into itself, if you like.
+      final otherFolders = foldersSnapshot.docs
+          .where((doc) => doc.data()['name'] != 'All Files')
+          .toList();
+
+      if (otherFolders.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No other folders available.')),
+        );
+        return;
+      }
+
+      UploadWidgetUI.showFolderSelectionDialog(
+        context: context,
+        folders: otherFolders,
+        onFolderSelected: (targetFolderId, folderName) async {
+          try {
+            await _moveFileToFolder(fileData, targetFolderId);
+          } catch (e) {
+            debugPrint("Error moving file: $e");
+          }
+          // Close the folder selection dialog
+          if (context.mounted) Navigator.pop(context);
+        },
       );
-      return;
+    } catch (e) {
+      debugPrint("Error in _moveFile: $e");
     }
-
-    UploadWidgetUI.showFolderSelectionDialog(
-      context: context,
-      folders: otherFolders,
-      onFolderSelected: (folderId, folderName) async {
-        await _moveFileToFolder(fileData, folderId);
-        Navigator.pop(context);
-      },
-    );
   }
 
   Future<void> _moveFileToFolder(
@@ -476,16 +520,87 @@ class FolderContentPage extends StatelessWidget {
     final filePath = fileData['filePath'];
     final oldFolderId = fileData['folderId'];
 
-    // Update the folderId field in 'all_files' collection
-    final fileDoc = await _getFileDocByPath(userId, oldFolderId, filePath);
-    if (fileDoc != null) {
-      await fileDoc.reference.update({'folderId': targetFolderId});
+    try {
+      final fileDoc = await _getFileDocByPath(userId, oldFolderId, filePath);
+      if (fileDoc != null) {
+        await fileDoc.reference.update({'folderId': targetFolderId});
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 
+  /// =======================
+  ///  Copy (for All Files)
+  /// =======================
+  void _copyFile(BuildContext context, Map<String, dynamic> fileData) async {
+    final userId = currentUser.uid;
+
+    try {
+      final foldersSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('folders')
+          .get();
+
+      // Optionally exclude "All Files" if you don't want to copy into "All Files".
+      final validFolders = foldersSnapshot.docs
+          .where((doc) => doc.data()['name'] != 'All Files')
+          .toList();
+
+      if (validFolders.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No other folders available.')),
+        );
+        return;
+      }
+
+      UploadWidgetUI.showFolderSelectionDialog(
+        context: context,
+        folders: validFolders,
+        onFolderSelected: (targetFolderId, folderName) async {
+          try {
+            await _copyFileToFolder(fileData, targetFolderId);
+          } catch (e) {
+            debugPrint("Error copying file: $e");
+          }
+          if (context.mounted) Navigator.pop(context);
+        },
+      );
+    } catch (e) {
+      debugPrint("Error in _copyFile: $e");
+    }
+  }
+
+  Future<void> _copyFileToFolder(
+      Map<String, dynamic> fileData, String targetFolderId) async {
+    final userId = currentUser.uid;
+
+    try {
+      // Add a new doc to 'all_files' duplicating the info
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('all_files')
+          .add({
+        'name': fileData['name'],
+        'filePath': fileData['filePath'],
+        'folderId': targetFolderId,
+        'uploadedAt': fileData['uploadedAt'] ?? Timestamp.now(),
+        // Add any other fields needed for your app
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// =============
+  ///  Delete File
+  /// =============
   void _showDeleteFileDialog(
       BuildContext context, Map<String, dynamic> fileData) {
     final fileName = fileData['name'] as String? ?? 'Unnamed File';
+
     showDialog(
       context: context,
       builder: (context) {
@@ -536,21 +651,27 @@ class FolderContentPage extends StatelessWidget {
                       vertical: 10,
                     ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text(
                     "Cancel",
                     style: TextStyle(
-                        color: Color(0xFF1A62B7),
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
+                      color: Color(0xFF1A62B7),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () async {
-                    await _deleteFile(fileData);
-                    Navigator.pop(context);
+                    try {
+                      await _deleteFile(fileData);
+                    } catch (e) {
+                      debugPrint("Error deleting file: $e");
+                    }
+                    if (context.mounted) Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFDB0000),
@@ -559,14 +680,16 @@ class FolderContentPage extends StatelessWidget {
                       vertical: 10,
                     ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text(
                     "Delete",
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -582,34 +705,49 @@ class FolderContentPage extends StatelessWidget {
     final filePath = fileData['filePath'];
     final fId = fileData['folderId'];
 
-    final fileDoc = await _getFileDocByPath(userId, fId, filePath);
-    if (fileDoc != null) {
-      await fileDoc.reference.delete();
+    try {
+      final fileDoc = await _getFileDocByPath(userId, fId, filePath);
+      if (fileDoc != null) {
+        await fileDoc.reference.delete();
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 
+  /// ===========================================
+  ///  Generic helper to find doc by filePath
+  /// ===========================================
   Future<DocumentSnapshot?> _getFileDocByPath(
       String userId, String? folderId, String filePath) async {
-    Query query = FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('all_files')
-        .where('filePath', isEqualTo: filePath);
+    try {
+      Query query = FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('all_files')
+          .where('filePath', isEqualTo: filePath);
 
-    if (folderId != null) {
-      query = query.where('folderId', isEqualTo: folderId);
-    } else {
-      query = query.where('folderId', isEqualTo: null);
+      if (folderId != null) {
+        query = query.where('folderId', isEqualTo: folderId);
+      } else {
+        query = query.where('folderId', isEqualTo: null);
+      }
+
+      final snap = await query.limit(1).get();
+
+      if (snap.docs.isNotEmpty) {
+        return snap.docs.first;
+      }
+      return null;
+    } catch (e) {
+      debugPrint("Error in _getFileDocByPath: $e");
+      return null;
     }
-
-    final snap = await query.limit(1).get();
-
-    if (snap.docs.isNotEmpty) {
-      return snap.docs.first;
-    }
-    return null;
   }
 
+  /// =============================
+  ///  Delete Entire Folder Action
+  /// =============================
   void _showDeleteFolderDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -661,61 +799,73 @@ class FolderContentPage extends StatelessWidget {
                       vertical: 10,
                     ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text(
                     "Cancel",
                     style: TextStyle(
-                        color: Color(0xFF1A62B7),
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
+                      color: Color(0xFF1A62B7),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () async {
                     if (folderId != null) {
-                      final userId = currentUser.uid;
-                      final batch = FirebaseFirestore.instance.batch();
+                      try {
+                        final userId = currentUser.uid;
+                        final batch = FirebaseFirestore.instance.batch();
 
-                      // Find all files in this folder and set their folderId to null
-                      final filesSnapshot = await FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(userId)
-                          .collection('all_files')
-                          .where('folderId', isEqualTo: folderId)
-                          .get();
+                        // Find all files in this folder and set their folderId to null
+                        final filesSnapshot = await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(userId)
+                            .collection('all_files')
+                            .where('folderId', isEqualTo: folderId)
+                            .get();
 
-                      for (var fileDoc in filesSnapshot.docs) {
-                        batch.update(fileDoc.reference, {'folderId': null});
+                        for (var fileDoc in filesSnapshot.docs) {
+                          batch.update(fileDoc.reference, {'folderId': null});
+                        }
+
+                        // Delete the folder document
+                        batch.delete(FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(userId)
+                            .collection('folders')
+                            .doc(folderId!));
+
+                        await batch.commit();
+
+                        // Pop the "Delete" dialog
+                        if (context.mounted) Navigator.pop(context);
+                        // Pop the folder content screen
+                        if (context.mounted) Navigator.pop(context);
+                      } catch (e) {
+                        debugPrint("Error deleting folder: $e");
                       }
-
-                      // Delete the folder
-                      batch.delete(FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(userId)
-                          .collection('folders')
-                          .doc(folderId!));
-
-                      await batch.commit();
-
-                      Navigator.pop(context); // close dialog
-                      Navigator.pop(context); // go back
                     }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFDB0000),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 25, vertical: 10),
+                      horizontal: 25,
+                      vertical: 10,
+                    ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text(
                     "Delete",
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -726,6 +876,9 @@ class FolderContentPage extends StatelessWidget {
     );
   }
 
+  /// =========================
+  ///  Edit Folder (Rename)
+  /// =========================
   void _showEditFolderDialog(BuildContext context) {
     final folderNameController = TextEditingController(text: folderName);
 
@@ -784,9 +937,10 @@ class FolderContentPage extends StatelessWidget {
                     child: const Text(
                       "Cancel",
                       style: TextStyle(
-                          color: Color(0xFF1A62B7),
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold),
+                        color: Color(0xFF1A62B7),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 15),
@@ -794,14 +948,17 @@ class FolderContentPage extends StatelessWidget {
                     onPressed: () async {
                       final newName = folderNameController.text.trim();
                       if (newName.isNotEmpty && folderId != null) {
-                        await FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(currentUser.uid)
-                            .collection('folders')
-                            .doc(folderId!)
-                            .update({"name": newName});
-
-                        Navigator.pop(context);
+                        try {
+                          await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(currentUser.uid)
+                              .collection('folders')
+                              .doc(folderId!)
+                              .update({"name": newName});
+                        } catch (e) {
+                          debugPrint("Error editing folder name: $e");
+                        }
+                        if (context.mounted) Navigator.pop(context);
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -814,9 +971,10 @@ class FolderContentPage extends StatelessWidget {
                     child: const Text(
                       "Save",
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
