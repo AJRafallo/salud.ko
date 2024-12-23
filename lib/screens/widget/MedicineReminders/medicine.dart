@@ -1,14 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Medicine {
-  final String id;
-  final String name;
-  final double dosage;
-  final String dosageUnit;
-  final List<String> doses;
-  final int quantity;
-  final String quantityUnit;
-  final String durationType;
-  final int durationValue;
-  final String notes;
+  String id;
+  String name;
+  double dosage;
+  String dosageUnit;
+  List<String> doses;
+  int quantity;
+  String quantityUnit;
+  String durationType;
+  int durationValue;
+  String notes;
+  bool notificationsEnabled;
 
   Medicine({
     required this.id,
@@ -21,31 +24,40 @@ class Medicine {
     required this.durationType,
     required this.durationValue,
     required this.notes,
+    this.notificationsEnabled = false,
   });
 
-  Medicine copyWith({
-    String? id,
-    String? name,
-    double? dosage,
-    String? dosageUnit,
-    List<String>? doses,
-    int? quantity,
-    String? quantityUnit,
-    String? durationType,
-    int? durationValue,
-    String? notes,
-  }) {
+  // From Firestore
+  factory Medicine.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
     return Medicine(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      dosage: dosage ?? this.dosage,
-      dosageUnit: dosageUnit ?? this.dosageUnit,
-      doses: doses ?? this.doses,
-      quantity: quantity ?? this.quantity,
-      quantityUnit: quantityUnit ?? this.quantityUnit,
-      durationType: durationType ?? this.durationType,
-      durationValue: durationValue ?? this.durationValue,
-      notes: notes ?? this.notes,
+      id: doc.id,
+      name: data['name'] ?? '',
+      dosage: (data['dosage'] ?? 0).toDouble(),
+      dosageUnit: data['dosageUnit'] ?? 'mg',
+      doses: List<String>.from(data['doses'] ?? []),
+      quantity: data['quantity'] ?? 0,
+      quantityUnit: data['quantityUnit'] ?? 'Tablets',
+      durationType: data['durationType'] ?? 'Everyday',
+      durationValue: data['durationValue'] ?? 7,
+      notes: data['notes'] ?? '',
+      notificationsEnabled: data['notificationsEnabled'] ?? false,
     );
+  }
+
+  // To Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'dosage': dosage,
+      'dosageUnit': dosageUnit,
+      'doses': doses,
+      'quantity': quantity,
+      'quantityUnit': quantityUnit,
+      'durationType': durationType,
+      'durationValue': durationValue,
+      'notes': notes,
+      'notificationsEnabled': notificationsEnabled,
+    };
   }
 }
