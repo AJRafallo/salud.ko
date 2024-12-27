@@ -43,9 +43,10 @@ class _HealthcareFacilitiesState extends State<HealthcareFacilities> {
 
         return Column(
           children: [
-            const Padding(padding: EdgeInsets.all(10)),
+            const Padding(padding: EdgeInsets.all(0)),
             SizedBox(
-              height: 200, // Adjust height based on your design
+              height: 250, // Adjust height based on your design
+              width: 350,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -54,9 +55,10 @@ class _HealthcareFacilitiesState extends State<HealthcareFacilities> {
                     controller: _pageController,
                     itemCount: facilities.length,
                     itemBuilder: (context, index) {
-
-                      final facility = facilities[index].data() as Map<String, dynamic>;
-                      var profileImageUrl = facility['profileImage'] ?? ''; // Get facility's profile image URL, if available
+                      final facility =
+                          facilities[index].data() as Map<String, dynamic>;
+                      var profileImageUrl = facility['profileImage'] ??
+                          ''; // Get facility's profile image URL, if available
 
                       return GestureDetector(
                         onTap: () {
@@ -69,11 +71,9 @@ class _HealthcareFacilitiesState extends State<HealthcareFacilities> {
                           );
                         },
                         child: Container(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 5.0, horizontal: 5.0),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(8.0),
+                            borderRadius: BorderRadius.circular(25),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.withOpacity(0.2),
@@ -86,20 +86,34 @@ class _HealthcareFacilitiesState extends State<HealthcareFacilities> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // Profile Image
-                              CircleAvatar(
-                                radius: 30,
-                                backgroundImage: profileImageUrl.isNotEmpty
-                                    ? NetworkImage(profileImageUrl)
-                                    : const AssetImage(
-                                            'lib/assets/images/avatar.png')
-                                        as ImageProvider,
-                                onBackgroundImageError: (_, __) {
-                                  setState(() {
-                                    profileImageUrl =
-                                        ''; // Reset to default avatar
-                                  });
-                                },
+                              // Profile Image as Rectangular Container
+                              SizedBox(
+                                width: 300, // Adjust the width
+                                height: 150, // Adjust the height
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                        20), // Rounded corners
+                                    image: DecorationImage(
+                                      image: profileImageUrl.isNotEmpty
+                                          ? NetworkImage(profileImageUrl)
+                                          : const AssetImage(
+                                                  'lib/assets/images/avatar.png')
+                                              as ImageProvider,
+                                      fit: BoxFit
+                                          .cover, // Makes the image cover the entire box
+                                    ),
+                                  ),
+                                  child: (profileImageUrl.isEmpty)
+                                      ? const Center(
+                                          child: Icon(
+                                            Icons.camera_alt,
+                                            size: 40,
+                                            color: Colors.grey,
+                                          ),
+                                        )
+                                      : null,
+                                ),
                               ),
                               const SizedBox(
                                   height: 10), // Spacing between image and text
@@ -107,7 +121,7 @@ class _HealthcareFacilitiesState extends State<HealthcareFacilities> {
                               // Provider's Name
                               Padding(
                                 padding:
-                                    const EdgeInsets.fromLTRB(30, 0, 30, 0),
+                                    const EdgeInsets.fromLTRB(50, 0, 50, 0),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -121,12 +135,16 @@ class _HealthcareFacilitiesState extends State<HealthcareFacilities> {
                                     ),
                                     const SizedBox(
                                         height:
-                                            5), // Spacing between name and email
+                                            5), // Spacing between name and address
+
                                     // Provider's Address
                                     Text(
-                                      facility['address'],
+                                      facility['address']?.length > 50
+                                          ? '${facility['address']?.substring(0, 50)}...'
+                                          : facility['address'] ?? '',
+                                      textAlign: TextAlign.center,
                                       style: const TextStyle(
-                                        fontSize: 15,
+                                        fontSize: 12,
                                         fontStyle: FontStyle.italic,
                                         color: Colors.black,
                                       ),
@@ -143,8 +161,13 @@ class _HealthcareFacilitiesState extends State<HealthcareFacilities> {
                   // Left Arrow Button
                   Positioned(
                     left: 0,
+                    bottom: 0,
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_left, size: 40),
+                      icon: const Icon(
+                        Icons.arrow_left,
+                        size: 40,
+                        color: Colors.black,
+                      ),
                       onPressed: () {
                         _pageController.previousPage(
                           duration: const Duration(milliseconds: 300),
@@ -156,8 +179,13 @@ class _HealthcareFacilitiesState extends State<HealthcareFacilities> {
                   // Right Arrow Button
                   Positioned(
                     right: 0,
+                    bottom: 0,
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_right, size: 40),
+                      icon: const Icon(
+                        Icons.arrow_right,
+                        size: 40,
+                        color: Colors.black,
+                      ),
                       onPressed: () {
                         _pageController.nextPage(
                           duration: const Duration(milliseconds: 300),

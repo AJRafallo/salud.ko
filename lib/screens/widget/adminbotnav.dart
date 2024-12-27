@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/AdminSide/AdminHomepage.dart';
+import 'package:saludko/screens/AdminSide/AdminProfile.dart';
 import 'package:saludko/screens/AdminSide/VerificationPage.dart';
 
 class Adminbotnav extends StatefulWidget {
@@ -23,7 +23,7 @@ class _AdminbotnavState extends State<Adminbotnav> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const AdminHomepage(), // Homepage route
+          builder: (context) => const AdminProfile(), // Homepage route
         ),
       );
     } else if (index == 1) {

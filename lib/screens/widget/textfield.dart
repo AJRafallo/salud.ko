@@ -5,6 +5,7 @@ class InputTextField extends StatelessWidget {
   final bool isPass;
   final String hintText;
   final IconData icon;
+  final Widget? suffixIcon; // Added to allow a suffix icon
 
   const InputTextField({
     super.key,
@@ -12,6 +13,7 @@ class InputTextField extends StatelessWidget {
     this.isPass = false,
     required this.hintText,
     required this.icon,
+    this.suffixIcon, // Accepts a suffix icon
   });
 
   @override
@@ -33,6 +35,7 @@ class InputTextField extends StatelessWidget {
             horizontal: 16.0,
           ),
           prefixIcon: Icon(icon, color: Colors.grey),
+          suffixIcon: suffixIcon, // Add the suffix icon here
           border: OutlineInputBorder(
             borderSide: BorderSide.none,
             borderRadius: BorderRadius.circular(30),

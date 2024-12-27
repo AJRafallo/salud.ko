@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
-import 'package:saludko/screens/Services/authentication.dart';
-import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:saludko/screens/widget/button.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:saludko/screens/widget/genderdropdown.dart';
-import 'package:saludko/screens/widget/provmapscreen.dart';
 
 class ProviderProfile extends StatefulWidget {
   const ProviderProfile({super.key});

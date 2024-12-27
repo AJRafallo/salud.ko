@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/HospitalAdminSide/HAProfile.dart';
-import 'package:saludko/screens/HospitalAdminSide/HospitalAdProfile.dart';
+import 'package:saludko/screens/Opening/login_screen.dart';
+import 'package:saludko/screens/Services/authentication.dart';
 
 class AdminAppBar2 extends StatefulWidget {
-  const AdminAppBar2({super.key});
+  final Map<String, dynamic> hospital;
+  final String hospitalId;
+
+  const AdminAppBar2({
+    super.key,
+    required this.hospital,
+    required this.hospitalId,
+  });
 
   @override
   _AdminAppBar2State createState() => _AdminAppBar2State();
@@ -21,7 +28,7 @@ class _AdminAppBar2State extends State<AdminAppBar2> {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      backgroundColor: Colors.redAccent,
+      backgroundColor: const Color(0xFF1A62B7),
       automaticallyImplyLeading: false,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -29,8 +36,8 @@ class _AdminAppBar2State extends State<AdminAppBar2> {
           bottomLeft: Radius.circular(30),
         ),
       ),
-      pinned: true, // Keeps the top part of the app bar visible when scrolling
-      expandedHeight: 150.0, // Adjust height as needed
+      pinned: true,
+      expandedHeight: 150.0,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -42,41 +49,57 @@ class _AdminAppBar2State extends State<AdminAppBar2> {
               color: Colors.white,
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const HospitalAdShowProfile(),
-                ),
-              );
-            },
-            child: const Icon(
-              Icons.person,
+          PopupMenuButton<String>(
+            icon: const Icon(
+              Icons.logout_rounded,
               size: 30,
               color: Colors.white,
             ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+            menuPadding: EdgeInsets.all(0),
+            onSelected: (value) async {
+              if (value == 'logout') {
+                await AuthServices().signOut(); // Your logout service
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => const MyLogin(),
+                  ),
+                );
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'logout',
+                
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Logout'),
+                  ],
+                ), 
+              ),
+            ],
           ),
         ],
       ),
-      flexibleSpace: const FlexibleSpaceBar(
+      flexibleSpace: FlexibleSpaceBar(
         background: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10), // Adjusts the space to push content down
+              const SizedBox(height: 10),
               Text(
-                "Hello, Admin!",
-                style: TextStyle(
+                "${widget.hospital['workplace']}",
+                style: const TextStyle(
                   fontSize: 25,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
-                "Manage healthcare providers.",
+              const Text(
+                "Hello, Admin!",
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.white,
@@ -84,7 +107,7 @@ class _AdminAppBar2State extends State<AdminAppBar2> {
                   fontStyle: FontStyle.italic,
                 ),
               ),
-              SizedBox(height: 20), // Space between the text and search box
+              const SizedBox(height: 20),
               /*Container(
                 decoration: BoxDecoration(
                   color: Colors.white,

@@ -39,10 +39,13 @@ class HospitalAdHomeScreen extends StatelessWidget {
 
           final hospital = snapshot.data!.data() as Map<String, dynamic>;
 
-          return const CustomScrollView(
+          return CustomScrollView(
             slivers: [
-              AdminAppBar2(),
-              SliverToBoxAdapter(
+              AdminAppBar2(
+                hospital: hospital,
+                hospitalId: currentUser.uid,
+              ),
+              const SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
                   child: Column(

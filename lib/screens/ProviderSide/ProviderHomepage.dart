@@ -84,4 +84,4 @@ class ProviderHomeScreen extends StatelessWidget {
       ),
     );
   }
-}
+} 

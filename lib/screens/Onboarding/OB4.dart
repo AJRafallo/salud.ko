@@ -2,25 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:saludko/screens/Onboarding/OB3.dart';
 import 'package:saludko/screens/Opening/login_screen.dart';
 
-
 class Onboarding4 extends StatelessWidget {
   const Onboarding4({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Image(
-                image: AssetImage('lib/assets/images/ob4.png'),
+              SizedBox(
+                height: screenHeight * 0.35, // Adjust image height dynamically
+                child: const Image(
+                  image: AssetImage('lib/assets/images/ob4.png'),
+                  fit: BoxFit.contain,
+                ),
               ),
+              const SizedBox(height: 20),
               const Padding(
                 padding: EdgeInsets.fromLTRB(30, 5, 30, 5),
-                child:  Text(
+                child: Text(
                   "EMERGENCY CONTACTS AT YOUR FINGERTIPS",
                   style: TextStyle(
                     fontSize: 28,
@@ -42,13 +49,14 @@ class Onboarding4 extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               buildDotsIndicator(3),
-              const SizedBox(height: 50),
+              const SizedBox(
+                  height: 30), // Adjust spacing to fit smaller screens
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   TextButton(
                     onPressed: () {
-                      // Navigate to the last page (get started)
+                      // Navigate to the last page
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -62,7 +70,7 @@ class Onboarding4 extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      // Navigate to the next page
+                      // Navigate to the login screen
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -83,7 +91,10 @@ class Onboarding4 extends StatelessWidget {
                         borderRadius: BorderRadius.all(
                             Radius.circular(25)), // Optional: Rounded corners
                       ),
-                      padding: const EdgeInsets.fromLTRB(70, 10, 70, 10),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.2, // Adjust button width
+                        vertical: 10, // Keep vertical padding fixed
+                      ),
                       child: const Text(
                         'Get Started',
                         style: TextStyle(

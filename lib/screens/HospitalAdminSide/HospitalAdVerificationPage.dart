@@ -1,8 +1,8 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/widget/adminappbar2.dart';
-import 'package:saludko/screens/widget/hospitaladbotnav.dart';
 
 class HospitalAdDashboard extends StatefulWidget {
   const HospitalAdDashboard({super.key});
@@ -23,19 +23,17 @@ class _HospitalAdDashboardState extends State<HospitalAdDashboard> {
 
   Future<void> _fetchAdminWorkplace() async {
     try {
-      // Assuming that the admin's UID is available through FirebaseAuth
       final userId = FirebaseAuth.instance.currentUser?.uid;
       if (userId != null) {
         final doc = await FirebaseFirestore.instance
             .collection('hospital')
-            .doc(
-                userId) // Assuming hospital admin document ID is the same as user UID
+            .doc(userId)
             .get();
 
         if (doc.exists) {
           setState(() {
-            adminWorkplace = doc['workplace']; // Get the admin's workplace
-            isLoading = false; // Done loading
+            adminWorkplace = doc['workplace'];
+            isLoading = false;
           });
         } else {
           print('Admin document does not exist.');
@@ -55,19 +53,40 @@ class _HospitalAdDashboardState extends State<HospitalAdDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomRight: Radius.circular(20),
+            bottomLeft: Radius.circular(20),
+          ),
+        ),
+        toolbarHeight: 80,
+        title: const Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              'Verify Providers',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFF1A62B7),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+      ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : CustomScrollView(
               slivers: [
-                const AdminAppBar2(), // SliverAppBar
                 SliverFillRemaining(
                   child: StreamBuilder(
                     stream: FirebaseFirestore.instance
                         .collection('healthcare_providers')
                         .where('isVerified', isEqualTo: false)
-                        .where('workplace',
-                            isEqualTo:
-                                adminWorkplace) // Filter by admin's workplace
+                        .where('workplace', isEqualTo: adminWorkplace)
                         .snapshots(),
                     builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -92,14 +111,95 @@ class _HospitalAdDashboardState extends State<HospitalAdDashboard> {
                         itemCount: snapshot.data!.docs.length,
                         itemBuilder: (context, index) {
                           var provider = snapshot.data!.docs[index];
-                          return ListTile(
-                            title: Text(provider['firstname']),
-                            subtitle: Text(provider['email']),
-                            trailing: ElevatedButton(
-                              onPressed: () {
-                                _verifyProvider(provider.id);
-                              },
-                              child: const Text('Verify'),
+                          return Container(
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 10.0, horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(25),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  spreadRadius: 1,
+                                  blurRadius: 1,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.all(20),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  provider['companyIDPath'] != null
+                                      ? GestureDetector(
+                                          onTap: () {
+                                            _showImageDialog(
+                                              context,
+                                              provider['companyIDPath'],
+                                            );
+                                          },
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            child: Image.network(
+                                              provider['companyIDPath'],
+                                              width: 300,
+                                              height: 100,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        )
+                                      : const SizedBox.shrink(),
+                                  const SizedBox(height: 10),
+                                  Column(
+                                    children: [
+                                      Column(
+                                        
+                                        children: [
+                                          Text(
+                                            'Dr. ${provider['firstname']} ${provider['lastname']}, ${provider['specialization']}',
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          Text(
+                                            provider['email'],
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              _verifyProvider(provider.id);
+                                            },
+                                            child: const Text('Verify'),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              _removeProvider(provider.id);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              iconColor: Colors.red,
+                                            ),
+                                            child: const Text('Remove'),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
@@ -109,7 +209,6 @@ class _HospitalAdDashboardState extends State<HospitalAdDashboard> {
                 ),
               ],
             ),
-      bottomNavigationBar: const Hospitaladbotnav(),
     );
   }
 
@@ -119,4 +218,66 @@ class _HospitalAdDashboardState extends State<HospitalAdDashboard> {
         .doc(providerId)
         .update({'isVerified': true});
   }
+
+  // Method to remove the provider
+  void _removeProvider(String providerId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Remove Provider'),
+          content: const Text('Are you sure you want to remove this provider?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await FirebaseFirestore.instance
+                    .collection('healthcare_providers')
+                    .doc(providerId)
+                    .delete();
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Provider removed successfully')),
+                );
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showImageDialog(BuildContext context, String companyIdPath) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        backgroundColor: Colors.transparent, // Transparent background
+        child: GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop(); // Close dialog on tap
+          },
+          child: Center(
+            child: Image.network(
+              companyIdPath,
+              width: 500, // Fixed width
+              height: 500, // Fixed height
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.error), // Handle errors
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
 }

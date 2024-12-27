@@ -98,7 +98,7 @@ Future<void> _loadBookmarkedProviders() async {
                               margin: const EdgeInsets.symmetric(vertical: 5),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFD1DBE1),
-                                borderRadius: BorderRadius.circular(8.0),
+                                borderRadius: BorderRadius.circular(25),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.grey.withOpacity(0.2),

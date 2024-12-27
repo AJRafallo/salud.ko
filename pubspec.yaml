@@ -53,11 +53,15 @@ dependencies:
 
   permission_handler: ^11.3.1
   flutter_phone_direct_caller: ^2.1.1
+  google_sign_in: ^6.2.2
+  
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -65,6 +69,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "lib/assets/images/salud.ko_logo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -2,9 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:saludko/screens/AdminSide/VerificationPage.dart';
-import 'package:saludko/screens/HospitalAdminSide/HospitalAdHomepage.dart';
-import 'package:saludko/screens/ProviderSide/ProviderHomepage.dart';
+import 'package:path/path.dart';
+import 'package:saludko/screens/AdminSide/AdminHP.dart';
+import 'package:saludko/screens/HospitalAdminSide/HAHomepage.dart';
+import 'package:saludko/screens/ProviderSide/ProviderHP.dart';
 import 'package:saludko/screens/UserSide/home_screen.dart';
 import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:saludko/screens/Opening/splash_screen.dart';
@@ -13,6 +14,7 @@ import 'package:saludko/screens/Opening/splash_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  
   runApp(const MyApp());
 }
 
@@ -68,11 +70,11 @@ class MyApp extends StatelessWidget {
             if (snapshot.data == 'user') {
               return const MyHomeScreen();
             } else if (snapshot.data == 'healthcare_provider') {
-              return const ProviderHomeScreen();
+              return const ProviderHP();
             } else if (snapshot.data == 'admin') {
-              return const AdminDashboard();
+              return const AdminHP();
             } else if (snapshot.data == 'hospital_admin') {
-              return const HospitalAdHomeScreen(); // Redirect hospital admin to their homepage
+              return const HAdminHomeScreen(); // Redirect hospital admin to their homepage
             } else if (snapshot.data == 'not_verified') {
               return const MyLogin();
             } else {
