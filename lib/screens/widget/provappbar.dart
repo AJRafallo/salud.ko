@@ -1,14 +1,16 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
+import 'package:saludko/screens/Opening/login_screen.dart';
+import 'package:saludko/screens/Services/authentication.dart';
 import 'package:saludko/screens/ProviderSide/PProfile.dart';
 
 class SaludkoProvAppBar extends StatelessWidget {
   final Map<String, dynamic> provider;
-  final String providerId; // Add the providerId
+  final String providerId;
 
   const SaludkoProvAppBar({
     super.key,
     required this.provider,
-    required this.providerId, // Add the required providerId
+    required this.providerId,
   });
 
   @override
@@ -35,20 +37,36 @@ class SaludkoProvAppBar extends StatelessWidget {
               color: Colors.white,
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProviderShowProfile(),
-                ),
-              );
-            },
-            child: const Icon(
-              Icons.person,
+          PopupMenuButton<String>(
+            icon: const Icon(
+              Icons.logout_rounded,
               size: 30,
               color: Colors.white,
             ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+            menuPadding: EdgeInsets.all(0),
+            onSelected: (value) async {
+              if (value == 'logout') {
+                await AuthServices().signOut(); // Your logout service
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => const MyLogin(),
+                  ),
+                );
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'logout',
+                
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Logout'),
+                  ],
+                ), 
+              ),
+            ],
           ),
         ],
       ),

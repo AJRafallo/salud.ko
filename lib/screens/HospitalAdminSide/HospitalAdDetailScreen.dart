@@ -167,7 +167,6 @@ class _HospitalAdDetailScreenState extends State<HospitalAdDetailScreen> {
           children: [
             Center(
               child: GestureDetector(
-                onTap: _uploadImage, // Trigger image upload
                 child: Container(
                   width: 500, // Adjust width
                   height: 300, // Adjust height

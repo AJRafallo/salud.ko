@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/AdminSide/AdminHomepage.dart';
-import 'package:saludko/screens/HospitalAdminSide/HospitalAdHomepage.dart';
-import 'package:saludko/screens/ProviderSide/ProviderHomepage.dart';
+import 'package:saludko/screens/AdminSide/AdminHP.dart';
+import 'package:saludko/screens/HospitalAdminSide/HAHomepage.dart';
+import 'package:saludko/screens/ProviderSide/ProviderHP.dart';
 import 'package:saludko/screens/ProviderSide/ProviderVerificationStatusPage.dart';
 import 'package:saludko/screens/Services/authentication.dart';
 import 'package:saludko/screens/UserSide/home_screen.dart';
@@ -9,7 +9,6 @@ import 'package:saludko/screens/Opening/signup_screen.dart';
 import 'package:saludko/screens/widget/button.dart';
 import 'package:saludko/screens/widget/snackbar.dart';
 import 'package:saludko/screens/widget/textfield.dart';
-
 
 class MyLogin extends StatefulWidget {
   const MyLogin({super.key});
@@ -21,8 +20,8 @@ class MyLogin extends StatefulWidget {
 class _MyLoginState extends State<MyLogin> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
   bool isLoading = false;
+  bool _isPasswordVisible = false; // State variable for password visibility
 
   @override
   void dispose() {
@@ -46,44 +45,64 @@ class _MyLoginState extends State<MyLogin> {
     });
 
     if (role == "user") {
-      // Navigate to the user's home screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => const MyHomeScreen(),
         ),
       );
     } else if (role == "healthcare_provider") {
-      // Navigate to the healthcare provider's home screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const ProviderHomeScreen(),
+          builder: (context) => const ProviderHP(),
         ),
       );
     } else if (role == "not_verified") {
-      // Navigate to the verification status screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => const ProviderVerificationStatusScreen(),
         ),
       );
     } else if (role == "admin") {
-      // Navigate to the admin's home screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const AdminHomepage(),
+          builder: (context) => const AdminHP(),
         ),
       );
     } else if (role == "hospital_admin") {
-      // Navigate to the hospital admin's home screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const HospitalAdHomeScreen(),
+          builder: (context) => const HAdminHomeScreen(),
         ),
       );
     } else {
-      // Show an error message
       showSnackBar(context, role);
     }
+  }
+
+  void resetPassword() {
+    // You can display a dialog or navigate to a reset password screen
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Password'),
+        content: TextField(
+          decoration: const InputDecoration(hintText: "Enter your email"),
+          controller: emailController,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop(); // Close the dialog
+              String response =
+                  await AuthServices().resetPassword(emailController.text);
+              showSnackBar(
+                  context, response); // Show a success or error message
+            },
+            child: const Text("Send Reset Link"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -111,12 +130,42 @@ class _MyLoginState extends State<MyLogin> {
               InputTextField(
                 textEditingController: passwordController,
                 hintText: "Enter password",
-                isPass: true,
+                isPass: !_isPasswordVisible, // Toggle visibility
                 icon: Icons.lock_rounded,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                ),
+              ),
+              GestureDetector(
+                onTap: resetPassword,
+                child: const Padding(
+                  padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Forgot Password',
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
               MyButton(onTab: logInUser, text: "Login"),
               const SizedBox(height: 15),
+              /*ElevatedButton(onPressed: AuthServices().signInWithGoogle, child: const Text('Google Sign In')),*/
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

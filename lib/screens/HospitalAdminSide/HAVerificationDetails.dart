@@ -7,16 +7,18 @@ import 'dart:io';
 
 import 'package:saludko/screens/widget/provmapscreen.dart';
 
-class ProviderDetailScreen extends StatefulWidget {
+class ProviderVerificationDetailScreen extends StatefulWidget {
   final Map<String, dynamic> provider;
 
-  const ProviderDetailScreen({super.key, required this.provider});
+  const ProviderVerificationDetailScreen({super.key, required this.provider});
 
   @override
-  _ProviderDetailScreenState createState() => _ProviderDetailScreenState();
+  _ProviderVerificationDetailScreenState createState() =>
+      _ProviderVerificationDetailScreenState();
 }
 
-class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
+class _ProviderVerificationDetailScreenState
+    extends State<ProviderVerificationDetailScreen> {
   String? profileImageUrl;
   String? currentUserUid;
   String? currentUserRole;
@@ -35,7 +37,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
         currentUserUid = user.uid;
       });
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('hospital')
+          .collection('hospital_admin')
           .doc(user.uid)
           .get();
       setState(() {
@@ -276,6 +278,34 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                         color: Colors.black,
                       ),
                     ),
+                    // Displaying the company ID
+                    const SizedBox(height: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Company ID:',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        widget.provider['companyIDPath'] != null &&
+                                widget.provider['companyIDPath']!.isNotEmpty
+                            ? Image.network(
+                                widget.provider[
+                                    'companyIDPath'], // URL of the company ID image
+                                height: 200, // You can adjust the height
+                                width:
+                                    double.infinity, // Adjust width if needed
+                                fit: BoxFit
+                                    .cover, // Set how the image should fit within the container
+                              )
+                            : const Text('[No company ID provided]'),
+                      ],
+                    ),
+
                     InkWell(
                       onTap: () async {
                         final String workplace =
@@ -326,7 +356,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    if (currentUserRole == 'hospital_admin') ...[
+                    if (currentUserRole == 'admin') ...[
                       Center(
                         child: ElevatedButton(
                           onPressed: _deleteProvider,

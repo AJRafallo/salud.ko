@@ -1,8 +1,11 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:saludko/screens/ProviderSide/ProviderVerificationStatusPage.dart';
 import 'package:saludko/screens/Services/authentication.dart';
 import 'package:saludko/screens/Opening/login_screen.dart';
-import 'package:saludko/screens/Opening/signup_screen.dart';
 import 'package:saludko/screens/widget/button.dart';
 import 'package:saludko/screens/widget/snackbar.dart';
 import 'package:saludko/screens/widget/textfield.dart';
@@ -20,9 +23,13 @@ class _SignupScreenState extends State<ProviderSignup> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController lastnameController = TextEditingController();
   final TextEditingController firstnameController = TextEditingController();
+  final TextEditingController specializationController =
+      TextEditingController();
 
-  String? selectedWorkplace; // Variable to store the selected workplace
+  String? selectedWorkplace;
   bool isLoading = false;
+  String? companyIDPath;
+  bool _isPasswordVisible = false; // Password visibility toggle
 
   final List<String> workplaces = [
     "Mother Seton",
@@ -37,14 +44,29 @@ class _SignupScreenState extends State<ProviderSignup> {
     passwordController.dispose();
     lastnameController.dispose();
     firstnameController.dispose();
+    specializationController.dispose();
   }
 
-  // Function to convert to Title Case
   String toTitleCase(String input) {
     return input.split(' ').map((word) {
       if (word.isEmpty) return '';
       return word[0].toUpperCase() + word.substring(1).toLowerCase();
     }).join(' ');
+  }
+
+  void pickCompanyID() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+    );
+
+    if (result != null) {
+      setState(() {
+        companyIDPath = result.files.single.path!;
+      });
+    } else {
+      showSnackBar(context, 'No file selected.');
+    }
   }
 
   void signUpHealthCareProvider() async {
@@ -53,13 +75,22 @@ class _SignupScreenState extends State<ProviderSignup> {
       return;
     }
 
+    if (companyIDPath == null) {
+      showSnackBar(context, 'Please upload your company ID.');
+      return;
+    }
+
+    // Upload the company ID file to Firebase Storage
+    String uploadedFileURL = await uploadCompanyID(companyIDPath!);
+
     String res = await AuthServices().signUpHealthCareProvider(
-      email: emailController.text,
-      password: passwordController.text,
-      lastname: toTitleCase(lastnameController.text), // Convert to Title Case
-      firstname: toTitleCase(firstnameController.text), // Convert to Title Case
-      workplace: selectedWorkplace!, // Use the non-null assertion here
-    );
+        email: emailController.text,
+        password: passwordController.text,
+        lastname: toTitleCase(lastnameController.text),
+        firstname: toTitleCase(firstnameController.text),
+        workplace: selectedWorkplace!,
+        companyIDPath: uploadedFileURL, // Pass the uploaded file URL
+        specialization: specializationController.text);
 
     if (res == "Success") {
       setState(() {
@@ -120,8 +151,25 @@ class _SignupScreenState extends State<ProviderSignup> {
                 InputTextField(
                   textEditingController: passwordController,
                   hintText: "Enter password",
-                  isPass: true,
+                  isPass: !_isPasswordVisible, // Toggle visibility
                   icon: Icons.lock_rounded,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
+                ),
+                InputTextField(
+                  textEditingController: specializationController,
+                  hintText: "Enter specialization (e.g. Cardiology)",
+                  icon: Icons.work_outline_rounded,
                 ),
                 WorkplaceDropdown(
                   selectedWorkplace: selectedWorkplace,
@@ -133,26 +181,12 @@ class _SignupScreenState extends State<ProviderSignup> {
                   },
                 ),
                 const SizedBox(height: 20),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Are you a patient/caregiver?"),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MySignup(),
-                            ));
-                      },
-                      child: const Text(
-                        "Register as a user",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
+                ElevatedButton.icon(
+                  onPressed: pickCompanyID,
+                  icon: const Icon(Icons.upload_file),
+                  label: Text(companyIDPath == null
+                      ? "Upload Company ID"
+                      : "ID Uploaded"),
                 ),
                 const SizedBox(height: 20),
                 MyButton(onTab: signUpHealthCareProvider, text: "Sign Up"),
@@ -185,4 +219,16 @@ class _SignupScreenState extends State<ProviderSignup> {
       ),
     );
   }
+}
+
+Future<String> uploadCompanyID(String filePath) async {
+  final file = File(filePath);
+  final fileName = file.path.split('/').last;
+
+  final storageRef =
+      FirebaseStorage.instance.ref().child('company_ids/$fileName');
+  final uploadTask = storageRef.putFile(file);
+
+  final snapshot = await uploadTask;
+  return await snapshot.ref.getDownloadURL();
 }

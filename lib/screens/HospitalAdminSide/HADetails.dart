@@ -172,7 +172,6 @@ class _HospitalAdDetailScreenState extends State<HospitalAdDetailScreen> {
             children: [
               Center(
                 child: GestureDetector(
-                  onTap: _uploadImage,
                   child: CircleAvatar(
                     radius: 100,
                     backgroundImage:

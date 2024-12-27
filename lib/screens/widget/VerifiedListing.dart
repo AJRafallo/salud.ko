@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:saludko/screens/ProviderSide/DetailsPage.dart';
 import 'package:saludko/screens/Services/databasehelper.dart';
@@ -55,6 +55,7 @@ class _VerifiedProvidersWidgetState extends State<VerifiedProvidersWidget> {
       }
     });
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +95,7 @@ class _VerifiedProvidersWidgetState extends State<VerifiedProvidersWidget> {
                   margin: const EdgeInsets.symmetric(vertical: 5.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(25),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.2),
@@ -166,3 +167,5 @@ class _VerifiedProvidersWidgetState extends State<VerifiedProvidersWidget> {
     );
   }
 }
+
+

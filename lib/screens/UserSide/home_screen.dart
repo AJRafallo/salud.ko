@@ -81,17 +81,16 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
                               "Healthcare Facilities",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic,
                                 fontSize: 20,
                               ),
                             ),
+                            SizedBox(height: 10),
                             HealthcareFacilities(),
-                            SizedBox(height: 20),
+                            SizedBox(height: 10),
                             Text(
                               "Healthcare Providers",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic,
                                 fontSize: 20,
                               ),
                             ),
