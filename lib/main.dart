@@ -10,7 +10,6 @@ import 'package:saludko/screens/UserSide/home_screen.dart';
 import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:saludko/screens/Opening/splash_screen.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -25,13 +24,19 @@ class MyApp extends StatelessWidget {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       // Check if user exists in 'users' collection
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
       if (userDoc.exists) {
         return 'user';
       }
 
       // Check if user exists in 'healthcare_providers' collection
-      DocumentSnapshot providerDoc = await FirebaseFirestore.instance.collection('healthcare_providers').doc(user.uid).get();
+      DocumentSnapshot providerDoc = await FirebaseFirestore.instance
+          .collection('healthcare_providers')
+          .doc(user.uid)
+          .get();
       if (providerDoc.exists) {
         bool isVerified = providerDoc.get('isVerified');
         if (isVerified) {
@@ -42,13 +47,19 @@ class MyApp extends StatelessWidget {
       }
 
       // Check if user exists in 'admins' collection
-      DocumentSnapshot adminDoc = await FirebaseFirestore.instance.collection('admins').doc(user.uid).get();
+      DocumentSnapshot adminDoc = await FirebaseFirestore.instance
+          .collection('admins')
+          .doc(user.uid)
+          .get();
       if (adminDoc.exists) {
         return 'admin';
       }
 
       // Check if user exists in 'hospital' collection with role 'hospital_admin'
-      DocumentSnapshot hospitalDoc = await FirebaseFirestore.instance.collection('hospital').doc(user.uid).get();
+      DocumentSnapshot hospitalDoc = await FirebaseFirestore.instance
+          .collection('hospital')
+          .doc(user.uid)
+          .get();
       if (hospitalDoc.exists && hospitalDoc.get('role') == 'hospital_admin') {
         return 'hospital_admin';
       }

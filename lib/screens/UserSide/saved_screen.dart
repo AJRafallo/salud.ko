@@ -6,8 +6,6 @@ import 'package:saludko/screens/widget/appbar_2.dart';
 class SavedScreen extends StatefulWidget {
   final Map<String, dynamic> userData; // Accept userData
   final String userId; // Accept userId
-  
-
 
   const SavedScreen({
     super.key,
@@ -28,19 +26,18 @@ class _SavedScreenState extends State<SavedScreen> {
     super.initState();
     _loadBookmarkedProviders(); // Load bookmarks on initialization
   }
-  
 
   // Load bookmarks from SQLite
-Future<void> _loadBookmarkedProviders() async {
-  final bookmarks = await _dbHelper.getBookmarks();
-  bookmarks.forEach((bookmark) {
-    print("Bookmark ID: ${bookmark['id']}, Profile Image: ${bookmark['profileImage']}");
-  });
-  setState(() {
-    _bookmarkedProviders = bookmarks;
-  });
-}
-
+  Future<void> _loadBookmarkedProviders() async {
+    final bookmarks = await _dbHelper.getBookmarks();
+    for (var bookmark in bookmarks) {
+      print(
+          "Bookmark ID: ${bookmark['id']}, Profile Image: ${bookmark['profileImage']}");
+    }
+    setState(() {
+      _bookmarkedProviders = bookmarks;
+    });
+  }
 
   // Remove a provider from bookmarks (unbookmark)
   Future<void> _removeBookmark(String providerId) async {
@@ -50,7 +47,7 @@ Future<void> _loadBookmarkedProviders() async {
       const SnackBar(content: Text('Provider removed from bookmarks.')),
     );
   }
-               
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

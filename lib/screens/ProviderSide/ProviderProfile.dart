@@ -149,7 +149,6 @@ class _ProviderProfileState extends State<ProviderProfile> {
               ? provider['firstname'] ?? ''
               : firstNameController.text;
 
-
           middleNameController.text = middleNameController.text.isEmpty
               ? provider['middlename'] ?? ''
               : middleNameController.text;
@@ -189,7 +188,6 @@ class _ProviderProfileState extends State<ProviderProfile> {
           specializationController.text = specializationController.text.isEmpty
               ? provider['specialization']?.toString() ?? ''
               : specializationController.text;
-
 
           // Load existing profile image URL if available
           profileImageUrl = provider['profileImage'] ?? '';

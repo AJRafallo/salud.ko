@@ -183,7 +183,7 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
                       HotlineContainer(
                           hotline: hotline), // Pass the hotline data
                       const SizedBox(height: 10),
-                      Center(
+                      const Center(
                         child: SizedBox(
                           width: 340,
                           child: Divider(
@@ -195,7 +195,7 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
                       const SizedBox(height: 10),
                     ],
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),
@@ -307,7 +307,7 @@ class Hotline {
 final List<Hotline> hotlines = [
   Hotline(
     name: "ONE HOSPITAL COMMAND",
-    numbers: ["+63 961 7272688", "+63 911 1234567"],
+    numbers: ["+63 920 5130241", "+63 977 2780385"],
   ),
   Hotline(
     name: "BICOL MEDICAL CENTER",
@@ -327,7 +327,7 @@ final List<Hotline> hotlines = [
 class HotlineContainer extends StatelessWidget {
   final Hotline hotline;
 
-  const HotlineContainer({Key? key, required this.hotline}) : super(key: key);
+  const HotlineContainer({super.key, required this.hotline});
 
   @override
   Widget build(BuildContext context) {
@@ -619,16 +619,16 @@ class HotlineContainer extends StatelessWidget {
                               child: Text(number),
                             ),
                             if (number != hotline.numbers.last)
-                              Container(
+                              const SizedBox(
                                 width: 150, // Adjust the width as needed
-                                child: const Divider(
+                                child: Divider(
                                   color: Color(0xFFA1A1A1),
                                   thickness: 1,
                                 ),
                               ),
                           ],
                         );
-                      }).toList(),
+                      }),
 
                       TextButton(
                         onPressed: () {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:saludko/screens/Services/authentication.dart';
+import 'package:saludko/screens/HospitalAdminSide/HAProfile.dart';
+
 
 class AdminAppBar2 extends StatefulWidget {
   final Map<String, dynamic> hospital;
