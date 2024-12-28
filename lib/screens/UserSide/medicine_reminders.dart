@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:saludko/screens/widget/MedicineReminders/medicine.dart';
 import 'package:saludko/screens/widget/MedicineReminders/view_medicine.dart';
-import 'package:saludko/screens/widget/MedicineReminders/cu_medicine.dart';
+import 'package:saludko/screens/widget/MedicineReminders/add_medicine.dart';
+import 'package:saludko/screens/widget/MedicineReminders/edit_medicine.dart';
 
 class MedicineRemindersPage extends StatefulWidget {
   const MedicineRemindersPage({super.key});
@@ -64,14 +65,11 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
     );
   }
 
-  // ---------------------------------------------------------------------------
   // Upcoming Medicine Reminder
-  // ---------------------------------------------------------------------------
   Widget _buildUpcomingReminder(
     BuildContext context,
     Map<String, dynamic>? nextData,
   ) {
-    // We'll use the same gradient container, but if null, we say "No upcoming..."
     if (nextData == null) {
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -353,6 +351,7 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
                   child: PopupMenuButton<String>(
                     onSelected: (value) async {
                       if (value == 'delete') {
+                        // Delete from Firestore
                         await FirebaseFirestore.instance
                             .collection('users')
                             .doc(_userId)
@@ -360,6 +359,7 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
                             .doc(med.id)
                             .delete();
                       } else if (value == 'edit') {
+                        // Go to **EditMedicinePage**
                         _navigateToEditMedicine(context, med);
                       }
                     },
@@ -412,10 +412,11 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
 
   // Add, View, Edit
   void _navigateToAddMedicine(BuildContext context) {
+    // Navigate to your new "AddMedicinePage"
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const AddOrEditMedicinePage(),
+        builder: (_) => const AddMedicinePage(),
       ),
     );
   }
@@ -430,10 +431,13 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
   }
 
   void _navigateToEditMedicine(BuildContext context, Medicine med) {
+    // Navigate to your new "EditMedicinePage"
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => AddOrEditMedicinePage(existingMedicine: med),
+        builder: (_) => EditMedicinePage(
+          existingMedicine: med,
+        ),
       ),
     );
   }

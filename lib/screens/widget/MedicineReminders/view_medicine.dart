@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:saludko/screens/widget/MedicineReminders/medicine.dart';
-import 'package:saludko/screens/widget/MedicineReminders/cu_medicine.dart';
+import 'package:saludko/screens/widget/MedicineReminders/edit_medicine.dart';
 
 class ViewMedicinePage extends StatefulWidget {
   final Medicine medicine;
@@ -14,13 +14,13 @@ class ViewMedicinePage extends StatefulWidget {
 
 class _ViewMedicinePageState extends State<ViewMedicinePage> {
   late Medicine _currentMed;
-
   bool _notificationsEnabled = false;
 
   @override
   void initState() {
     super.initState();
     _currentMed = widget.medicine;
+    _notificationsEnabled = _currentMed.notificationsEnabled;
   }
 
   @override
@@ -28,10 +28,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
     final med = _currentMed;
 
     final nextDoseStr = _getNextDoseForSingleMedicine(med);
-    // "X times per day"
     final timesPerDay = med.doses.length;
-
-    // How many days left is just the durationValue
     final daysLeft = med.durationValue;
     final durationString = _formatDuration(med.durationType, med.durationValue);
 
@@ -47,13 +44,16 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          // Increase horizontal padding from 16 -> 24
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Top row: Medicine Name + Notifications (original layout)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Medicine Name
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,29 +78,53 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                     ),
                   ),
                   const SizedBox(width: 16),
+                  // Notifications
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Turn on notifications?',
+                          'Notifications',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.black.withOpacity(0.6),
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Switch(
-                              value: _notificationsEnabled,
-                              onChanged: (val) {
-                                setState(() {
-                                  _notificationsEnabled = val;
-                                });
+                        Transform.scale(
+                          scale: 0.8,
+                          child: Switch(
+                            value: _notificationsEnabled,
+                            thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
+                              (Set<WidgetState> states) {
+                                if (states.contains(WidgetState.selected)) {
+                                  return const Icon(
+                                    Icons.check,
+                                    color: Colors.black,
+                                    size: 12,
+                                  );
+                                }
+                                return const Icon(
+                                  Icons.close,
+                                  color: Colors.black,
+                                  size: 12,
+                                );
                               },
                             ),
-                          ],
+                            trackColor: WidgetStateProperty.resolveWith<Color>(
+                              (states) {
+                                if (states.contains(WidgetState.selected)) {
+                                  return const Color(0xFF1A62B7);
+                                }
+                                return Colors.grey.shade400;
+                              },
+                            ),
+                            onChanged: (val) {
+                              setState(() {
+                                _notificationsEnabled = val;
+                              });
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -110,9 +134,11 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
 
               const SizedBox(height: 20),
 
+              // Dosage & Next Dose
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Medicine Dosage
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,6 +163,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                     ),
                   ),
                   const SizedBox(width: 16),
+                  // Next Dose
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,129 +190,180 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                 ],
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
 
-              // Doses
-              const Text(
-                'Dose',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
+              // Dose container
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFC1EFC3),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '$timesPerDay times per day',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // For each dose, show a "field style"
-              for (int i = 0; i < med.doses.length; i++) ...[
-                Container(
-                  height: 40,
-                  margin: const EdgeInsets.only(bottom: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Row(
-                    children: [
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Dose',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '$timesPerDay times per day',
+                            style: const TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    for (int i = 0; i < med.doses.length; i++) ...[
                       Text(
-                        '${_ordinal(i + 1)} Dose: ',
+                        '${_ordinal(i + 1)} Dose:',
                         style: const TextStyle(fontSize: 14),
                       ),
-                      Text(
-                        med.doses[i],
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A62B7),
+                      const SizedBox(height: 4),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          children: [
+                            Text(
+                              med.doses[i],
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF1A62B7),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const Spacer(),
+                            const Icon(Icons.access_time, size: 16),
+                          ],
                         ),
                       ),
-                      const Spacer(),
-                      const Icon(Icons.access_time, size: 16),
                     ],
-                  ),
+                  ],
                 ),
-              ],
+              ),
 
               const SizedBox(height: 24),
 
+              // Quantity & Duration side by side
               Row(
                 children: [
                   // Quantity
                   Expanded(
                     child: Container(
+                      height: 140,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDEEDFF),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                       padding: const EdgeInsets.all(16),
                       margin: const EdgeInsets.only(right: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
+                          const Text(
                             'Quantity',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.black.withOpacity(0.6),
+                              fontWeight: FontWeight.normal,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
+                          // Centered layout for "0 : 0" etc.
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(
-                                '${med.quantity}',
-                                style: const TextStyle(
+                              // Left column
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '${med.quantity}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF1A62B7),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    med.quantityUnit,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              // The colon
+                              const Text(
+                                ':',
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1A62B7),
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              const Text(':'),
-                              const SizedBox(width: 8),
-                              Text(
-                                '${(med.quantity - 3).clamp(0, 999)}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1A62B7),
-                                ),
+
+                              // Right column
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '${(med.quantity - 3).clamp(0, 999)}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF1A62B7),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Text(
+                                    'Left',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${med.quantityUnit} Left',
-                            style: const TextStyle(fontSize: 12),
                           ),
                         ],
                       ),
                     ),
                   ),
 
-                  // Duration
+                  // Duration container
                   Expanded(
                     child: Container(
+                      height: 140,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDEEDFF),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                       padding: const EdgeInsets.all(16),
                       margin: const EdgeInsets.only(left: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             'Duration',
@@ -294,7 +372,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                               color: Colors.black.withOpacity(0.6),
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
                           Text(
                             durationString,
                             style: const TextStyle(
@@ -302,11 +380,15 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF1A62B7),
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Text(
                             '$daysLeft DAYS LEFT',
-                            style: const TextStyle(fontSize: 12),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
                           ),
                         ],
                       ),
@@ -317,16 +399,14 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
 
               const SizedBox(height: 24),
 
-              // Notes
+              // Notes container
               Container(
                 width: double.infinity,
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey.shade300),
+                  color: const Color(0xFFC1EFC3),
+                  borderRadius: BorderRadius.circular(20),
                 ),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -340,13 +420,17 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                     const SizedBox(height: 8),
                     Text(
                       med.notes.isEmpty ? 'No additional notes.' : med.notes,
-                      style: const TextStyle(fontSize: 14),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black87,
+                      ),
                     ),
                   ],
                 ),
               ),
 
               const SizedBox(height: 20),
+              // Edit Medication button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -371,16 +455,22 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
     );
   }
 
+  /// Navigate to **EditMedicinePage**
   void _navigateToEditMedication() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => AddOrEditMedicinePage(existingMedicine: _currentMed),
+        builder: (_) => EditMedicinePage(
+          existingMedicine: _currentMed,
+        ),
       ),
-    ).then((_) async {});
+    ).then((_) {
+      // If you need to refresh data from Firestore
+      // or update _currentMed after returning, do it here.
+    });
   }
 
-  // Next dose for single med
+  // Next dose for a single med
   String? _getNextDoseForSingleMedicine(Medicine m) {
     if (m.doses.isEmpty) return null;
     final now = DateTime.now();
