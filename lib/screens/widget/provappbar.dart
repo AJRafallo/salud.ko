@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart'; 
 import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:saludko/screens/Services/authentication.dart';
-import 'package:saludko/screens/ProviderSide/PProfile.dart';
 
 class SaludkoProvAppBar extends StatelessWidget {
   final Map<String, dynamic> provider;
