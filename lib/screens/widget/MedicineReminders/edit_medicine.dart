@@ -2,51 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:saludko/screens/widget/MedicineReminders/medicine.dart';
+import 'package:saludko/screens/widget/MedicineReminders/dose_list.dart';
+import 'package:saludko/screens/widget/MedicineReminders/quantity_duration.dart';
 
-class AddOrEditMedicinePage extends StatefulWidget {
-  final Medicine? existingMedicine;
+class EditMedicinePage extends StatefulWidget {
+  final Medicine existingMedicine;
 
-  const AddOrEditMedicinePage({super.key, this.existingMedicine});
+  const EditMedicinePage({super.key, required this.existingMedicine});
 
   @override
-  State<AddOrEditMedicinePage> createState() => _AddOrEditMedicinePageState();
+  State<EditMedicinePage> createState() => _EditMedicinePageState();
 }
 
-class _AddOrEditMedicinePageState extends State<AddOrEditMedicinePage> {
+class _EditMedicinePageState extends State<EditMedicinePage> {
   late TextEditingController _nameController;
   late TextEditingController _dosageController;
   late TextEditingController _notesController;
-  late TextEditingController _quantityController;
 
+  bool _notificationsEnabled = false;
   List<String> _doses = [];
+  int _quantity = 0;
+  int _quantityLeft = 0;
   String _quantityUnit = 'Tablets';
   String _durationType = 'Everyday';
   int _durationValue = 7;
 
   final String _userId = FirebaseAuth.instance.currentUser!.uid;
 
-  bool get isEdit => widget.existingMedicine != null;
-
   @override
   void initState() {
     super.initState();
-    if (isEdit) {
-      final m = widget.existingMedicine!;
-      _nameController = TextEditingController(text: m.name);
-      _dosageController = TextEditingController(text: m.dosage.toString());
-      _notesController = TextEditingController(text: m.notes);
-      _quantityController = TextEditingController(text: m.quantity.toString());
-      _quantityUnit = m.quantityUnit;
-      _durationType = m.durationType;
-      _durationValue = m.durationValue;
-      _doses = List.from(m.doses);
-    } else {
-      _nameController = TextEditingController();
-      _dosageController = TextEditingController();
-      _notesController = TextEditingController();
-      _quantityController = TextEditingController(text: '0');
-      _doses = ['4:00 PM'];
-    }
+    final m = widget.existingMedicine;
+
+    _nameController = TextEditingController(text: m.name);
+    _dosageController = TextEditingController(text: m.dosage.toString());
+    _notesController = TextEditingController(text: m.notes);
+
+    _notificationsEnabled = m.notificationsEnabled;
+    _doses = List.from(m.doses);
+
+    _quantity = m.quantity;
+    _quantityLeft = m.quantityLeft;
+    _quantityUnit = m.quantityUnit;
+    _durationType = m.durationType;
+    _durationValue = m.durationValue;
   }
 
   @override
@@ -54,429 +53,127 @@ class _AddOrEditMedicinePageState extends State<AddOrEditMedicinePage> {
     _nameController.dispose();
     _dosageController.dispose();
     _notesController.dispose();
-    _quantityController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final titleWidget = isEdit
-        ? const SizedBox()
-        : const Text(
-            'Add Medicine',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          );
-
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(50),
-        child: Container(
-          color: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: SafeArea(
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_left, size: 30),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                Expanded(
-                  child: Center(child: titleWidget),
-                ),
-                if (isEdit)
-                  IconButton(
-                    icon: const Icon(
-                      Icons.delete,
-                      color: Color(0xFFDB0000),
-                    ),
-                    onPressed: _onDeletePressed,
-                  ),
-              ],
-            ),
-          ),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left, size: 28),
+          onPressed: () => Navigator.pop(context),
         ),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete, color: Color(0xFFDB0000)),
+            onPressed: () => _onDeletePressed(context),
+          ),
+        ],
       ),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Medicine Name
-              const Text(
-                'Medicine Name',
-                style: TextStyle(fontWeight: FontWeight.normal),
-                textAlign: TextAlign.center,
-              ),
+              _buildLabel('Medicine Name'),
               const SizedBox(height: 8),
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 300),
-                  child: TextField(
-                    textAlign: TextAlign.center,
-                    controller: _nameController,
-                    onChanged: (val) {
-                      setState(() {});
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Enter Medicine Name',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-                ),
+              TextField(
+                controller: _nameController,
+                style: TextStyle(color: Colors.black.withOpacity(0.8)),
+                decoration: _inputDecoration('Enter Medicine Name'),
               ),
-
               const SizedBox(height: 16),
-
-              // Dosage
-              const Text(
-                'Medicine Dosage',
-                style: TextStyle(fontWeight: FontWeight.normal),
-                textAlign: TextAlign.center,
-              ),
+              _buildLabel('Medicine Dosage'),
               const SizedBox(height: 8),
+              TextField(
+                controller: _dosageController,
+                keyboardType: TextInputType.number,
+                style: TextStyle(color: Colors.black.withOpacity(0.8)),
+                decoration: _inputDecoration('mg'),
+              ),
+              const SizedBox(height: 12),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.chevron_left),
-                    onPressed: _decrementDosage,
+                  Text(
+                    'Turn on Notifications?',
+                    style: TextStyle(color: Colors.black.withOpacity(0.7)),
                   ),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 80),
-                    child: TextField(
-                      textAlign: TextAlign.center,
-                      controller: _dosageController,
-                      keyboardType: TextInputType.number,
-                      onChanged: (val) {
-                        setState(() {});
-                      },
-                      decoration: const InputDecoration(
-                        hintText: 'mg',
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 8,
-                        ),
+                  Transform.scale(
+                    scale: 0.8,
+                    child: Switch(
+                      value: _notificationsEnabled,
+                      thumbColor: MaterialStateProperty.resolveWith<Color>(
+                        (states) => Colors.white,
                       ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.chevron_right),
-                    onPressed: _incrementDosage,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // Doses
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFC1EFC3),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Center(
-                      child: Text(
-                        'Doses',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      trackColor: MaterialStateProperty.resolveWith<Color>(
+                        (states) => states.contains(MaterialState.selected)
+                            ? const Color(0xFF1A62B7)
+                            : const Color(0xFF49454F),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    for (int i = 0; i < _doses.length; i++) ...[
-                      Text(
-                        'Dose ${i + 1}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                initialValue: _doses[i],
-                                onChanged: (val) {
-                                  setState(() {
-                                    _doses[i] = val;
-                                  });
-                                },
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  hintText: 'e.g. 8:00 AM',
-                                ),
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.access_time),
-                              onPressed: () async {
-                                final picked = await showTimePicker(
-                                  context: context,
-                                  initialTime: TimeOfDay.now(),
-                                );
-                                if (picked != null) {
-                                  final newTimeStr = _formatTimeOfDay(picked);
-                                  setState(() {
-                                    _doses[i] = newTimeStr;
-                                  });
-                                }
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                setState(() {
-                                  _doses.removeAt(i);
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    // Add new dose
-                    Align(
-                      alignment: Alignment.center,
-                      child: TextButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            _doses.add('4:00 PM');
-                          });
+                      thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                        (states) {
+                          if (states.contains(MaterialState.selected)) {
+                            return const Icon(Icons.check,
+                                color: Colors.black, size: 12);
+                          } else {
+                            return Icon(Icons.close,
+                                color: Colors.grey, size: 12);
+                          }
                         },
-                        icon: const Icon(Icons.add),
-                        label: const Text('Add Dose'),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Quantity & Duration
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Quantity
-                  Expanded(
-                    child: Container(
-                      constraints: const BoxConstraints(minHeight: 140),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDEEDFF),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Quantity',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // Left column
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ConstrainedBox(
-                                    constraints:
-                                        const BoxConstraints(maxWidth: 60),
-                                    child: TextField(
-                                      controller: _quantityController,
-                                      keyboardType: TextInputType.number,
-                                      onChanged: (val) {
-                                        setState(() {});
-                                      },
-                                      decoration: const InputDecoration(
-                                        isDense: true,
-                                        contentPadding:
-                                            EdgeInsets.symmetric(horizontal: 6),
-                                        border: OutlineInputBorder(),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _quantityUnit,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Text(
-                                ':',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              // Right column (just a placeholder)
-                              const Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    '0',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF1A62B7),
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    'Left',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 10),
-
-                  // Duration
-                  Expanded(
-                    child: Container(
-                      constraints: const BoxConstraints(minHeight: 140),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDEEDFF),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Duration',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          DropdownButton<String>(
-                            value: _durationType,
-                            items: <String>['Everyday', 'Every X Days', 'Days']
-                                .map((e) => DropdownMenuItem(
-                                      value: e,
-                                      child: Text(e),
-                                    ))
-                                .toList(),
-                            onChanged: (val) {
-                              if (val != null) {
-                                setState(() {
-                                  _durationType = val;
-                                });
-                              }
-                            },
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text('Value: '),
-                              IconButton(
-                                icon: const Icon(Icons.remove),
-                                onPressed: () {
-                                  if (_durationValue > 1) {
-                                    setState(() {
-                                      _durationValue--;
-                                    });
-                                  }
-                                },
-                              ),
-                              Text('$_durationValue'),
-                              IconButton(
-                                icon: const Icon(Icons.add),
-                                onPressed: () {
-                                  setState(() {
-                                    _durationValue++;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                      onChanged: (val) {
+                        setState(() {
+                          _notificationsEnabled = val;
+                        });
+                      },
                     ),
                   ),
                 ],
               ),
-
-              const SizedBox(height: 16),
-
-              // Notes
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Notes',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+              const SizedBox(height: 12),
+              DosesListWidget(
+                doses: _doses,
+                onDosesChanged: (newDoses) {
+                  setState(() {
+                    _doses = newDoses;
+                  });
+                },
               ),
+              const SizedBox(height: 16),
+              QuantityDurationWidget(
+                quantity: _quantity,
+                quantityLeft: _quantityLeft,
+                quantityUnit: _quantityUnit,
+                durationType: _durationType,
+                durationValue: _durationValue,
+                onQuantityChanged: (val) => setState(() => _quantity = val),
+                onQuantityLeftChanged: (val) =>
+                    setState(() => _quantityLeft = val),
+                onQuantityUnitChanged: (val) =>
+                    setState(() => _quantityUnit = val),
+                onDurationTypeChanged: (val) =>
+                    setState(() => _durationType = val),
+                onDurationValueChanged: (val) =>
+                    setState(() => _durationValue = val),
+              ),
+              const SizedBox(height: 16),
+              _buildLabel('Notes'),
               const SizedBox(height: 8),
               TextField(
                 controller: _notesController,
                 maxLines: 3,
-                onChanged: (val) {
-                  setState(() {});
-                },
-                decoration: InputDecoration(
-                  hintText: 'Additional info: e.g. "Take with food".',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
-                ),
+                style: TextStyle(color: Colors.black.withOpacity(0.8)),
+                decoration:
+                    _inputDecoration('Additional info: e.g. "Take with food".'),
               ),
-
               const SizedBox(height: 16),
-
-              // Save Changes
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -488,9 +185,9 @@ class _AddOrEditMedicinePageState extends State<AddOrEditMedicinePage> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: Text(
-                    isEdit ? 'Save Changes' : 'Add Medicine',
-                    style: const TextStyle(color: Colors.white),
+                  child: const Text(
+                    'Save Changes',
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ),
@@ -501,98 +198,93 @@ class _AddOrEditMedicinePageState extends State<AddOrEditMedicinePage> {
     );
   }
 
-  /// Decrement dosage by 1, min 0
-  void _decrementDosage() {
-    final currentValue = double.tryParse(_dosageController.text.trim()) ?? 0.0;
-    final newValue = (currentValue - 1).clamp(0, 9999999);
-    setState(() {
-      _dosageController.text = newValue.toStringAsFixed(0);
-    });
+  Widget _buildLabel(String label) {
+    return Text(
+      label,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        color: Colors.black.withOpacity(0.7),
+      ),
+    );
   }
 
-  // Increment dosage by 1
-  void _incrementDosage() {
-    final currentValue = double.tryParse(_dosageController.text.trim()) ?? 0.0;
-    final newValue = currentValue + 1;
-    setState(() {
-      _dosageController.text = newValue.toStringAsFixed(0);
-    });
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(color: Colors.black.withOpacity(0.5)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(5),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+    );
   }
 
-  // Save medicine in Firestore
   Future<void> _saveMedicine() async {
-    final name = _nameController.text.trim();
-    final dosage = double.tryParse(_dosageController.text.trim()) ?? 0.0;
-    final notes = _notesController.text.trim();
-    final quantity = int.tryParse(_quantityController.text.trim()) ?? 0;
-
-    if (!isEdit) {
-      // CREATE
-      final newDoc = FirebaseFirestore.instance
-          .collection('users')
-          .doc(_userId)
-          .collection('medicines')
-          .doc();
-
-      final newMed = Medicine(
-        id: newDoc.id,
-        name: name.isEmpty ? 'Unnamed' : name,
-        dosage: dosage,
-        dosageUnit: 'mg',
-        doses: _doses,
-        quantity: quantity,
-        quantityUnit: _quantityUnit,
-        durationType: _durationType,
-        durationValue: _durationValue,
-        notes: notes,
-      );
-      await newDoc.set(newMed.toMap());
-      Navigator.pop(context, newMed);
-    } else {
-      // UPDATE
-      final medId = widget.existingMedicine!.id;
+    try {
       final docRef = FirebaseFirestore.instance
           .collection('users')
           .doc(_userId)
           .collection('medicines')
-          .doc(medId);
+          .doc(widget.existingMedicine.id);
 
       final updatedMed = Medicine(
-        id: medId,
-        name: name.isEmpty ? 'Unnamed' : name,
-        dosage: dosage,
+        id: widget.existingMedicine.id,
+        name: _nameController.text.trim(),
+        dosage: double.tryParse(_dosageController.text.trim()) ?? 0.0,
         dosageUnit: 'mg',
         doses: _doses,
-        quantity: quantity,
+        quantity: _quantity,
+        quantityLeft: _quantityLeft,
         quantityUnit: _quantityUnit,
         durationType: _durationType,
         durationValue: _durationValue,
-        notes: notes,
+        notes: _notesController.text.trim(),
+        notificationsEnabled: _notificationsEnabled,
       );
+
       await docRef.update(updatedMed.toMap());
-      Navigator.pop(context, updatedMed);
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to save medicine.')),
+      );
     }
   }
 
-  // Delete the existing medicine
-  void _onDeletePressed() async {
-    if (widget.existingMedicine == null) return;
-    final medId = widget.existingMedicine!.id;
-    final docRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(_userId)
-        .collection('medicines')
-        .doc(medId);
+  Future<void> _onDeletePressed(BuildContext context) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Medicine'),
+        content: const Text('Are you sure you want to delete this medicine?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
 
-    await docRef.delete();
-    Navigator.pop(context, true);
-  }
+    if (shouldDelete == true) {
+      try {
+        final docRef = FirebaseFirestore.instance
+            .collection('users')
+            .doc(_userId)
+            .collection('medicines')
+            .doc(widget.existingMedicine.id);
 
-  // Helper for picking time and formatting
-  String _formatTimeOfDay(TimeOfDay t) {
-    final hour = t.hourOfPeriod == 0 ? 12 : t.hourOfPeriod;
-    final minuteStr = t.minute.toString().padLeft(2, '0');
-    final amPm = t.period == DayPeriod.am ? 'AM' : 'PM';
-    return '$hour:$minuteStr $amPm';
+        await docRef.delete();
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to delete medicine.')),
+        );
+      }
+    }
   }
 }
