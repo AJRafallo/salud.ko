@@ -13,6 +13,8 @@ class Medicine {
   String notes;
   bool notificationsEnabled;
 
+  int quantityLeft;
+
   Medicine({
     required this.id,
     required this.name,
@@ -25,6 +27,7 @@ class Medicine {
     required this.durationValue,
     required this.notes,
     this.notificationsEnabled = false,
+    this.quantityLeft = 0,
   });
 
   // From Firestore
@@ -42,6 +45,7 @@ class Medicine {
       durationValue: data['durationValue'] ?? 7,
       notes: data['notes'] ?? '',
       notificationsEnabled: data['notificationsEnabled'] ?? false,
+      quantityLeft: data['quantityLeft'] ?? 0,
     );
   }
 
@@ -58,6 +62,7 @@ class Medicine {
       'durationValue': durationValue,
       'notes': notes,
       'notificationsEnabled': notificationsEnabled,
+      'quantityLeft': quantityLeft,
     };
   }
 }
