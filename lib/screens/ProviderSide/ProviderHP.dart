@@ -3,13 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/ProviderSide/PProfile.dart';
-import 'package:saludko/screens/ProviderSide/ProviderProfile.dart';
 import 'package:saludko/screens/widget/VerifList2.dart';
 import 'package:saludko/screens/widget/healthcarefacilitieslist.dart';
 import 'package:saludko/screens/widget/provappbar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:saludko/screens/widget/provmapscreen.dart';
 
 class ProviderHP extends StatefulWidget {
   const ProviderHP({super.key});
@@ -163,15 +161,13 @@ class _ProviderHPState extends State<ProviderHP> {
                                         children: [
                                           CircleAvatar(
                                             radius: 50,
-                                            backgroundImage:
-                                                profileImageUrl != null &&
-                                                        profileImageUrl!
-                                                            .isNotEmpty
-                                                    ? NetworkImage(
-                                                        profileImageUrl!)
-                                                    : const AssetImage(
-                                                        'lib/assets/images/avatar.png',
-                                                      ) as ImageProvider,
+                                            backgroundImage: profileImageUrl !=
+                                                        null &&
+                                                    profileImageUrl!.isNotEmpty
+                                                ? NetworkImage(profileImageUrl!)
+                                                : const AssetImage(
+                                                    'lib/assets/images/avatar.png',
+                                                  ) as ImageProvider,
                                             child: (profileImageUrl == null ||
                                                     profileImageUrl!.isEmpty)
                                                 ? const Icon(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:saludko/screens/widget/VerifiedListing.dart';
-import 'package:saludko/screens/widget/appbar.dart'; // Custom app bar that will accept user data
+import 'package:saludko/screens/widget/appbar.dart';
 import 'package:saludko/screens/widget/healthcarefacilitieslist.dart';
 import 'package:saludko/screens/widget/navbar.dart';
 import 'package:saludko/screens/UserSide/saved_screen.dart';
@@ -35,7 +35,7 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFDEEDFF), // Set background color
+      backgroundColor: const Color(0xFFDEEDFF),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users') // Fetch data from the 'users' collection
@@ -59,7 +59,7 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
 
           // Define the screens with user data being passed to SavedScreen and SaludkoAppBar
           final homeScreen = Scaffold(
-            backgroundColor: const Color(0xFFDEEDFF), // Set background color
+            backgroundColor: const Color(0xFFDEEDFF),
             body: CustomScrollView(
               slivers: [
                 SaludkoAppBar(
@@ -117,8 +117,7 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
           ];
 
           return Scaffold(
-            backgroundColor:
-                const Color(0xFFDEEDFF), // Set background color here too
+            backgroundColor: const Color(0xFFDEEDFF),
             body: screens[_selectedIndex],
             bottomNavigationBar: CustomNavBar(
               selectedIndex: _selectedIndex,
