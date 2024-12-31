@@ -12,7 +12,8 @@ class HAMembers extends StatefulWidget {
 }
 
 class _HAMembersState extends State<HAMembers> {
-  final Map<String, bool> _seeMoreState = {}; // Tracks the "See More" state for each category
+  final Map<String, bool> _seeMoreState =
+      {}; // Tracks the "See More" state for each category
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +56,8 @@ class _HAMembersState extends State<HAMembers> {
           }
 
           final providers = snapshot.data!.docs;
-          final Map<String, List<QueryDocumentSnapshot>> categorizedProviders = {};
+          final Map<String, List<QueryDocumentSnapshot>> categorizedProviders =
+              {};
 
           // Group providers by specialization
           for (var providerDoc in providers) {
@@ -69,8 +71,7 @@ class _HAMembersState extends State<HAMembers> {
           }
 
           return ListView(
-            children: 
-            categorizedProviders.entries.map((entry) {
+            children: categorizedProviders.entries.map((entry) {
               final specialization = entry.key;
               final providerDocs = entry.value;
               final isExpanded = _seeMoreState[specialization] ?? false;
@@ -79,15 +80,15 @@ class _HAMembersState extends State<HAMembers> {
                 padding: const EdgeInsets.all(10),
                 margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                 decoration: BoxDecoration(
-                      color: const Color(0xFFD1DBE1),
-                      borderRadius:
-                          BorderRadius.circular(15), // Rounded corners
-                    ),
+                  color: const Color(0xFFD1DBE1),
+                  borderRadius: BorderRadius.circular(15), // Rounded corners
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 16),
                       child: Text(
                         specialization,
                         style: const TextStyle(
@@ -97,24 +98,28 @@ class _HAMembersState extends State<HAMembers> {
                         ),
                       ),
                     ),
-                    ...providerDocs.take(isExpanded ? providerDocs.length : 3).map((providerDoc) {
-                      final provider = providerDoc.data() as Map<String, dynamic>;
+                    ...providerDocs
+                        .take(isExpanded ? providerDocs.length : 3)
+                        .map((providerDoc) {
+                      final provider =
+                          providerDoc.data() as Map<String, dynamic>;
                       var profileImageUrl = provider['profileImage'] ?? '';
-                
+
                       return Container(
                         padding: const EdgeInsets.all(10),
                         margin: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                      color: const Color(0xFFDEEDFF),
-                      borderRadius:
-                          BorderRadius.circular(25), // Rounded corners
-                    ),
+                          color: const Color(0xFFDEEDFF),
+                          borderRadius:
+                              BorderRadius.circular(25), // Rounded corners
+                        ),
                         child: ListTile(
                           leading: CircleAvatar(
                             radius: 30,
                             backgroundImage: profileImageUrl.isNotEmpty
                                 ? NetworkImage(profileImageUrl)
-                                : const AssetImage('lib/assets/images/avatar.png')
+                                : const AssetImage(
+                                        'lib/assets/images/avatar.png')
                                     as ImageProvider,
                             onBackgroundImageError: (_, __) {
                               setState(() {
@@ -141,13 +146,14 @@ class _HAMembersState extends State<HAMembers> {
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => ProviderDetailScreen(provider: provider),
+                                builder: (context) =>
+                                    ProviderDetailScreen(provider: provider),
                               ),
                             );
                           },
                         ),
                       );
-                    }).toList(),
+                    }),
                     if (providerDocs.length > 3)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),

@@ -91,24 +91,21 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                           scale: 0.8,
                           child: Switch(
                             value: _notificationsEnabled,
-                            thumbColor:
-                                MaterialStateProperty.resolveWith<Color>(
+                            thumbColor: WidgetStateProperty.resolveWith<Color>(
                               (states) => Colors.white,
                             ),
-                            trackColor:
-                                MaterialStateProperty.resolveWith<Color>(
-                              (states) =>
-                                  states.contains(MaterialState.selected)
-                                      ? const Color(0xFF1A62B7)
-                                      : const Color(0xFF49454F),
+                            trackColor: WidgetStateProperty.resolveWith<Color>(
+                              (states) => states.contains(WidgetState.selected)
+                                  ? const Color(0xFF1A62B7)
+                                  : const Color(0xFF49454F),
                             ),
-                            thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                            thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
                               (states) {
-                                if (states.contains(MaterialState.selected)) {
+                                if (states.contains(WidgetState.selected)) {
                                   return const Icon(Icons.check,
                                       color: Colors.black, size: 12);
                                 } else {
-                                  return Icon(Icons.close,
+                                  return const Icon(Icons.close,
                                       color: Colors.grey, size: 12);
                                 }
                               },

@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:saludko/screens/AdminSide/AProfile.dart';
 import 'package:saludko/screens/widget/VerifList2.dart';
 import 'package:saludko/screens/widget/adminappbar.dart';
-import 'package:saludko/screens/widget/adminbotnav.dart';
 import 'package:saludko/screens/widget/healthcarefacilitieslist.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

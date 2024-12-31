@@ -246,11 +246,11 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
                         height: 8,
                         decoration: BoxDecoration(
                           color: index <= _currentPage
-                              ? Colors.black // Black for completed steps
-                              : Colors.white, // White for upcoming steps
+                              ? Colors.black
+                              : Colors.white,
                           border: Border.all(
                             color: Colors.black,
-                            width: 1.5, // Thicker border for the circles
+                            width: 1.5,
                           ),
                           shape: BoxShape.circle,
                         ),
@@ -620,7 +620,7 @@ class HotlineContainer extends StatelessWidget {
                             ),
                             if (number != hotline.numbers.last)
                               const SizedBox(
-                                width: 150, // Adjust the width as needed
+                                width: 150,
                                 child: Divider(
                                   color: Color(0xFFA1A1A1),
                                   thickness: 1,

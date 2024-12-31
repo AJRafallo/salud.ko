@@ -9,8 +9,8 @@ class AuthServices {
   // Helper method to validate the password policy
   bool isPasswordValid(String password) {
     // Example policy: At least 8 characters, including upper/lowercase, digit, and special character
-    final passwordRegex =
-        RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
+    final passwordRegex = RegExp(
+        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
     return passwordRegex.hasMatch(password);
   }
 
@@ -30,49 +30,47 @@ class AuthServices {
     return res;
   }
 
-Future<String> signUpUser({
-  required String email,
-  required String password,
-  required String firstname,
-  required String lastname,
-}) async {
-  String res = "Some error occurred";
-  try {
-    if (email.isNotEmpty &&
-        password.isNotEmpty &&
-        firstname.isNotEmpty &&
-        lastname.isNotEmpty) {
-      if (!isPasswordValid(password)) {
-        return "Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character.";
+  Future<String> signUpUser({
+    required String email,
+    required String password,
+    required String firstname,
+    required String lastname,
+  }) async {
+    String res = "Some error occurred";
+    try {
+      if (email.isNotEmpty &&
+          password.isNotEmpty &&
+          firstname.isNotEmpty &&
+          lastname.isNotEmpty) {
+        if (!isPasswordValid(password)) {
+          return "Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character.";
+        }
+
+        // Create user and send email verification
+        UserCredential credential = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        await credential.user!.sendEmailVerification();
+
+        // Save user data to Firestore
+        await _firestore.collection("users").doc(credential.user!.uid).set({
+          'firstname': firstname,
+          'lastname': lastname,
+          'email': email,
+          'uid': credential.user!.uid,
+          'role': 'user',
+        });
+
+        res = "Check your email for verification";
+      } else {
+        res = "Please fill all the fields";
       }
-
-      // Create user and send email verification
-      UserCredential credential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      await credential.user!.sendEmailVerification();
-
-      // Save user data to Firestore
-      await _firestore.collection("users").doc(credential.user!.uid).set({
-        'firstname': firstname,
-        'lastname': lastname,
-        'email': email,
-        'uid': credential.user!.uid,
-        'role': 'user',
-      });
-
-      res = "Check your email for verification";
-    } else {
-      res = "Please fill all the fields";
+    } catch (e) {
+      res = e.toString();
     }
-  } catch (e) {
-    res = e.toString();
+    return res;
   }
-  return res;
-}
-
-
 
   Future<String> signUpHealthCareProvider({
     required String email,
@@ -113,7 +111,7 @@ Future<String> signUpUser({
           'isVerified': false,
           'workplace': workplace,
           'companyIDPath': companyIDPath,
-          'specialization':specialization
+          'specialization': specialization
         });
 
         res = "Success";
@@ -153,7 +151,8 @@ Future<String> signUpUser({
           if (isVerified) {
             res = "healthcare_provider";
           } else {
-            res = "not_verified"; // Indicates that the account is not yet verified
+            res =
+                "not_verified"; // Indicates that the account is not yet verified
           }
         }
         // If not a healthcare provider, check if the user is a regular user
@@ -194,7 +193,7 @@ Future<String> signUpUser({
   signInWithGoogle() async {
     final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
     if (gUser == null) return;
-    final GoogleSignInAuthentication gAuth = await gUser!.authentication;
+    final GoogleSignInAuthentication gAuth = await gUser.authentication;
 
     final credential = GoogleAuthProvider.credential(
       accessToken: gAuth.accessToken,
