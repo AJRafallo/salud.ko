@@ -256,27 +256,29 @@ class _HAdminHomeScreenState extends State<HAdminHomeScreen> {
                           child: Column(
                             children: [
                               GestureDetector(
-                                onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                         HAMembers(workplace: "${hospital['workplace']}",)),
-                              );
-                            },
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => HAMembers(
+                                                workplace:
+                                                    "${hospital['workplace']}",
+                                              )),
+                                    );
+                                  },
                                   child: const Column(children: [
-                                Icon(
-                                  Icons.group_rounded,
-                                  size: 30,
-                                ),
-                                Text(
-                                  "Members",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                )
-                              ])),
+                                    Icon(
+                                      Icons.group_rounded,
+                                      size: 30,
+                                    ),
+                                    Text(
+                                      "Members",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    )
+                                  ])),
                             ],
                           ),
                         ),
@@ -284,14 +286,15 @@ class _HAdminHomeScreenState extends State<HAdminHomeScreen> {
                           width: 155,
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(25),
-                              boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black,
-                            blurRadius: 1,
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(25),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black,
+                                blurRadius: 1,
+                              ),
+                            ],
                           ),
-                        ],),
                           child: GestureDetector(
                             onTap: () {
                               Navigator.push(

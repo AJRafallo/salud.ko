@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:saludko/screens/Services/authentication.dart';
 
-
 class AdminAppBar2 extends StatefulWidget {
   final Map<String, dynamic> hospital;
   final String hospitalId;
@@ -56,8 +55,9 @@ class _AdminAppBar2State extends State<AdminAppBar2> {
               size: 30,
               color: Colors.white,
             ),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-            menuPadding: EdgeInsets.all(0),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+            menuPadding: const EdgeInsets.all(0),
             onSelected: (value) async {
               if (value == 'logout') {
                 await AuthServices().signOut(); // Your logout service
@@ -71,13 +71,12 @@ class _AdminAppBar2State extends State<AdminAppBar2> {
             itemBuilder: (context) => [
               const PopupMenuItem(
                 value: 'logout',
-                
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('Logout'),
                   ],
-                ), 
+                ),
               ),
             ],
           ),

@@ -153,7 +153,6 @@ class _HospitalAdDashboardState extends State<HospitalAdDashboard> {
                                   Column(
                                     children: [
                                       Column(
-                                        
                                         children: [
                                           Text(
                                             'Dr. ${provider['firstname']} ${provider['lastname']}, ${provider['specialization']}',
@@ -174,7 +173,8 @@ class _HospitalAdDashboardState extends State<HospitalAdDashboard> {
                                       ),
                                       const SizedBox(height: 10),
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           ElevatedButton(
                                             onPressed: () {
@@ -253,29 +253,28 @@ class _HospitalAdDashboardState extends State<HospitalAdDashboard> {
   }
 
   void _showImageDialog(BuildContext context, String companyIdPath) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        backgroundColor: Colors.transparent, // Transparent background
-        child: GestureDetector(
-          onTap: () {
-            Navigator.of(context).pop(); // Close dialog on tap
-          },
-          child: Center(
-            child: Image.network(
-              companyIdPath,
-              width: 500, // Fixed width
-              height: 500, // Fixed height
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.error), // Handle errors
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent, // Transparent background
+          child: GestureDetector(
+            onTap: () {
+              Navigator.of(context).pop(); // Close dialog on tap
+            },
+            child: Center(
+              child: Image.network(
+                companyIdPath,
+                width: 500, // Fixed width
+                height: 500, // Fixed height
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.error), // Handle errors
+              ),
             ),
           ),
-        ),
-      );
-    },
-  );
-}
-
+        );
+      },
+    );
+  }
 }

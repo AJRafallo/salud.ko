@@ -14,7 +14,6 @@ class MedicineRemindersPage extends StatefulWidget {
 }
 
 class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
-  // Current user
   final String _userId = FirebaseAuth.instance.currentUser!.uid;
 
   @override
@@ -65,11 +64,8 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
     );
   }
 
-  // Upcoming Medicine Reminder
   Widget _buildUpcomingReminder(
-    BuildContext context,
-    Map<String, dynamic>? nextData,
-  ) {
+      BuildContext context, Map<String, dynamic>? nextData) {
     if (nextData == null) {
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -153,7 +149,6 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
                 '${med.dosage.toStringAsFixed(0)} ${med.dosageUnit}',
                 style: const TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.normal,
                   color: Colors.white70,
                 ),
               ),
@@ -163,11 +158,8 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.fiber_manual_record,
-                color: Color(0xFFFFF27D),
-                size: 12,
-              ),
+              const Icon(Icons.fiber_manual_record,
+                  color: Color(0xFFFFF27D), size: 12),
               const SizedBox(width: 4),
               const Text(
                 'NEXT IN ',
@@ -178,11 +170,7 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(
-                Icons.access_time,
-                size: 14,
-                color: Colors.white,
-              ),
+              const Icon(Icons.access_time, size: 14, color: Colors.white),
               const SizedBox(width: 8),
               Text(
                 nextIn,
@@ -194,10 +182,7 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
               const SizedBox(width: 8),
               const Text(
                 'From Now',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.white),
               ),
             ],
           ),
@@ -213,10 +198,7 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
         children: [
           const Text(
             'Medicine',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const Spacer(),
           GestureDetector(
@@ -227,25 +209,14 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
               decoration: BoxDecoration(
                 color: Colors.transparent,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.black,
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.black, width: 2),
               ),
               child: const Center(
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Icon(
-                      Icons.add,
-                      color: Colors.black,
-                      size: 16,
-                    ),
-                    Icon(
-                      Icons.add,
-                      color: Colors.black,
-                      size: 20,
-                    ),
+                    Icon(Icons.add, color: Colors.black, size: 16),
+                    Icon(Icons.add, color: Colors.black, size: 20),
                   ],
                 ),
               ),
@@ -256,7 +227,6 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
     );
   }
 
-  // Medicine List
   Widget _buildMedicineList(BuildContext context, List<Medicine> medicines) {
     if (medicines.isEmpty) {
       return const Padding(
@@ -275,7 +245,6 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
       itemBuilder: (ctx, i) {
         final med = medicines[i];
         return InkWell(
-          // Container is interactive, tapping opens view
           onTap: () => _navigateToViewMedicine(context, med),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -298,10 +267,7 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
                   ),
                   child: const FittedBox(
                     fit: BoxFit.contain,
-                    child: Icon(
-                      Icons.local_pharmacy,
-                      color: Color(0xFF1A62B7),
-                    ),
+                    child: Icon(Icons.local_pharmacy, color: Color(0xFF1A62B7)),
                   ),
                 ),
                 // Medicine info
@@ -320,18 +286,17 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
                       Text(
                         '${med.dosage.toStringAsFixed(0)} ${med.dosageUnit}',
                         style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black54,
-                        ),
+                            fontSize: 14, color: Colors.black54),
                       ),
                       const SizedBox(height: 8),
-                      // Display only the first dose + duration
+                      // Display the first dose + duration
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
                         children: [
                           _smallCapsule(
-                            text: med.durationType,
+                            text: _formatDuration(
+                                med.durationType, med.durationValue),
                             color: Colors.white,
                             textColor: Colors.black,
                           ),
@@ -346,12 +311,11 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
                     ],
                   ),
                 ),
-                // Edit and Delete
+                // Edit and Delete (popup)
                 Center(
                   child: PopupMenuButton<String>(
                     onSelected: (value) async {
                       if (value == 'delete') {
-                        // Delete from Firestore
                         await FirebaseFirestore.instance
                             .collection('users')
                             .doc(_userId)
@@ -359,7 +323,6 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
                             .doc(med.id)
                             .delete();
                       } else if (value == 'edit') {
-                        // Go to **EditMedicinePage**
                         _navigateToEditMedicine(context, med);
                       }
                     },
@@ -385,64 +348,48 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
     );
   }
 
-  // capsule widget in medicine list
+  // Helper capsule
   Widget _smallCapsule({
     required String text,
     required Color color,
     required Color textColor,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 15,
-        vertical: 4,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         text,
-        style: TextStyle(
-          fontSize: 12,
-          color: textColor,
-        ),
+        style: TextStyle(fontSize: 12, color: textColor),
       ),
     );
   }
 
-  // Add, View, Edit
   void _navigateToAddMedicine(BuildContext context) {
-    // Navigate to your new "AddMedicinePage"
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const AddMedicinePage(),
-      ),
+      MaterialPageRoute(builder: (_) => const AddMedicinePage()),
     );
   }
 
   void _navigateToViewMedicine(BuildContext context, Medicine med) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => ViewMedicinePage(medicine: med),
-      ),
+      MaterialPageRoute(builder: (_) => ViewMedicinePage(medicine: med)),
     );
   }
 
   void _navigateToEditMedicine(BuildContext context, Medicine med) {
-    // Navigate to your new "EditMedicinePage"
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => AddOrEditMedicinePage(
-          existingMedicine: med,
-        ),
-      ),
+          builder: (_) => EditMedicinePage(existingMedicine: med)),
     );
   }
 
-  // Get earliest next dose among all meds
+  // Next dose
   Map<String, dynamic>? _getEarliestNextDose(List<Medicine> medicines) {
     if (medicines.isEmpty) return null;
 
@@ -469,8 +416,8 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
     final hours = diff.inHours;
     final minutes = diff.inMinutes % 60;
 
-    final nextIn = '${hours.toString().padLeft(2, '0')}:'
-        '${minutes.toString().padLeft(2, '0')}';
+    final nextIn =
+        '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
 
     return {
       'medicine': earliestMed,
@@ -494,5 +441,18 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
     if (amPm == 'AM' && hour == 12) hour = 0;
 
     return DateTime(now.year, now.month, now.day, hour, min);
+  }
+
+  String _formatDuration(String durationType, int durationValue) {
+    switch (durationType) {
+      case 'Everyday':
+        return 'Everyday';
+      case 'Every X Days':
+        return 'Every $durationValue days';
+      case 'Days':
+        return '$durationValue Days';
+      default:
+        return durationType;
+    }
   }
 }

@@ -161,15 +161,13 @@ class _ProviderHPState extends State<ProviderHP> {
                                         children: [
                                           CircleAvatar(
                                             radius: 50,
-                                            backgroundImage:
-                                                profileImageUrl != null &&
-                                                        profileImageUrl!
-                                                            .isNotEmpty
-                                                    ? NetworkImage(
-                                                        profileImageUrl!)
-                                                    : const AssetImage(
-                                                        'lib/assets/images/avatar.png',
-                                                      ) as ImageProvider,
+                                            backgroundImage: profileImageUrl !=
+                                                        null &&
+                                                    profileImageUrl!.isNotEmpty
+                                                ? NetworkImage(profileImageUrl!)
+                                                : const AssetImage(
+                                                    'lib/assets/images/avatar.png',
+                                                  ) as ImageProvider,
                                             child: (profileImageUrl == null ||
                                                     profileImageUrl!.isEmpty)
                                                 ? const Icon(

@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'dart:ui';  // For the BackdropFilter
+import 'dart:ui'; // For the BackdropFilter
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/UserSide/home_screen.dart';
 import 'package:saludko/screens/widget/snackbar.dart';
 
 class VerificationWaitingScreen extends StatefulWidget {
-  const VerificationWaitingScreen({Key? key}) : super(key: key);
+  const VerificationWaitingScreen({super.key});
 
   @override
   State<VerificationWaitingScreen> createState() =>
@@ -68,19 +68,22 @@ class _VerificationWaitingScreenState extends State<VerificationWaitingScreen> {
         // This is the blurred background
         Positioned.fill(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0), // Apply blur effect
+            filter:
+                ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0), // Apply blur effect
             child: Container(
-              color: Colors.white.withOpacity(0.5), // Optional, to darken the background
+              color: Colors.white
+                  .withOpacity(0.5), // Optional, to darken the background
             ),
           ),
         ),
         // The dialog content
         Center(
           child: AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            title: Row(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            title: const Row(
               mainAxisAlignment: MainAxisAlignment.center, // Center the title
-              children: const [
+              children: [
                 Text(
                   "Email Verification",
                   style: TextStyle(
@@ -113,11 +116,13 @@ class _VerificationWaitingScreenState extends State<VerificationWaitingScreen> {
                       if (user != null && user.emailVerified) {
                         // Navigate to the home screen if verified
                         Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => const MyHomeScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => const MyHomeScreen()),
                         );
                       } else {
                         // Show message to verify email first
-                        showSnackBar(context, "Please verify your account first.");
+                        showSnackBar(
+                            context, "Please verify your account first.");
                       }
                     },
                     child: const Text("Email Verified"),
