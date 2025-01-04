@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui'; // For the BackdropFilter
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:saludko/screens/UserSide/home_screen.dart';
 import 'package:saludko/screens/widget/snackbar.dart';
 
