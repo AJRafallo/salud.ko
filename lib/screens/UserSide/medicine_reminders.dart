@@ -435,7 +435,7 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => EditMedicinePage(
+        builder: (_) => AddOrEditMedicinePage(
           existingMedicine: med,
         ),
       ),

@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:saludko/screens/AdminSide/AdminHP.dart';
 import 'package:saludko/screens/HospitalAdminSide/HAHomepage.dart';
 import 'package:saludko/screens/ProviderSide/ProviderHP.dart';
+import 'package:saludko/screens/ProviderSide/pverification1.dart';
 import 'package:saludko/screens/UserSide/home_screen.dart';
 import 'package:saludko/screens/Opening/login_screen.dart';
 import 'package:saludko/screens/Opening/splash_screen.dart';
@@ -86,7 +87,7 @@ class MyApp extends StatelessWidget {
             } else if (snapshot.data == 'hospital_admin') {
               return const HAdminHomeScreen(); // Redirect hospital admin to their homepage
             } else if (snapshot.data == 'not_verified') {
-              return const MyLogin();
+              return const EmailVerificationScreen();
             } else {
               return const MyLogin(); // Redirect to login if the role is not found
             }

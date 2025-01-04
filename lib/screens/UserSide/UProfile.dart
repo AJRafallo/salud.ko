@@ -86,9 +86,6 @@ class _ShowProfilePageState extends State<ShowProfilePage> {
           final user = snapshot.data!.data() as Map<String, dynamic>;
           profileImageUrl = user['profileImage'] ?? '';
 
-
-
-
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(25.0),
@@ -167,7 +164,7 @@ class _ShowProfilePageState extends State<ShowProfilePage> {
                       ],
                     ),
                   ),
-const SizedBox(height: 30),
+                  const SizedBox(height: 30),
 
                   const Text(
                     'Personal Information',
@@ -234,10 +231,34 @@ const SizedBox(height: 30),
                             Text("${user['Address'] ?? ''}"),
                           ],
                         ),
-                                              ],
+                      ],
                     ),
                   ),
                   const SizedBox(height: 20),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        _showFeedbackBottomSheet(context, user);
+                      },
+                      child: const Column(
+                        children: [
+                          Text('Have suggestions? ',
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.black)),
+                          Text(
+                            'Submit your feedback here.',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
 
                   const Divider(
                     // Horizontal line after the button
@@ -263,6 +284,168 @@ const SizedBox(height: 30),
           );
         },
       ),
+    );
+  }
+
+  void _showFeedbackBottomSheet(
+      BuildContext context, Map<String, dynamic> user) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Color(0xFFDEEDFF),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20.0),
+        ),
+      ),
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        final TextEditingController feedbackController =
+            TextEditingController();
+
+        return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context)
+                  .viewInsets
+                  .bottom, // Adjust for keyboard
+              top: 16.0,
+              left: 16.0,
+              right: 16.0,
+            ),
+            child: Stack(
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Hello, ${user['firstname'] ?? ''}!",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                    const SizedBox(height: 10),
+                    RichText(
+                      text: const TextSpan(
+                        text: "salud.ko", // First part (bold)
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black, // Ensure text is visible
+                        ),
+                        children: [
+                          TextSpan(
+                            text:
+                                " values user feedback and comments. We are set to making this application more suitable for your needs. Provide your feedback here: ",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight
+                                  .normal, // Normal weight for remaining text
+                              color: Colors.black, // Match color for continuity
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: feedbackController,
+                      maxLines: 5,
+                      style: const TextStyle(
+                          color: Colors.black), // Text color inside the field
+                      decoration: const InputDecoration(
+                        filled: true, // Enable background fill
+                        fillColor:
+                            Colors.white, // Background color inside the border
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(15.0)), // Rounded corners
+                        ),
+                        hintText: "Enter your feedback here...",
+                        hintStyle: TextStyle(color: Colors.black, fontSize: 12),
+
+                        // Hint text color
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              final feedback = feedbackController.text.trim();
+
+                              if (feedback.isNotEmpty) {
+                                try {
+                                  final userId =
+                                      FirebaseAuth.instance.currentUser?.uid;
+
+                                  await FirebaseFirestore.instance
+                                      .collection('feedback')
+                                      .add({
+                                    'username': user['firstname'],
+                                    'userId': userId,
+                                    'feedback': feedback,
+                                    'timestamp': FieldValue.serverTimestamp(),
+                                  });
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          "Feedback submitted. Thank you!"),
+                                    ),
+                                  );
+
+                                  feedbackController.clear();
+                                  Navigator.pop(context);
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text("Error submitting feedback: $e"),
+                                    ),
+                                  );
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        "Please enter feedback before submitting."),
+                                  ),
+                                );
+                              }
+                            },
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.white, // Text color
+                              backgroundColor:
+                                  const Color(0xFF1A62B7), // Background color
+                            ),
+                            child: const Text("Submit"),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+                Positioned(
+                  top: -10, // Adjust distance from top
+                  right: -10.0, // Adjust distance from right
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.black,
+                      size: 30,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ),
+              ],
+            ));
+      },
     );
   }
 }

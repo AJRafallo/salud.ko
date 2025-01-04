@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/ProviderSide/ProviderSignupPage.dart';
+import 'package:saludko/screens/ProviderSide/psignup1.dart';
 import 'package:saludko/screens/Services/authentication.dart';
 import 'package:saludko/screens/UserSide/home_screen.dart';
 import 'package:saludko/screens/Opening/login_screen.dart';
@@ -206,7 +207,7 @@ class _SignupScreenState extends State<MySignup> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ProviderSignup(),
+                              builder: (context) => ProviderSignUpScreen(),
                             ));
                       },
                       child: const Text(

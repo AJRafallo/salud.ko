@@ -460,7 +460,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => EditMedicinePage(
+        builder: (_) => AddOrEditMedicinePage(
           existingMedicine: _currentMed,
         ),
       ),

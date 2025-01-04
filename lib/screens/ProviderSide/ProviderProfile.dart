@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:saludko/screens/widget/genderdropdown.dart';
+import 'package:saludko/screens/widget/workhours.dart';
 
 class ProviderProfile extends StatefulWidget {
   const ProviderProfile({super.key});
@@ -25,6 +26,15 @@ class _ProviderProfileState extends State<ProviderProfile> {
   String? selectedGender; // Variable to store selected gender
   String? profileImageUrl; // Variable to store profile image URL
   final currentUser = FirebaseAuth.instance.currentUser;
+  Map<String, List<Map<String, String>>> workHours = {
+    "Monday": [],
+    "Tuesday": [],
+    "Wednesday": [],
+    "Thursday": [],
+    "Friday": [],
+    "Saturday": [],
+    "Sunday": []
+  };
 
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController middleNameController = TextEditingController();
@@ -42,7 +52,58 @@ class _ProviderProfileState extends State<ProviderProfile> {
   @override
   void initState() {
     super.initState();
+    fetchWorkHours();
   }
+
+  // Fetch work hours from Firestore
+  Future<void> fetchWorkHours() async {
+    try {
+      final providerData = await FirebaseFirestore.instance
+          .collection('healthcare_providers')
+          .doc(currentUser!.uid)
+          .get();
+
+      if (providerData.exists) {
+        final data = providerData.data() as Map<String, dynamic>;
+        setState(() {
+          workHours = Map<String, List<Map<String, String>>>.from(
+              data['workHours'] ?? {});
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching work hours: $e')),
+      );
+    }
+  }
+
+  // Save work hours to Firestore
+Future<void> saveWorkHours(Map<String, List<Map<String, String>>> workHours) async {
+  try {
+    // Save the work hours map to Firestore
+    await FirebaseFirestore.instance
+        .collection('healthcare_providers')
+        .doc(currentUser!.uid)
+        .update({'workHours': workHours});
+
+    setState(() {
+      // Optionally update the local state if needed
+      this.workHours = workHours;
+    });
+
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Work hours saved successfully')),
+    );
+  } catch (e) {
+    // Show error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error saving work hours: $e')),
+    );
+  }
+}
+
+
 
   @override
   void dispose() {
@@ -428,6 +489,22 @@ class _ProviderProfileState extends State<ProviderProfile> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 10),
+                        const ListTile(
+                          title: Text(
+                            "Work Hours",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+WorkHoursWidget(
+                            workHours: workHours,
+                            onSave: saveWorkHours,
+                          ),
+                        const SizedBox(height: 10),
 
                         // Workplace Field
                         Text('Workplace', style: labelStyle),
@@ -562,6 +639,19 @@ class _ProviderProfileState extends State<ProviderProfile> {
         },
       ),
     );
+  }
+
+  // Convert work hours to a string for display
+  String workHoursToString(Map<String, List<Map<String, String>>> workHours) {
+    String result = "";
+    workHours.forEach((day, hours) {
+      result += "$day: ";
+      hours.forEach((slot) {
+        result += "${slot['start']} - ${slot['end']}  ";
+      });
+      result += "\n";
+    });
+    return result;
   }
 }
 

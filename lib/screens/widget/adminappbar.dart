@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/AdminSide/AProfile.dart';
+import 'package:saludko/screens/Opening/login_screen.dart';
+import 'package:saludko/screens/Services/authentication.dart';
 
 class AdminAppBar extends StatefulWidget {
   const AdminAppBar({super.key});
@@ -41,20 +42,36 @@ class _AdminAppBarState extends State<AdminAppBar> {
               color: Colors.white,
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AdminShowProfile(),
-                ),
-              );
-            },
-            child: const Icon(
-              Icons.person,
+          PopupMenuButton<String>(
+            icon: const Icon(
+              Icons.logout_rounded,
               size: 30,
               color: Colors.white,
             ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+            menuPadding: EdgeInsets.all(0),
+            onSelected: (value) async {
+              if (value == 'logout') {
+                await AuthServices().signOut(); // Your logout service
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => const MyLogin(),
+                  ),
+                );
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'logout',
+                
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Logout'),
+                  ],
+                ), 
+              ),
+            ],
           ),
         ],
       ),

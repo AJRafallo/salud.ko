@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 import 'package:saludko/screens/widget/provmapscreen.dart';
+import 'package:saludko/screens/widget/showworkhours.dart';
 
 class ProviderDetailScreen extends StatefulWidget {
   final Map<String, dynamic> provider;
@@ -276,6 +277,22 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                         color: Colors.black,
                       ),
                     ),
+                    const SizedBox(height: 5),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Workhours: ',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        DisplayWorkHoursWidget(providerId: widget.provider['uid'],)
+                      ],
+                    ),
                     InkWell(
                       onTap: () async {
                         final String workplace =
@@ -325,7 +342,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
                     if (currentUserRole == 'hospital_admin') ...[
                       Center(
                         child: ElevatedButton(

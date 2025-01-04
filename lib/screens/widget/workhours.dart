@@ -1,82 +1,184 @@
 import 'package:flutter/material.dart';
 
-class WorkHoursPicker extends StatefulWidget {
-  final List<String> daysOfWeek; // List of days to display
-  final Function(List<TimeOfDay?>, List<TimeOfDay?>) onSave; // Callback for saving times
+class WorkHoursWidget extends StatefulWidget {
+  final Map<String, List<Map<String, String>>> workHours;
+  final Function(Map<String, List<Map<String, String>>>) onSave;
 
-  const WorkHoursPicker({
-    super.key,
-    required this.daysOfWeek,
-    required this.onSave,
-  });
+  const WorkHoursWidget(
+      {super.key, required this.workHours, required this.onSave});
 
   @override
-  _WorkHoursPickerState createState() => _WorkHoursPickerState();
+  _WorkHoursWidgetState createState() => _WorkHoursWidgetState();
 }
 
-class _WorkHoursPickerState extends State<WorkHoursPicker> {
-  List<TimeOfDay?> startTimes = List.filled(7, null); // Start times for each day
-  List<TimeOfDay?> endTimes = List.filled(7, null); // End times for each day
+class _WorkHoursWidgetState extends State<WorkHoursWidget> {
+  late Map<String, List<Map<String, String>>> workHours;
 
-  Future<void> _pickTime(int index, bool isStartTime) async {
-    TimeOfDay initialTime = TimeOfDay.now();
-    
-    if (isStartTime && startTimes[index] != null) {
-      initialTime = startTimes[index]!;
-    } else if (!isStartTime && endTimes[index] != null) {
-      initialTime = endTimes[index]!;
-    }
-    
-    TimeOfDay? picked = await showTimePicker(
+  @override
+  void initState() {
+    super.initState();
+    // If no work hours are provided, set a default value.
+    workHours = widget.workHours.isEmpty
+        ? {
+            'Monday': [
+              {'start': '09:00 AM', 'end': '05:00 PM'}
+            ],
+            'Tuesday': [
+              {'start': '09:00 AM', 'end': '05:00 PM'}
+            ],
+            'Wednesday': [
+              {'start': '09:00 AM', 'end': '05:00 PM'}
+            ],
+            'Thursday': [
+              {'start': '09:00 AM', 'end': '05:00 PM'}
+            ],
+            'Friday': [
+              {'start': '09:00 AM', 'end': '05:00 PM'}
+            ],
+            'Saturday': [
+              {'start': '09:00 AM', 'end': '05:00 PM'}
+            ],
+            'Sunday': [
+              {'start': '09:00 AM', 'end': '05:00 PM'}
+            ],
+          }
+        : widget.workHours;
+  }
+
+  void addTimeSlot(String day) {
+    setState(() {
+      workHours[day]!.add({"start": "09:00 AM", "end": "05:00 PM"});
+    });
+  }
+
+  void removeTimeSlot(String day, int index) {
+    setState(() {
+      workHours[day]!.removeAt(index);
+    });
+  }
+
+  Future<void> selectTime(
+      BuildContext context, String day, int index, String key) async {
+    final TimeOfDay initialTime =
+        TimeOfDay(hour: 9, minute: 0); // Default to 9:00 AM
+    final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: initialTime,
     );
-
     if (picked != null) {
       setState(() {
-        if (isStartTime) {
-          startTimes[index] = picked;
-        } else {
-          endTimes[index] = picked;
-        }
+        workHours[day]![index][key] = picked.format(context);
       });
     }
   }
 
-  void saveWorkHours() {
-    widget.onSave(startTimes, endTimes);
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        for (int index = 0; index < widget.daysOfWeek.length; index++)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(widget.daysOfWeek[index]),
-              Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () => _pickTime(index, true),
-                    child: Text(startTimes[index]?.format(context) ?? 'Start'),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () => _pickTime(index, false),
-                    child: Text(endTimes[index]?.format(context) ?? 'End'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        const SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: saveWorkHours,
-          child: const Text("Save"),
+    return SingleChildScrollView(
+      child: Container(
+        padding: const EdgeInsets.all(0), // Padding around the container
+        decoration: BoxDecoration(
+          border: Border.all(
+              color: Colors.grey,
+              width: 1), // Border around the entire container
+          borderRadius:
+              BorderRadius.circular(15), // Rounded corners for the container
         ),
-      ],
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            ...workHours.keys.map((day) {
+              return Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ExpansionTile(
+                  title: Text(
+                    day,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(
+                          0.0), // Increased padding inside the card
+                      child: Column(
+                        children: [
+                          ...List.generate(workHours[day]!.length, (index) {
+                            return ListTile(
+                              title: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              IconButton(
+                                                icon: const Icon(
+                                                    Icons.access_time),
+                                                onPressed: () => selectTime(
+                                                    context,
+                                                    day,
+                                                    index,
+                                                    'start'),
+                                              ),
+                                              Text(
+                                                  "Start: ${workHours[day]![index]['start']}"),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              IconButton(
+                                                icon: const Icon(
+                                                    Icons.access_time),
+                                                onPressed: () => selectTime(
+                                                    context, day, index, 'end'),
+                                              ),
+                                              Text(
+                                                  "End: ${workHours[day]![index]['end']}"),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.remove_circle),
+                                        onPressed: () =>
+                                            removeTimeSlot(day, index),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                          ElevatedButton(
+                            onPressed: () => addTimeSlot(day),
+                            child: const Text("Add time slot"),
+                          ),
+                          const SizedBox(height: 10),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                widget.onSave(
+                    workHours); // Pass the updated work hours back to the parent widget
+              },
+              child: const Text("Save Work Hours"),
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
     );
   }
 }

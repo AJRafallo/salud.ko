@@ -1,51 +1,25 @@
-import 'dart:io';
-
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:saludko/screens/ProviderSide/ProviderVerificationStatusPage.dart';
-import 'package:saludko/screens/Services/authentication.dart';
 import 'package:saludko/screens/Opening/login_screen.dart';
+import 'package:saludko/screens/Opening/signup_screen.dart';
+import 'package:saludko/screens/ProviderSide/pverification1.dart';
+import 'package:saludko/screens/Services/authentication.dart';
 import 'package:saludko/screens/widget/button.dart';
 import 'package:saludko/screens/widget/snackbar.dart';
 import 'package:saludko/screens/widget/textfield.dart';
-import 'package:saludko/screens/widget/workplacedropdown.dart';
 
-class ProviderSignup extends StatefulWidget {
-  const ProviderSignup({super.key});
-
+class ProviderSignUpScreen extends StatefulWidget {
   @override
-  State<ProviderSignup> createState() => _SignupScreenState();
+  _ProviderSignUpScreenState createState() => _ProviderSignUpScreenState();
 }
 
-class _SignupScreenState extends State<ProviderSignup> {
+class _ProviderSignUpScreenState extends State<ProviderSignUpScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController lastnameController = TextEditingController();
   final TextEditingController firstnameController = TextEditingController();
-  final TextEditingController specializationController =
-      TextEditingController();
+  final TextEditingController lastnameController = TextEditingController();
 
-  String? selectedWorkplace;
   bool isLoading = false;
-  String? companyIDPath;
   bool _isPasswordVisible = false; // Password visibility toggle
-
-  final List<String> workplaces = [
-    "Mother Seton",
-    "Our Lady of Lourdes Infirmary",
-    // Add more workplace options here
-  ];
-
-  @override
-  void dispose() {
-    super.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    lastnameController.dispose();
-    firstnameController.dispose();
-    specializationController.dispose();
-  }
 
   String toTitleCase(String input) {
     return input.split(' ').map((word) {
@@ -54,50 +28,21 @@ class _SignupScreenState extends State<ProviderSignup> {
     }).join(' ');
   }
 
-  void pickCompanyID() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
-    );
-
-    if (result != null) {
-      setState(() {
-        companyIDPath = result.files.single.path!;
-      });
-    } else {
-      showSnackBar(context, 'No file selected.');
-    }
-  }
-
-  void signUpHealthcareProvider1() async {
-    if (selectedWorkplace == null) {
-      showSnackBar(context, 'Please select a workplace.');
-      return;
-    }
-
-    if (companyIDPath == null) {
-      showSnackBar(context, 'Please upload your company ID.');
-      return;
-    }
-
-    // Upload the company ID file to Firebase Storage
-    String uploadedFileURL = await uploadCompanyID(companyIDPath!);
+  Future<void> signUpHealthcareProvider1() async {
+    setState(() {
+      isLoading = true;
+    });
 
     String res = await AuthServices().signUpHealthCareProvider1(
-        email: emailController.text,
-        password: passwordController.text,
-        lastname: toTitleCase(lastnameController.text),
-        firstname: toTitleCase(firstnameController.text)
-        /*workplace: selectedWorkplace!,
-        companyIDPath: uploadedFileURL, // Pass the uploaded file URL
-        specialization: specializationController.text*/);
+      email: emailController.text,
+      password: passwordController.text,
+      firstname: toTitleCase(firstnameController.text),
+      lastname: toTitleCase(lastnameController.text),
+    );
 
     if (res == "Success") {
-      setState(() {
-        isLoading = true;
-      });
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => const ProviderVerificationStatusScreen(),
+        builder: (context) => EmailVerificationScreen(),
       ));
     } else {
       setState(() {
@@ -166,31 +111,33 @@ class _SignupScreenState extends State<ProviderSignup> {
                     },
                   ),
                 ),
-                InputTextField(
-                  textEditingController: specializationController,
-                  hintText: "Enter specialization (e.g. Cardiology)",
-                  icon: Icons.work_outline_rounded,
-                ),
-                WorkplaceDropdown(
-                  selectedWorkplace: selectedWorkplace,
-                  workplaces: workplaces,
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedWorkplace = newValue;
-                    });
-                  },
-                ),
+                
                 const SizedBox(height: 20),
-                ElevatedButton.icon(
-                  onPressed: pickCompanyID,
-                  icon: const Icon(Icons.upload_file),
-                  label: Text(companyIDPath == null
-                      ? "Upload Company ID"
-                      : "ID Uploaded"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Are you a patient? "),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const MySignup(),
+                            ));
+                      },
+                      child: const Text(
+                        "Register as user",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
                 MyButton(onTab: signUpHealthcareProvider1, text: "Sign Up"),
                 const SizedBox(height: 15),
+                
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -219,16 +166,4 @@ class _SignupScreenState extends State<ProviderSignup> {
       ),
     );
   }
-}
-
-Future<String> uploadCompanyID(String filePath) async {
-  final file = File(filePath);
-  final fileName = file.path.split('/').last;
-
-  final storageRef =
-      FirebaseStorage.instance.ref().child('company_ids/$fileName');
-  final uploadTask = storageRef.putFile(file);
-
-  final snapshot = await uploadTask;
-  return await snapshot.ref.getDownloadURL();
 }

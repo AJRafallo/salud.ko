@@ -3,6 +3,7 @@ import 'package:saludko/screens/AdminSide/AdminHP.dart';
 import 'package:saludko/screens/HospitalAdminSide/HAHomepage.dart';
 import 'package:saludko/screens/ProviderSide/ProviderHP.dart';
 import 'package:saludko/screens/ProviderSide/ProviderVerificationStatusPage.dart';
+import 'package:saludko/screens/ProviderSide/pverification1.dart';
 import 'package:saludko/screens/Services/authentication.dart';
 import 'package:saludko/screens/UserSide/home_screen.dart';
 import 'package:saludko/screens/Opening/signup_screen.dart';
@@ -59,7 +60,7 @@ class _MyLoginState extends State<MyLogin> {
     } else if (role == "not_verified") {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const ProviderVerificationStatusScreen(),
+          builder: (context) => const EmailVerificationScreen(),
         ),
       );
     } else if (role == "admin") {

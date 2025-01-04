@@ -9,6 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:saludko/screens/widget/provmapscreen.dart';
+import 'package:saludko/screens/widget/showworkhours.dart';
 
 class ProviderShowProfile extends StatefulWidget {
   const ProviderShowProfile({super.key});
@@ -28,38 +29,34 @@ class _ProviderShowProfileState extends State<ProviderShowProfile> {
   String? selectedGender; // Variable to store selected gender
   String? profileImageUrl; // Variable to store profile image URL
   final currentUser = FirebaseAuth.instance.currentUser;
-
-  final TextEditingController firstNameController = TextEditingController();
-  final TextEditingController middleNameController = TextEditingController();
-  final TextEditingController lastNameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
-  final TextEditingController workplaceController = TextEditingController();
-  final TextEditingController ageController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController workaddressController = TextEditingController();
-  final TextEditingController specializationController = TextEditingController();
+  Map<String, List<Map<String, String>>> workHours = {};
 
   @override
   void initState() {
     super.initState();
+    fetchWorkHours();
   }
 
-  @override
-  void dispose() {
-    firstNameController.dispose();
-    middleNameController.dispose();
-    lastNameController.dispose();
-    emailController.dispose();
-    phoneController.dispose();
-    addressController.dispose();
-    workplaceController.dispose();
-    ageController.dispose();
-    descriptionController.dispose();
-    workaddressController.dispose();
-    specializationController.dispose();
-    super.dispose();
+// Fetch work hours from Firestore
+  Future<void> fetchWorkHours() async {
+    try {
+      final providerData = await FirebaseFirestore.instance
+          .collection('healthcare_providers')
+          .doc(currentUser!.uid)
+          .get();
+
+      if (providerData.exists) {
+        final data = providerData.data() as Map<String, dynamic>;
+        setState(() {
+          workHours = Map<String, List<Map<String, String>>>.from(
+              data['workHours'] ?? {});
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching work hours: $e')),
+      );
+    }
   }
 
   Future<void> _uploadImage() async {
@@ -146,50 +143,6 @@ class _ProviderShowProfileState extends State<ProviderShowProfile> {
           }
 
           final provider = snapshot.data!.data() as Map<String, dynamic>;
-// Setting the text only if the TextEditingController is empty
-          firstNameController.text = firstNameController.text.isEmpty
-              ? provider['firstname'] ?? ''
-              : firstNameController.text;
-
-          middleNameController.text = middleNameController.text.isEmpty
-              ? provider['middlename'] ?? ''
-              : middleNameController.text;
-
-          lastNameController.text = lastNameController.text.isEmpty
-              ? provider['lastname'] ?? ''
-              : lastNameController.text;
-
-          emailController.text = emailController.text.isEmpty
-              ? provider['email'] ?? ''
-              : emailController.text;
-
-          phoneController.text = phoneController.text.isEmpty
-              ? provider['phone'] ?? ''
-              : phoneController.text;
-
-          addressController.text = addressController.text.isEmpty
-              ? provider['Address'] ?? ''
-              : addressController.text;
-
-          workplaceController.text = workplaceController.text.isEmpty
-              ? provider['workplace'] ?? ''
-              : workplaceController.text;
-
-          ageController.text = ageController.text.isEmpty
-              ? provider['age']?.toString() ?? ''
-              : ageController.text;
-
-          descriptionController.text = descriptionController.text.isEmpty
-              ? provider['description']?.toString() ?? ''
-              : descriptionController.text;
-
-          workaddressController.text = workaddressController.text.isEmpty
-              ? provider['workaddress']?.toString() ?? ''
-              : workaddressController.text;
-
-          specializationController.text = specializationController.text.isEmpty
-              ? provider['specialization']?.toString() ?? ''
-              : specializationController.text;
 
           // Load existing profile image URL if available
           profileImageUrl = provider['profileImage'] ?? '';
@@ -258,41 +211,54 @@ class _ProviderShowProfileState extends State<ProviderShowProfile> {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(15),
                           ),
-                          child: Column(children: [
-                            Text(
-                              "Dr. ${provider['firstname'] ?? ''} ${provider['lastname'] ?? ''}",
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w900,
-                                color: Color(0xFF1A62B7),
+                          child: Column(
+                            children: [
+                              Text(
+                                "Dr. ${provider['firstname'] ?? ''} ${provider['lastname'] ?? ''}",
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF1A62B7),
+                                ),
                               ),
-                            ),
-                            Text(
-                              "${provider['specialization'] ?? ''}, ${provider['workplace'] ?? ''}",
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontStyle: FontStyle.italic,
+                              Text(
+                                "${provider['specialization'] ?? ''}, ${provider['workplace'] ?? ''}",
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'About',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
+                              const SizedBox(height: 20),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'About',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  "${provider['description'] ?? ''}",
-                                ),
-                              ],
-                            )
-                          ]),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    "${provider['description'] ?? ''}",
+                                  ),
+                                  const SizedBox(height: 5),
+                                  const Text(
+                                    'Work Hours',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  DisplayWorkHoursWidget(
+                                      providerId: provider['uid']),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                         // Use the function in your InkWell onTap
                         InkWell(
@@ -448,7 +414,7 @@ class _ProviderShowProfileState extends State<ProviderShowProfile> {
                             ),
                             Text("${provider['Address'] ?? ''}"),
                           ],
-                        ), 
+                        ),
                       ],
                     ),
                   ),
