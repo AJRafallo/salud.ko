@@ -72,6 +72,84 @@ class AuthServices {
     return res;
   }
 
+    Future<String> signUpHealthCareProvider1({
+    required String email,
+    required String password,
+    required String firstname,
+    required String lastname,
+
+  }) async {
+    String res = "Some error occurred";
+    try {
+      if (email.isNotEmpty &&
+          password.isNotEmpty &&
+          firstname.isNotEmpty &&
+          lastname.isNotEmpty) {
+        if (!isPasswordValid(password)) {
+          return "Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character.";
+        }
+
+        UserCredential credential = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        await _firestore
+            .collection("healthcare_providers")
+            .doc(credential.user!.uid)
+            .set({
+          'firstname': firstname,
+          'lastname': lastname,
+          'email': email,
+          'uid': credential.user!.uid,
+          'role': 'healthcare_provider',
+          'isVerified': false,
+        });
+
+        res = "Success";
+      } else {
+        res = "Please fill all the fields";
+      }
+    } catch (e) {
+      return e.toString();
+    }
+    return res;
+  }
+
+Future<String> saveProfessionalDetails({
+  required String workplace,
+    required String companyIDPath,
+    required String specialization,
+
+
+
+  }) async {
+    User? user = _auth.currentUser;
+    String res = "Some error occurred";
+    try {
+      if (workplace.isNotEmpty &&
+          companyIDPath.isNotEmpty &&
+          specialization.isNotEmpty) {
+
+        await _firestore
+            .collection("healthcare_providers")
+            .doc(user!.uid)
+            .set({
+          'workplace': workplace,
+          'companyIDPath': companyIDPath,
+          'specialization':specialization,
+        }, SetOptions(merge: true));
+
+        res = "Success";
+      } else {
+        res = "Please fill all the fields";
+      }
+    } catch (e) {
+      return e.toString();
+    }
+    return res;
+  }
+
   Future<String> signUpHealthCareProvider({
     required String email,
     required String password,
