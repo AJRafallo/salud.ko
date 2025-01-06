@@ -1,11 +1,15 @@
-import 'package:flutter/material.dart';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:path_provider/path_provider.dart';
+
+import 'ocr_handler.dart';
 import 'upload_records_ui.dart';
+import 'scan_dialog.dart';
 
 class UploadWidget extends StatefulWidget {
   final VoidCallback onStartUpload;
@@ -24,17 +28,17 @@ class UploadWidget extends StatefulWidget {
 class _UploadWidgetState extends State<UploadWidget> {
   File? selectedFile;
   String? displayText = "Got Medical Records?\nUpload them Here";
-  final ImagePicker _picker = ImagePicker();
   double uploadProgress = 0.0;
 
-  // Pick document
+  final ImagePicker _picker = ImagePicker();
+
+  // 1) Pick document (pdf, doc, txt, etc.)
   Future<void> _pickDocument() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'doc', 'docx', 'txt'],
       );
-
       if (result != null) {
         setState(() {
           selectedFile = File(result.files.single.path!);
@@ -47,11 +51,10 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // Pick media
+  // 2) Pick media (photo/video) from gallery
   Future<void> _pickMedia(ImageSource source) async {
     try {
       final XFile? media = await _picker.pickImage(source: source);
-
       if (media != null) {
         setState(() {
           selectedFile = File(media.path);
@@ -64,11 +67,10 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // Capture photo
+  // 3) Take a photo with camera
   Future<void> _takePhoto() async {
     try {
       final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-
       if (photo != null) {
         setState(() {
           selectedFile = File(photo.path);
@@ -81,66 +83,128 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // Scan document
+  // 4) “Scan a Document”
   Future<void> _scanDocument() async {
+    ScanMethodDialog.show(
+      context: context,
+      onCamera: _scanDocumentFromCamera,
+      onGallery: _scanDocumentFromGallery,
+    );
+  }
+
+  // 4a) Actual scanning from camera
+  Future<void> _scanDocumentFromCamera() async {
     try {
       final XFile? scannedDoc =
           await _picker.pickImage(source: ImageSource.camera);
-
-      if (scannedDoc != null) {
-        setState(() {
-          selectedFile = File(scannedDoc.path);
-          displayText = "Document Scanned";
-        });
+      if (scannedDoc == null) {
+        print("No image selected from camera for OCR.");
+        return;
       }
-    } catch (e) {
-      print("Error scanning document: $e");
-      UploadWidgetUI.showSnackBar(context, 'Error scanning document.');
+      final File imageFile = File(scannedDoc.path);
+      widget.onStartUpload();
+
+      // Extract text using new ML Kit
+      final extractedText = await OCRHandler.extractText(imageFile);
+
+      // Save the extracted text to a file
+      final dir = await getApplicationDocumentsDirectory();
+      final textFile = File('${dir.path}/scanned_text.txt');
+      await textFile.writeAsString(extractedText);
+
+      setState(() {
+        selectedFile = textFile;
+        displayText = "Scanned & Extracted (Camera)";
+      });
+
+      print("OCR text saved to: ${textFile.path}");
+      UploadWidgetUI.showSnackBar(context, 'Text extracted successfully!');
+    } catch (e, stacktrace) {
+      print("Error scanning from camera: $e");
+      print("Stacktrace: $stacktrace");
+      UploadWidgetUI.showSnackBar(context, 'Error extracting text (camera).');
+    } finally {
+      widget.onEndUpload();
+    }
+  }
+
+  // 4b) Actual scanning from gallery
+  Future<void> _scanDocumentFromGallery() async {
+    try {
+      final XFile? galleryDoc =
+          await _picker.pickImage(source: ImageSource.gallery);
+      if (galleryDoc == null) {
+        print("No image selected from gallery for OCR.");
+        return;
+      }
+      final File imageFile = File(galleryDoc.path);
+      widget.onStartUpload();
+
+      // Extract text
+      final extractedText = await OCRHandler.extractText(imageFile);
+
+      // Save to .txt
+      final dir = await getApplicationDocumentsDirectory();
+      final textFile = File('${dir.path}/scanned_text.txt');
+      await textFile.writeAsString(extractedText);
+
+      setState(() {
+        selectedFile = textFile;
+        displayText = "Scanned & Extracted (Gallery)";
+      });
+
+      print("OCR text saved to: ${textFile.path}");
+      UploadWidgetUI.showSnackBar(context, 'Text extracted successfully!');
+    } catch (e, stacktrace) {
+      print("Error scanning from gallery: $e");
+      print("Stacktrace: $stacktrace");
+      UploadWidgetUI.showSnackBar(context, 'Error extracting text (gallery).');
+    } finally {
+      widget.onEndUpload();
     }
   }
 
   // Delete the selected file
   Future<void> _deleteFile() async {
-    if (selectedFile != null) {
-      String fileName = selectedFile!.path.split('/').last;
-      UploadWidgetUI.showDeleteDialog(
-        context: context,
-        fileName: fileName,
-        onConfirmDelete: () {
-          setState(() {
-            selectedFile = null;
-            displayText = "Got Medical Records?\nUpload them Here";
-          });
-          UploadWidgetUI.showSnackBar(
-              context, 'File "$fileName" deleted successfully.');
-        },
-      );
-    } else {
+    if (selectedFile == null) {
       UploadWidgetUI.showSnackBar(context, 'No file selected to delete.');
+      return;
     }
+    String fileName = selectedFile!.path.split('/').last;
+
+    UploadWidgetUI.showDeleteDialog(
+      context: context,
+      fileName: fileName,
+      onConfirmDelete: () {
+        setState(() {
+          selectedFile = null;
+          displayText = "Got Medical Records?\nUpload them Here";
+        });
+        UploadWidgetUI.showSnackBar(
+            context, 'File "$fileName" deleted successfully.');
+      },
+    );
   }
 
-  // Upload file to Firebase with progress
+  // Upload to Firebase with progress
   Future<void> _uploadFileToFirebase(String folderId, String folderName) async {
     if (selectedFile == null) return;
-
     try {
       widget.onStartUpload();
-
       final userId = FirebaseAuth.instance.currentUser!.uid;
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final fileName = selectedFile!.path.split('/').last;
 
-      // Reference to Firebase Storage
+      // Firebase Storage ref
       final storageRef = FirebaseStorage.instance
           .ref()
           .child('users/$userId/$folderName/$timestamp-$fileName');
 
-      // Start the upload task
+      // Start upload
       UploadTask uploadTask = storageRef.putFile(selectedFile!);
 
-      // Listen to progress changes
-      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+      // Track progress
+      uploadTask.snapshotEvents.listen((snapshot) {
         double progress =
             snapshot.bytesTransferred / snapshot.totalBytes.toDouble();
         setState(() {
@@ -148,12 +212,12 @@ class _UploadWidgetState extends State<UploadWidget> {
         });
       });
 
-      // Await completion
+      // Wait for completion
       await uploadTask;
 
       final downloadUrl = await storageRef.getDownloadURL();
 
-      // Save file metadata to Firestore
+      // Save metadata to Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
@@ -172,30 +236,29 @@ class _UploadWidgetState extends State<UploadWidget> {
         displayText = "Got Medical Records?\nUpload them Here";
         uploadProgress = 0.0;
       });
-
-      widget.onEndUpload();
     } catch (e) {
       print("Error uploading file: $e");
       UploadWidgetUI.showSnackBar(context, 'Failed to upload file.');
       setState(() {
         uploadProgress = 0.0;
       });
+    } finally {
       widget.onEndUpload();
     }
   }
 
-  // Show upload options
+  // Show the main upload options
   void _showUploadOptions() {
     UploadWidgetUI.showUploadOptionsDialog(
       context: context,
       onPickMedia: () => _pickMedia(ImageSource.gallery),
       onPickDocument: _pickDocument,
       onTakePhoto: _takePhoto,
-      onScanDocument: _scanDocument,
+      onScanDocument: _scanDocument, // show the subdialog for camera/gallery
     );
   }
 
-  // Show folder selection dialog
+  // Show folder selection bottom sheet for final upload
   Future<void> _showFolderSelectionDialog() async {
     final userId = FirebaseAuth.instance.currentUser!.uid;
     final foldersSnapshot = await FirebaseFirestore.instance
@@ -205,7 +268,7 @@ class _UploadWidgetState extends State<UploadWidget> {
         .get();
 
     final folders = foldersSnapshot.docs
-        .where((doc) => doc['name'] != 'All Files') // Exclude "All Files"
+        .where((doc) => doc['name'] != 'All Files')
         .toList();
 
     if (folders.isEmpty) {
