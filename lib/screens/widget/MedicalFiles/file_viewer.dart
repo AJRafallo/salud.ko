@@ -55,8 +55,6 @@ class _FileViewerPageState extends State<FileViewerPage> {
 
   @override
   Widget build(BuildContext context) {
-    String extension = widget.fileName.split('.').last.toLowerCase();
-
     if (isLoading) {
       return Scaffold(
         appBar: AppBar(title: Text(widget.fileName)),
@@ -71,19 +69,21 @@ class _FileViewerPageState extends State<FileViewerPage> {
       );
     }
 
-    // Automatically open DOC/DOCX files directly
+    // Determine file extension
+    String extension = widget.fileName.split('.').last.toLowerCase();
+
+    // Handle DOC / DOCX by opening via OpenFile
     if (['doc', 'docx'].contains(extension)) {
-      OpenFile.open(localPath);
+      OpenFile.open(localPath!);
       return const Scaffold(
         body: Center(child: Text('Opening file ...')),
       );
     }
 
-    if (['pdf'].contains(extension)) {
+    // Handle PDF (use flutter_pdfview)
+    if (extension == 'pdf') {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.fileName),
-        ),
+        appBar: AppBar(title: Text(widget.fileName)),
         body: PDFView(
           filePath: localPath!,
           enableSwipe: true,
@@ -94,15 +94,45 @@ class _FileViewerPageState extends State<FileViewerPage> {
       );
     }
 
+    // Handle images
     if (['png', 'jpg', 'jpeg', 'gif'].contains(extension)) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.fileName),
-        ),
+        appBar: AppBar(title: Text(widget.fileName)),
         body: Image.file(File(localPath!)),
       );
     }
 
+    // Handle TXT files: read the file as text, display in a scrollable text widget
+    if (extension == 'txt') {
+      return FutureBuilder<String>(
+        future: File(localPath!).readAsString(), // read the text
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Scaffold(
+              appBar: AppBar(title: Text(widget.fileName)),
+              body: const Center(child: CircularProgressIndicator()),
+            );
+          }
+          if (snapshot.hasError) {
+            return Scaffold(
+              appBar: AppBar(title: Text(widget.fileName)),
+              body: Center(
+                  child: Text('Error reading text file: ${snapshot.error}')),
+            );
+          }
+          final textContent = snapshot.data ?? "No text found.";
+          return Scaffold(
+            appBar: AppBar(title: Text(widget.fileName)),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(textContent),
+            ),
+          );
+        },
+      );
+    }
+
+    // If none matched, fallback
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.fileName),

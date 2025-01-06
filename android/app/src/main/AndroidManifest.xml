@@ -13,7 +13,10 @@
     <application
         android:label="saludko"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true" 
+        android:allowBackup="true"
+        android:supportsRtl="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
