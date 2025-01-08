@@ -1,4 +1,3 @@
-// File: upload_records_ui.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -47,7 +46,7 @@ class UploadWidgetUI extends StatelessWidget {
         ],
       );
     } else {
-      // File selected
+      // If a file is selected
       textWidget = Text(
         displayText ?? '',
         style: const TextStyle(
@@ -77,7 +76,7 @@ class UploadWidgetUI extends StatelessWidget {
                     icon: const Icon(Icons.close),
                     color: const Color(0xFFDB0000),
                     onPressed: onDeleteFile,
-                    padding: const EdgeInsets.all(0),
+                    padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
                 Expanded(child: textWidget),
@@ -106,6 +105,7 @@ class UploadWidgetUI extends StatelessWidget {
     );
   }
 
+  // Show the delete confirmation dialog
   static void showDeleteDialog({
     required BuildContext context,
     required String fileName,
@@ -206,7 +206,7 @@ class UploadWidgetUI extends StatelessWidget {
     );
   }
 
-  // **Modified Method: Return Future<void> and use generic types**
+  // Show folder selection bottom sheet
   static Future<void> showFolderSelectionDialog({
     required BuildContext context,
     required List<QueryDocumentSnapshot<Map<String, dynamic>>> folders,
@@ -225,6 +225,7 @@ class UploadWidgetUI extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Header
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                 child: Row(
@@ -253,7 +254,7 @@ class UploadWidgetUI extends StatelessWidget {
                 height: 0,
               ),
               const SizedBox(height: 5),
-              // ListView to handle number of folders and prevent overflow
+              // Folders list
               Flexible(
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -276,7 +277,9 @@ class UploadWidgetUI extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       onTap: () {
                         onFolderSelected(doc.id, folderName);
@@ -294,6 +297,7 @@ class UploadWidgetUI extends StatelessWidget {
     );
   }
 
+  // Show the upload options dialog
   static void showUploadOptionsDialog({
     required BuildContext context,
     required VoidCallback onPickMedia,
@@ -377,6 +381,7 @@ class UploadWidgetUI extends StatelessWidget {
     );
   }
 
+  // Helper to show a SnackBar
   static void showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),

@@ -72,12 +72,11 @@ class AuthServices {
     return res;
   }
 
-    Future<String> signUpHealthCareProvider1({
+  Future<String> signUpHealthCareProvider1({
     required String email,
     required String password,
     required String firstname,
     required String lastname,
-
   }) async {
     String res = "Some error occurred";
     try {
@@ -116,13 +115,10 @@ class AuthServices {
     return res;
   }
 
-Future<String> saveProfessionalDetails({
-  required String workplace,
+  Future<String> saveProfessionalDetails({
+    required String workplace,
     required String companyIDPath,
     required String specialization,
-
-
-
   }) async {
     User? user = _auth.currentUser;
     String res = "Some error occurred";
@@ -130,14 +126,10 @@ Future<String> saveProfessionalDetails({
       if (workplace.isNotEmpty &&
           companyIDPath.isNotEmpty &&
           specialization.isNotEmpty) {
-
-        await _firestore
-            .collection("healthcare_providers")
-            .doc(user!.uid)
-            .set({
+        await _firestore.collection("healthcare_providers").doc(user!.uid).set({
           'workplace': workplace,
           'companyIDPath': companyIDPath,
-          'specialization':specialization,
+          'specialization': specialization,
         }, SetOptions(merge: true));
 
         res = "Success";
@@ -201,8 +193,6 @@ Future<String> saveProfessionalDetails({
     }
     return res;
   }
-
-  
 
   Future<String> logInUser({
     required String email,
