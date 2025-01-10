@@ -419,24 +419,17 @@ class FolderContentPage extends StatelessWidget {
     );
   }
 
+  // CHANGED: Removed if (fId == null) branch
   Future<void> _renameFile(
       Map<String, dynamic> fileData, String newName) async {
     final userId = currentUser.uid;
     final fId = fileData['folderId'] as String?;
     final filePath = fileData['filePath'];
 
-    if (fId == null) {
-      // Handle files without a folder (Uncategorized)
-      final fileDoc = await _getFileDocByPath(userId, null, filePath);
-      if (fileDoc != null) {
-        await fileDoc.reference.update({'name': newName});
-      }
-    } else {
-      // Update in all_files collection
-      final fileDoc = await _getFileDocByPath(userId, fId, filePath);
-      if (fileDoc != null) {
-        await fileDoc.reference.update({'name': newName});
-      }
+    // We assume folderId is never null now
+    final fileDoc = await _getFileDocByPath(userId, fId, filePath);
+    if (fileDoc != null) {
+      await fileDoc.reference.update({'name': newName});
     }
   }
 
@@ -476,7 +469,7 @@ class FolderContentPage extends StatelessWidget {
     final filePath = fileData['filePath'];
     final oldFolderId = fileData['folderId'];
 
-    // Update the folderId field in 'all_files' collection
+    // Update the folderId field in 'all_files'
     final fileDoc = await _getFileDocByPath(userId, oldFolderId, filePath);
     if (fileDoc != null) {
       await fileDoc.reference.update({'folderId': targetFolderId});
@@ -598,18 +591,16 @@ class FolderContentPage extends StatelessWidget {
 
     if (folderId != null) {
       query = query.where('folderId', isEqualTo: folderId);
-    } else {
-      query = query.where('folderId', isEqualTo: null);
     }
 
     final snap = await query.limit(1).get();
-
     if (snap.docs.isNotEmpty) {
       return snap.docs.first;
     }
     return null;
   }
 
+  // CHANGED: No longer sets folderId to null; moves files to 'All Files'
   void _showDeleteFolderDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -678,7 +669,21 @@ class FolderContentPage extends StatelessWidget {
                       final userId = currentUser.uid;
                       final batch = FirebaseFirestore.instance.batch();
 
-                      // Find all files in this folder and set their folderId to null
+                      // 1) Find the "All Files" folder doc
+                      final allFilesQuery = await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(userId)
+                          .collection('folders')
+                          .where('name', isEqualTo: 'All Files')
+                          .limit(1)
+                          .get();
+
+                      String? allFilesFolderId;
+                      if (allFilesQuery.docs.isNotEmpty) {
+                        allFilesFolderId = allFilesQuery.docs.first.id;
+                      }
+
+                      // 2) Find all files in the folder we are deleting
                       final filesSnapshot = await FirebaseFirestore.instance
                           .collection('users')
                           .doc(userId)
@@ -686,16 +691,21 @@ class FolderContentPage extends StatelessWidget {
                           .where('folderId', isEqualTo: folderId)
                           .get();
 
-                      for (var fileDoc in filesSnapshot.docs) {
-                        batch.update(fileDoc.reference, {'folderId': null});
+                      // 3) Move those files into "All Files" (not null)
+                      if (allFilesFolderId != null) {
+                        for (var fileDoc in filesSnapshot.docs) {
+                          batch.update(fileDoc.reference, {
+                            'folderId': allFilesFolderId,
+                          });
+                        }
                       }
 
-                      // Delete the folder
+                      // 4) Delete the folder doc
                       batch.delete(FirebaseFirestore.instance
                           .collection('users')
                           .doc(userId)
                           .collection('folders')
-                          .doc(folderId!));
+                          .doc(folderId));
 
                       await batch.commit();
 

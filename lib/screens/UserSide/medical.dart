@@ -47,14 +47,9 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
         "createdAt": Timestamp.now(),
       });
     }
-
-    await userFolders.add({
-      "name": "Uncategorized",
-      "isDefault": true,
-      "createdAt": Timestamp.now(),
-    });
   }
 
+  // CHANGED: Filter out 'Uncategorized' so it won't appear in the UI
   Stream<List<Map<String, dynamic>>> _getUserFolders(String userId) {
     return FirebaseFirestore.instance
         .collection('users')
@@ -62,8 +57,11 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
         .collection('folders')
         .snapshots()
         .map((snapshot) {
-      final allFolders =
-          snapshot.docs.map((doc) => {"id": doc.id, ...doc.data()}).toList();
+      final allFolders = snapshot.docs
+          .map((doc) => {"id": doc.id, ...doc.data() as Map<String, dynamic>})
+          // Skip any folder named 'Uncategorized'
+          .where((folder) => folder["name"] != "Uncategorized")
+          .toList();
 
       Map<String, dynamic>? allFilesFolder;
       final otherFolders = <Map<String, dynamic>>[];
@@ -199,8 +197,12 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
     );
   }
 
-  void _navigateToFolder(BuildContext context, String folderName,
-      bool isDeletable, String folderId) {
+  void _navigateToFolder(
+    BuildContext context,
+    String folderName,
+    bool isDeletable,
+    String folderId,
+  ) {
     Navigator.push(
       context,
       MaterialPageRoute(
