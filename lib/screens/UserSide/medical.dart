@@ -58,7 +58,7 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
         .snapshots()
         .map((snapshot) {
       final allFolders = snapshot.docs
-          .map((doc) => {"id": doc.id, ...doc.data() as Map<String, dynamic>})
+          .map((doc) => {"id": doc.id, ...doc.data()})
           // Skip any folder named 'Uncategorized'
           .where((folder) => folder["name"] != "Uncategorized")
           .toList();
