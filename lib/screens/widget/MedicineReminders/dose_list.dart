@@ -17,11 +17,26 @@ class DosesListWidget extends StatefulWidget {
 
 class _DosesListWidgetState extends State<DosesListWidget> {
   late List<String> _localDoses;
+  // NEW: A controller for each dose
+  late List<TextEditingController> _controllers;
 
   @override
   void initState() {
     super.initState();
     _localDoses = List.from(widget.doses);
+
+    // Initialize a matching list of controllers
+    _controllers =
+        _localDoses.map((dose) => TextEditingController(text: dose)).toList();
+  }
+
+  @override
+  void dispose() {
+    // Make sure to dispose each controller
+    for (final controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -47,6 +62,7 @@ class _DosesListWidgetState extends State<DosesListWidget> {
           ),
           const SizedBox(height: 12),
 
+          // Render each dose row
           for (int i = 0; i < _localDoses.length; i++) ...[
             Text(
               '${ordinal(i + 1)} Dose',
@@ -66,9 +82,11 @@ class _DosesListWidgetState extends State<DosesListWidget> {
               ),
               child: Row(
                 children: [
+                  // Text field that shows the current dose time
                   Expanded(
                     child: TextFormField(
-                      initialValue: _localDoses[i],
+                      controller: _controllers[i],
+                      // Removed `initialValue:` because we have a controller
                       onChanged: (val) {
                         _localDoses[i] = val;
                         widget.onDosesChanged(_localDoses);
@@ -88,6 +106,8 @@ class _DosesListWidgetState extends State<DosesListWidget> {
                       ),
                     ),
                   ),
+
+                  // Time picker button
                   IconButton(
                     icon: const Icon(
                       Icons.access_time,
@@ -101,13 +121,21 @@ class _DosesListWidgetState extends State<DosesListWidget> {
                       );
                       if (picked != null) {
                         final newTimeStr = formatTimeOfDay(picked);
+
+                        // Update the text field & dose list
                         setState(() {
+                          // 1) Update the text in the controller
+                          _controllers[i].text = newTimeStr;
+                          // 2) Update _localDoses
                           _localDoses[i] = newTimeStr;
+                          // 3) Notify the parent (EditMedicinePage)
                           widget.onDosesChanged(_localDoses);
                         });
                       }
                     },
                   ),
+
+                  // Delete button
                   IconButton(
                     icon: Icon(
                       Icons.delete,
@@ -116,7 +144,9 @@ class _DosesListWidgetState extends State<DosesListWidget> {
                     ),
                     onPressed: () {
                       setState(() {
+                        // Remove the dose & its controller
                         _localDoses.removeAt(i);
+                        _controllers.removeAt(i);
                         widget.onDosesChanged(_localDoses);
                       });
                     },
@@ -133,7 +163,10 @@ class _DosesListWidgetState extends State<DosesListWidget> {
             child: InkWell(
               onTap: () {
                 setState(() {
+                  // Default new dose time
                   _localDoses.add('8:00 AM');
+                  // Also add a new controller with the same default
+                  _controllers.add(TextEditingController(text: '8:00 AM'));
                   widget.onDosesChanged(_localDoses);
                 });
               },

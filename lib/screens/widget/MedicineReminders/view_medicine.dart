@@ -48,6 +48,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Row with Medicine Name & Notifications
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -128,6 +129,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Medicine Dosage
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,7 +223,9 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                           borderRadius: BorderRadius.circular(5),
                         ),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         margin: const EdgeInsets.only(bottom: 12),
                         child: Row(
                           children: [
@@ -330,7 +334,6 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                       ),
                     ),
                   ),
-
                   // Duration
                   Expanded(
                     child: Container(
@@ -420,8 +423,10 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text('Edit Medication',
-                      style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    'Edit Medication',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ],
@@ -431,14 +436,22 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
     );
   }
 
+  // ********** UPDATED THIS METHOD ***********
   void _navigateToEditMedication() {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => EditMedicinePage(existingMedicine: _currentMed),
       ),
-    ).then((_) {
-      // Refresh if needed
+    ).then((result) {
+      // If the user saved and popped an updated object, capture it
+      if (result != null && result is Medicine) {
+        setState(() {
+          // Immediately update our local copy
+          _currentMed = result;
+          // This triggers a rebuild, so you'll see the new name/dose/time, etc.
+        });
+      }
     });
   }
 
@@ -493,7 +506,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
   }
 
   String _ordinal(int number) {
-    // Same logic as in common_functions.dart, but included inline for demonstration
+    // same logic as in common_functions.dart
     if (number % 100 >= 11 && number % 100 <= 13) {
       return '${number}th';
     }

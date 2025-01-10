@@ -138,6 +138,9 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                 ],
               ),
               const SizedBox(height: 12),
+              // This is your custom widget for editing doses.
+              // Make sure that inside DosesListWidget (if it has a time picker),
+              // you call setState() or pass the changes back up so the UI updates immediately.
               DosesListWidget(
                 doses: _doses,
                 onDosesChanged: (newDoses) {
@@ -170,8 +173,9 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                 controller: _notesController,
                 maxLines: 3,
                 style: TextStyle(color: Colors.black.withOpacity(0.8)),
-                decoration:
-                    _inputDecoration('Additional info: e.g. "Take with food".'),
+                decoration: _inputDecoration(
+                  'Additional info: e.g. "Take with food".',
+                ),
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -227,6 +231,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
           .collection('medicines')
           .doc(widget.existingMedicine.id);
 
+      // Construct the updated Medicine object
       final updatedMed = Medicine(
         id: widget.existingMedicine.id,
         name: _nameController.text.trim(),
@@ -242,8 +247,11 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
         notificationsEnabled: _notificationsEnabled,
       );
 
+      // Update Firestore
       await docRef.update(updatedMed.toMap());
-      Navigator.pop(context);
+
+      // Instead of popping 'true', let's pop the updated Medicine
+      Navigator.pop(context, updatedMed);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to save medicine.')),
