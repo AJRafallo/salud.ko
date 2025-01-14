@@ -15,6 +15,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool isVerified = false;
   bool isLoading = false;
+  bool isResending = false;
 
   @override
   void initState() {
@@ -55,6 +56,31 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         const SnackBar(
             content: Text("Email not verified yet. Please check your email.")),
       );
+    }
+  }
+
+  Future<void> resendVerificationEmail() async {
+    setState(() {
+      isResending = true;
+    });
+
+    try {
+      User? user = _auth.currentUser;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Verification email sent. Please check your inbox.")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    } finally {
+      setState(() {
+        isResending = false;
+      });
     }
   }
 
@@ -141,6 +167,18 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               "A verification link has been sent to your email address. Please verify your email to proceed.",
               textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 20),
+            isResending
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: resendVerificationEmail,
+                    child: const Text(
+                      "Resend Verification Email",
+                      style: TextStyle(
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
             const SizedBox(height: 20),
             isLoading
                 ? const CircularProgressIndicator()

@@ -11,6 +11,11 @@ class VerifiedProvidersWidget2 extends StatefulWidget {
 }
 
 class _VerifiedProvidersWidget2State extends State<VerifiedProvidersWidget2> {
+  String toSentenceCase(String input) {
+    if (input.isEmpty) return input;
+    return input[0].toUpperCase() + input.substring(1).toLowerCase();
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -43,6 +48,13 @@ class _VerifiedProvidersWidget2State extends State<VerifiedProvidersWidget2> {
                     providers[index].data() as Map<String, dynamic>;
                 var profileImageUrl = provider['profileImage'] ?? ''; // Get provider's profile image URL, if available
 
+                // Apply Sentence Case
+                final firstname = toSentenceCase(provider['firstname'] ?? '');
+                final lastname = toSentenceCase(provider['lastname']?? '');
+                final specialization =
+                    toSentenceCase(provider['specialization'] ?? '');
+                final workplace = toSentenceCase(provider['workplace'] ?? '');
+
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 5.0),
                   decoration: BoxDecoration(
@@ -65,7 +77,6 @@ class _VerifiedProvidersWidget2State extends State<VerifiedProvidersWidget2> {
                           : const AssetImage('lib/assets/images/avatar.png')
                               as ImageProvider,
                       onBackgroundImageError: (_, __) {
-                        // Fallback to default avatar if there's an error loading the image
                         setState(() {
                           profileImageUrl =
                               ''; // Reset to show the default avatar
@@ -73,7 +84,7 @@ class _VerifiedProvidersWidget2State extends State<VerifiedProvidersWidget2> {
                       },
                     ),
                     title: Text(
-                      "Dr. ${provider['firstname']}",
+                      "Dr. $lastname, $firstname",
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -81,7 +92,7 @@ class _VerifiedProvidersWidget2State extends State<VerifiedProvidersWidget2> {
                       ),
                     ),
                     subtitle: Text(
-                      "${provider['specialization']}, ${provider['workplace']}",
+                      "$specialization, $workplace",
                       style: const TextStyle(
                         fontSize: 12,
                         fontStyle: FontStyle.italic,

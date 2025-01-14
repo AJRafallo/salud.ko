@@ -75,71 +75,7 @@ class _SignupScreenState extends State<MySignup> {
     });
   }
 
-  // Function to show the sign-up dialog
-  void _showSignupDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Sign Up'),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MyLogin()),
-                  );
-                },
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              InputTextField(
-                textEditingController: firstnameController,
-                hintText: "Enter first name",
-                icon: Icons.person_3_rounded,
-              ),
-              InputTextField(
-                textEditingController: lastnameController,
-                hintText: "Enter last name",
-                icon: Icons.person_3_rounded,
-              ),
-              InputTextField(
-                textEditingController: emailController,
-                hintText: "Enter email",
-                icon: Icons.email_rounded,
-              ),
-              InputTextField(
-                textEditingController: passwordController,
-                hintText: "Enter password",
-                isPass: !_isPasswordVisible,
-                icon: Icons.lock_rounded,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _isPasswordVisible
-                        ? Icons.visibility
-                        : Icons.visibility_off,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isPasswordVisible = !_isPasswordVisible;
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
-              MyButton(onTab: signUpUser, text: "Sign Up"),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +157,7 @@ class _SignupScreenState extends State<MySignup> {
                 ),
                 const SizedBox(height: 20),
                 MyButton(
-                  onTab: _showSignupDialog, // Show the dialog on sign up
+                  onTab: signUpUser,
                   text: "Sign Up",
                 ),
                 const SizedBox(height: 15),

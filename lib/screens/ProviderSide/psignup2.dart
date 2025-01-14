@@ -24,9 +24,11 @@ bool isLoading = false;
 String? companyIDPath;
 
 final List<String> workplaces = [
-  "Mother Seton",
-  "Our Lady of Lourdes Infirmary",
-  // Add more workplace options here
+    "Mother Seton",
+    "Our Lady of Lourdes Infirmary",
+    "Dr. Nilo O. Roa Memorial Foundation Hospital",
+    "Madrid Dental Center",
+    "M.E. Villegas Dental Clinic",
 ];
 
 class _ProfessionalDetailsSignupPageState

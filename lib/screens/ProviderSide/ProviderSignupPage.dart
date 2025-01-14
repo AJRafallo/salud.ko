@@ -34,7 +34,9 @@ class _SignupScreenState extends State<ProviderSignup> {
   final List<String> workplaces = [
     "Mother Seton",
     "Our Lady of Lourdes Infirmary",
-    // Add more workplace options here
+    "Dr. Nilo O. Roa Memorial Foundation Hospital",
+    "Madrid Dental Center",
+    "M.E. Villegas Dental Clinic",
   ];
 
   @override
