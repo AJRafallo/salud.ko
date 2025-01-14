@@ -85,76 +85,84 @@ class AdminHP extends StatelessWidget {
                                             const AdminShowProfile()),
                                   );
                                 },
-                                child: Container(
-                                  width: 325,
-                                  padding: const EdgeInsets.all(20),
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFFDEEDFF), // Light blue
-                                        Color.fromARGB(255, 115, 146,
-                                            176), // Slightly darker blue
-                                        Color(
-                                            0xFFFFFFFF), // White for metallic shine
-                                        Color(
-                                            0xFFA6CBE3), // Subtle shadow effect
-                                      ],
-                                      stops: [0.0, 0.3, 0.7, 1.0],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
+                                child: Column(
+                                                                        mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 325,
+                                      padding: const EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFFDEEDFF), // Light blue
+                                            Color.fromARGB(255, 115, 146,
+                                                176), // Slightly darker blue
+                                            Color(
+                                                0xFFFFFFFF), // White for metallic shine
+                                            Color(
+                                                0xFFA6CBE3), // Subtle shadow effect
+                                          ],
+                                          stops: [0.0, 0.3, 0.7, 1.0],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const AdminShowProfile()),
+                                          );
+                                        },
+                                        child: Column(
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 50,
+                                              backgroundImage: profileImageUrl !=
+                                                          null &&
+                                                      profileImageUrl!.isNotEmpty
+                                                  ? NetworkImage(profileImageUrl!)
+                                                  : const AssetImage(
+                                                      'lib/assets/images/avatar.png',
+                                                    ) as ImageProvider,
+                                              child: (profileImageUrl == null ||
+                                                      profileImageUrl!.isEmpty)
+                                                  ? const Icon(
+                                                      Icons.camera_alt,
+                                                      size: 40,
+                                                      color: Colors.grey,
+                                                    )
+                                                  : null,
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              admin['firstname'] ?? '',
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              admin['Address'] ??
+                                                  'No address assigned',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const AdminShowProfile()),
-                                      );
-                                    },
-                                    child: Column(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 50,
-                                          backgroundImage: profileImageUrl !=
-                                                      null &&
-                                                  profileImageUrl!.isNotEmpty
-                                              ? NetworkImage(profileImageUrl!)
-                                              : const AssetImage(
-                                                  'lib/assets/images/avatar.png',
-                                                ) as ImageProvider,
-                                          child: (profileImageUrl == null ||
-                                                  profileImageUrl!.isEmpty)
-                                              ? const Icon(
-                                                  Icons.camera_alt,
-                                                  size: 40,
-                                                  color: Colors.grey,
-                                                )
-                                              : null,
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          admin['firstname'] ?? '',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          admin['Address'] ??
-                                              'No address assigned',
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -180,13 +188,13 @@ class AdminHP extends StatelessWidget {
                                   children: [
                                     GestureDetector(
                                         onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const AdminMembers()),
-                                    );
-                                  },
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const AdminMembers()),
+                                          );
+                                        },
                                         child: const Column(children: [
                                           Icon(
                                             Icons.group_rounded,
@@ -292,7 +300,7 @@ class AdminHP extends StatelessWidget {
                           const SizedBox(height: 20),
                         ],
                       ),
-                    ),                   
+                    ),
                   ],
                 ),
               ),

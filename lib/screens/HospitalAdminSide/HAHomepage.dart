@@ -136,9 +136,15 @@ class _HAdminHomeScreenState extends State<HAdminHomeScreen> {
                         ],
                       ),
                       child: Column(
+                        
                         children: [
                           Column(
+                                                                                              mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                             children: [
+                              
                               const SizedBox(height: 20),
                               const Text(
                                 "PROFILE CARD",
@@ -254,6 +260,9 @@ class _HAdminHomeScreenState extends State<HAdminHomeScreen> {
                             ],
                           ),
                           child: Column(
+                           mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                             children: [
                               GestureDetector(
                                   onTap: () {
@@ -262,7 +271,8 @@ class _HAdminHomeScreenState extends State<HAdminHomeScreen> {
                                       MaterialPageRoute(
                                           builder: (context) => HAMembers(
                                                 workplace:
-                                                    "${hospital['workplace']}",
+                                                    "${hospital['workplace']}"
+                                                    
                                               )),
                                     );
                                   },

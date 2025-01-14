@@ -37,7 +37,7 @@ class _AdminAppBar2State extends State<AdminAppBar2> {
         ),
       ),
       pinned: true,
-      expandedHeight: 150.0,
+      expandedHeight: 160.0,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -84,7 +84,7 @@ class _AdminAppBar2State extends State<AdminAppBar2> {
       ),
       flexibleSpace: FlexibleSpaceBar(
         background: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 1),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -93,6 +93,8 @@ class AuthServices {
           password: password,
         );
 
+        await credential.user!.sendEmailVerification();
+
         await _firestore
             .collection("healthcare_providers")
             .doc(credential.user!.uid)
