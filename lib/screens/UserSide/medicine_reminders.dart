@@ -65,7 +65,9 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
   }
 
   Widget _buildUpcomingReminder(
-      BuildContext context, Map<String, dynamic>? nextData) {
+    BuildContext context,
+    Map<String, dynamic>? nextData,
+  ) {
     if (nextData == null) {
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -229,11 +231,17 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
 
   Widget _buildMedicineList(BuildContext context, List<Medicine> medicines) {
     if (medicines.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Text(
+      // Just the text inside a container with padding, no icon
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFDEEDFF),
+          border: Border.all(color: const Color(0xFF9ECBFF)),
+        ),
+        child: const Text(
           'No medicines yet. Tap the + button to add one!',
-          style: TextStyle(fontSize: 16),
+          style: TextStyle(fontSize: 16, color: Colors.black54),
         ),
       );
     }
@@ -286,7 +294,9 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
                       Text(
                         '${med.dosage.toStringAsFixed(0)} ${med.dosageUnit}',
                         style: const TextStyle(
-                            fontSize: 14, color: Colors.black54),
+                          fontSize: 14,
+                          color: Colors.black54,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       // Display the first dose + duration
@@ -311,38 +321,190 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
                     ],
                   ),
                 ),
-                // Edit and Delete (popup)
                 Center(
-                  child: PopupMenuButton<String>(
-                    onSelected: (value) async {
-                      if (value == 'delete') {
-                        await FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(_userId)
-                            .collection('medicines')
-                            .doc(med.id)
-                            .delete();
-                      } else if (value == 'edit') {
-                        _navigateToEditMedicine(context, med);
-                      }
-                    },
-                    itemBuilder: (BuildContext context) {
-                      return const [
-                        PopupMenuItem(
-                          value: 'edit',
-                          child: Text('Edit'),
-                        ),
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: Text('Delete'),
-                        ),
-                      ];
+                  child: IconButton(
+                    icon: const Icon(Icons.more_horiz, color: Colors.black),
+                    onPressed: () {
+                      _showMedicineActionsBottomSheet(context, med);
                     },
                   ),
                 ),
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+
+  // Bottom sheet for Edit/Delete
+  void _showMedicineActionsBottomSheet(BuildContext context, Medicine med) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Title row
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              child: Row(
+                children: [
+                  const Icon(Icons.local_pharmacy, color: Colors.black),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      med.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(ctx),
+                    child: const Icon(Icons.close, color: Colors.black),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Divider(
+              thickness: 0.5,
+              color: Colors.black.withOpacity(0.2),
+              height: 0,
+            ),
+            const SizedBox(height: 5),
+            ListTile(
+              leading: const Icon(Icons.edit, color: Colors.black),
+              title: const Text(
+                'Edit',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              onTap: () {
+                Navigator.pop(ctx);
+                _navigateToEditMedicine(context, med);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.black),
+              title: const Text(
+                'Delete',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showDeleteMedicineDialog(context, med);
+              },
+            ),
+            const SizedBox(height: 10),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteMedicineDialog(BuildContext context, Medicine med) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          title: const Center(
+            child: Text(
+              "Delete Medicine",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              SizedBox(height: 5),
+              Text(
+                "Are you sure you want to delete this medicine?",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.black),
+              ),
+            ],
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFF1A62B7)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Color(0xFF1A62B7),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(_userId)
+                          .collection('medicines')
+                          .doc(med.id)
+                          .delete();
+                      Navigator.pop(ctx); // close the dialog
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Failed to delete medicine.'),
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFDB0000),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 35,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    "Delete",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         );
       },
     );
@@ -389,7 +551,7 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
     );
   }
 
-  // Next dose
+  // Next dose calculation
   Map<String, dynamic>? _getEarliestNextDose(List<Medicine> medicines) {
     if (medicines.isEmpty) return null;
 
