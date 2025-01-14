@@ -48,10 +48,10 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Row with Medicine Name & Notifications
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Medicine Name
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,7 +67,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                         Text(
                           med.name,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF1A62B7),
                           ),
@@ -76,6 +76,8 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                     ),
                   ),
                   const SizedBox(width: 16),
+
+                  // Notifications
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,7 +147,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                         Text(
                           '${med.dosage.toStringAsFixed(0)} ${med.dosageUnit}',
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF1A62B7),
                           ),
@@ -171,7 +173,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                         Text(
                           nextDoseStr ?? '--',
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF1A62B7),
                           ),
@@ -186,11 +188,12 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
               // Dose container
               Container(
                 width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
                 decoration: BoxDecoration(
                   color: const Color(0xFFC1EFC3),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -214,31 +217,38 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                     ),
                     const SizedBox(height: 12),
                     for (int i = 0; i < med.doses.length; i++) ...[
-                      Text('${_ordinal(i + 1)} Dose:',
-                          style: const TextStyle(fontSize: 14)),
+                      Text(
+                        '${_ordinal(i + 1)} Dose:',
+                        style: const TextStyle(fontSize: 14),
+                      ),
                       const SizedBox(height: 4),
                       Container(
+                        constraints: const BoxConstraints(minHeight: 50),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 12,
+                        ),
+                        margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.black),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        margin: const EdgeInsets.only(bottom: 12),
                         child: Row(
                           children: [
                             Text(
                               med.doses[i],
                               style: const TextStyle(
                                 fontSize: 14,
-                                color: Color(0xFF1A62B7),
-                                fontWeight: FontWeight.w600,
+                                //fontWeight: FontWeight.w600,
                               ),
                             ),
                             const Spacer(),
-                            const Icon(Icons.access_time, size: 16),
+                            const Icon(
+                              Icons.access_time,
+                              size: 16,
+                              color: Color(0xFF1A62B7),
+                            ),
                           ],
                         ),
                       ),
@@ -248,7 +258,6 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
               ),
               const SizedBox(height: 24),
 
-              // Quantity & Duration
               Row(
                 children: [
                   // Quantity
@@ -267,8 +276,8 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                           const Text(
                             'Quantity',
                             style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
+                              fontSize: 19,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -304,6 +313,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1A62B7),
                                 ),
                               ),
                               // quantity left
@@ -347,11 +357,12 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
+                          const Text(
                             'Duration',
                             style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black.withOpacity(0.6),
+                              fontSize: 19,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -369,7 +380,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                             '$daysLeft DAYS LEFT',
                             style: const TextStyle(
                               fontSize: 14,
-                              color: Colors.black87,
+                              color: Colors.black,
                             ),
                           ),
                         ],
@@ -391,19 +402,19 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Notes',
                       style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black.withOpacity(0.6),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       med.notes.isEmpty ? 'No additional notes.' : med.notes,
                       style: const TextStyle(
                         fontSize: 14,
-                        color: Colors.black87,
                       ),
                     ),
                   ],
@@ -411,7 +422,6 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
               ),
               const SizedBox(height: 20),
 
-              // Edit Medication button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -436,7 +446,6 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
     );
   }
 
-  // ********** UPDATED THIS METHOD ***********
   void _navigateToEditMedication() {
     Navigator.push(
       context,
@@ -444,18 +453,14 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
         builder: (_) => EditMedicinePage(existingMedicine: _currentMed),
       ),
     ).then((result) {
-      // If the user saved and popped an updated object, capture it
       if (result != null && result is Medicine) {
         setState(() {
-          // Immediately update our local copy
           _currentMed = result;
-          // This triggers a rebuild, so you'll see the new name/dose/time, etc.
         });
       }
     });
   }
 
-  // Next dose
   String? _getNextDoseForSingleMedicine(Medicine m) {
     if (m.doses.isEmpty) return null;
     final now = DateTime.now();
@@ -506,7 +511,6 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
   }
 
   String _ordinal(int number) {
-    // same logic as in common_functions.dart
     if (number % 100 >= 11 && number % 100 <= 13) {
       return '${number}th';
     }

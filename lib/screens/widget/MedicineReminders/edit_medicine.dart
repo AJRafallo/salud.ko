@@ -98,6 +98,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                 decoration: _inputDecoration('mg'),
               ),
               const SizedBox(height: 12),
+              // Notifications Toggle
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -109,17 +110,17 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                     scale: 0.8,
                     child: Switch(
                       value: _notificationsEnabled,
-                      thumbColor: WidgetStateProperty.resolveWith<Color>(
+                      thumbColor: MaterialStateProperty.resolveWith<Color>(
                         (states) => Colors.white,
                       ),
-                      trackColor: WidgetStateProperty.resolveWith<Color>(
-                        (states) => states.contains(WidgetState.selected)
+                      trackColor: MaterialStateProperty.resolveWith<Color>(
+                        (states) => states.contains(MaterialState.selected)
                             ? const Color(0xFF1A62B7)
                             : const Color(0xFF49454F),
                       ),
-                      thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
+                      thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
                         (states) {
-                          if (states.contains(WidgetState.selected)) {
+                          if (states.contains(MaterialState.selected)) {
                             return const Icon(Icons.check,
                                 color: Colors.black, size: 12);
                           } else {
@@ -138,9 +139,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                 ],
               ),
               const SizedBox(height: 12),
-              // This is your custom widget for editing doses.
-              // Make sure that inside DosesListWidget (if it has a time picker),
-              // you call setState() or pass the changes back up so the UI updates immediately.
+              // Doses List
               DosesListWidget(
                 doses: _doses,
                 onDosesChanged: (newDoses) {
@@ -150,6 +149,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                 },
               ),
               const SizedBox(height: 16),
+              // Quantity + Duration
               QuantityDurationWidget(
                 quantity: _quantity,
                 quantityLeft: _quantityLeft,
@@ -231,7 +231,6 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
           .collection('medicines')
           .doc(widget.existingMedicine.id);
 
-      // Construct the updated Medicine object
       final updatedMed = Medicine(
         id: widget.existingMedicine.id,
         name: _nameController.text.trim(),
@@ -250,7 +249,6 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
       // Update Firestore
       await docRef.update(updatedMed.toMap());
 
-      // Instead of popping 'true', let's pop the updated Medicine
       Navigator.pop(context, updatedMed);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -260,39 +258,112 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
   }
 
   Future<void> _onDeletePressed(BuildContext context) async {
-    final shouldDelete = await showDialog<bool>(
+    showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Medicine'),
-        content: const Text('Are you sure you want to delete this medicine?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          title: const Center(
+            child: Text(
+              "Delete Medicine",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 5),
+              Text(
+                "Are you sure you want to delete this medicine?",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.black),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Cancel
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFF1A62B7)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Color(0xFF1A62B7),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 20),
+                // Delete
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final docRef = FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(_userId)
+                          .collection('medicines')
+                          .doc(widget.existingMedicine.id);
 
-    if (shouldDelete == true) {
-      try {
-        final docRef = FirebaseFirestore.instance
-            .collection('users')
-            .doc(_userId)
-            .collection('medicines')
-            .doc(widget.existingMedicine.id);
+                      await docRef.delete();
 
-        await docRef.delete();
-        Navigator.pop(context);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to delete medicine.')),
+                      // 1) close the alert dialog
+                      Navigator.pop(ctx);
+
+                      // 2) pop the EditMedicinePage
+                      Navigator.pop(context);
+
+                      // 3) pop the ViewMedicinePage
+                      Navigator.pop(context);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Failed to delete medicine.'),
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFDB0000),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 35,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    "Delete",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         );
-      }
-    }
+      },
+    );
   }
 }
