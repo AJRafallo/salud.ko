@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'ocr_handler.dart';
 import 'upload_records_ui.dart';
 import 'scan_dialog.dart';
@@ -32,7 +31,7 @@ class _UploadWidgetState extends State<UploadWidget> {
 
   final ImagePicker _picker = ImagePicker();
 
-  // 1) Pick document (pdf, doc, txt, etc.)
+  // Pick document (pdf, doc, txt, etc.)
   Future<void> _pickDocument() async {
     try {
       final result = await FilePicker.platform.pickFiles(
@@ -51,7 +50,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // 2) Pick media (photo/video) from gallery
+  // Pick media (photo/video) from gallery
   Future<void> _pickMedia(ImageSource source) async {
     try {
       final XFile? media = await _picker.pickImage(source: source);
@@ -67,7 +66,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // 3) Take a photo with camera
+  // Take a photo with camera
   Future<void> _takePhoto() async {
     try {
       final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
@@ -83,7 +82,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // 4) “Scan a Document”
+  // “Scan a Document”
   Future<void> _scanDocument() async {
     ScanMethodDialog.show(
       context: context,
@@ -92,7 +91,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     );
   }
 
-  // 4a) Actual scanning from camera
+  // Actual scanning from camera
   Future<void> _scanDocumentFromCamera() async {
     try {
       final XFile? scannedDoc =
@@ -128,7 +127,7 @@ class _UploadWidgetState extends State<UploadWidget> {
     }
   }
 
-  // 4b) Actual scanning from gallery
+  // Actual scanning from gallery
   Future<void> _scanDocumentFromGallery() async {
     try {
       final XFile? galleryDoc =
@@ -267,8 +266,10 @@ class _UploadWidgetState extends State<UploadWidget> {
         .collection('folders')
         .get();
 
+    // Exclude "All Files"
     final folders = foldersSnapshot.docs
-        .where((doc) => doc['name'] != 'All Files')
+        .where((doc) =>
+            doc['name'] != 'All Files' && doc['name'] != 'Uncategorized')
         .toList();
 
     if (folders.isEmpty) {

@@ -105,7 +105,6 @@ class UploadWidgetUI extends StatelessWidget {
     );
   }
 
-  // Show the delete confirmation dialog
   static void showDeleteDialog({
     required BuildContext context,
     required String fileName,
@@ -206,7 +205,7 @@ class UploadWidgetUI extends StatelessWidget {
     );
   }
 
-  // Show folder selection bottom sheet
+  // Show folder selection
   static Future<void> showFolderSelectionDialog({
     required BuildContext context,
     required List<QueryDocumentSnapshot<Map<String, dynamic>>> folders,
@@ -225,7 +224,6 @@ class UploadWidgetUI extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Header
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                 child: Row(
