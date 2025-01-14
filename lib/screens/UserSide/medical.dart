@@ -49,7 +49,7 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
     }
   }
 
-  // CHANGED: Filter out 'Uncategorized' so it won't appear in the UI
+  // We filter out 'Uncategorized' from the UI if it exists.
   Stream<List<Map<String, dynamic>>> _getUserFolders(String userId) {
     return FirebaseFirestore.instance
         .collection('users')
@@ -59,8 +59,7 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
         .map((snapshot) {
       final allFolders = snapshot.docs
           .map((doc) => {"id": doc.id, ...doc.data()})
-          // Skip any folder named 'Uncategorized'
-          .where((folder) => folder["name"] != "Uncategorized")
+          .where((folder) => folder["name"] != "Uncategorized") // remove it
           .toList();
 
       Map<String, dynamic>? allFilesFolder;
@@ -74,6 +73,7 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
         }
       }
 
+      // Sort the rest by created time
       otherFolders.sort((a, b) {
         final aTime = a["createdAt"] as Timestamp;
         final bTime = b["createdAt"] as Timestamp;
@@ -215,6 +215,8 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
     );
   }
 
+  // We add some internal padding so the text inside the folder box
+  // doesn't hug the edges.
   Widget _buildFolder({
     required BuildContext context,
     required String label,
@@ -230,6 +232,8 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
           border: Border.all(color: const Color(0xFF9ECBFF), width: 1.5),
           borderRadius: BorderRadius.circular(4.0),
         ),
+        // Add some padding to keep text away from edges
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -298,7 +302,7 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
                               folder["id"],
                             ),
                           );
-                        }),
+                        }).toList(),
                         _buildFolder(
                           context: context,
                           label: "Create Folder",

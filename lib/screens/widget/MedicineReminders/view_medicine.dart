@@ -63,7 +63,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                             color: Colors.black.withOpacity(0.6),
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
                         Text(
                           med.name,
                           style: const TextStyle(
@@ -89,7 +89,6 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                             color: Colors.black.withOpacity(0.6),
                           ),
                         ),
-                        const SizedBox(height: 4),
                         Transform.scale(
                           scale: 0.8,
                           child: Switch(

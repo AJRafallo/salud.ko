@@ -107,6 +107,8 @@ class FolderContentPage extends StatelessWidget {
                 DateFormat('MMMM d, yyyy ─ h:mm a').format(uploadedAt.toDate());
 
             return ListTile(
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               title: Text(
                 fileName,
                 maxLines: 1,
@@ -178,6 +180,8 @@ class FolderContentPage extends StatelessWidget {
                 DateFormat('MMMM d, yyyy ─ h:mm a').format(uploadedAt.toDate());
 
             return ListTile(
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               title: Text(
                 fileName,
                 maxLines: 1,
@@ -294,8 +298,10 @@ class FolderContentPage extends StatelessWidget {
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 20),
               leading: const Icon(Icons.edit, color: Colors.black),
-              title: const Text('Rename',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+              title: const Text(
+                'Rename',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _showRenameDialog(context, fileData);
@@ -304,8 +310,10 @@ class FolderContentPage extends StatelessWidget {
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 20),
               leading: const Icon(Icons.folder_open, color: Colors.black),
-              title: const Text('Move',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+              title: const Text(
+                'Move',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _moveFile(context, fileData);
@@ -314,8 +322,10 @@ class FolderContentPage extends StatelessWidget {
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 20),
               leading: const Icon(Icons.delete, color: Colors.black),
-              title: const Text('Delete',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+              title: const Text(
+                'Delete',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _showDeleteFileDialog(context, fileData);
@@ -339,8 +349,10 @@ class FolderContentPage extends StatelessWidget {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           title: const Center(
-            child: Text("Rename File",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text(
+              "Rename File",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -375,16 +387,20 @@ class FolderContentPage extends StatelessWidget {
                     backgroundColor: Colors.white,
                     side: const BorderSide(color: Color(0xFF1A62B7)),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text(
                     "Cancel",
                     style: TextStyle(
-                        color: Color(0xFF1A62B7),
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
+                      color: Color(0xFF1A62B7),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 15),
@@ -399,16 +415,20 @@ class FolderContentPage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1A62B7),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 25, vertical: 10),
+                      horizontal: 25,
+                      vertical: 10,
+                    ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text(
                     "Rename",
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -419,20 +439,20 @@ class FolderContentPage extends StatelessWidget {
     );
   }
 
-  // CHANGED: Removed if (fId == null) branch
   Future<void> _renameFile(
       Map<String, dynamic> fileData, String newName) async {
     final userId = currentUser.uid;
     final fId = fileData['folderId'] as String?;
     final filePath = fileData['filePath'];
 
-    // We assume folderId is never null now
     final fileDoc = await _getFileDocByPath(userId, fId, filePath);
     if (fileDoc != null) {
       await fileDoc.reference.update({'name': newName});
     }
   }
 
+  // ********** CRITICAL CHANGE HERE **********
+  // Now we exclude both "All Files" AND "Uncategorized"
   void _moveFile(BuildContext context, Map<String, dynamic> fileData) async {
     final userId = currentUser.uid;
     final foldersSnapshot = await FirebaseFirestore.instance
@@ -441,10 +461,11 @@ class FolderContentPage extends StatelessWidget {
         .collection('folders')
         .get();
 
-    final otherFolders = foldersSnapshot.docs
-        .where(
-            (doc) => doc.data()['name'] != 'All Files') // Exclude "All Files"
-        .toList();
+    // Exclude "All Files" AND "Uncategorized"
+    final otherFolders = foldersSnapshot.docs.where((doc) {
+      final name = doc.data()['name'] ?? '';
+      return name != 'All Files' && name != 'Uncategorized';
+    }).toList();
 
     if (otherFolders.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -469,7 +490,6 @@ class FolderContentPage extends StatelessWidget {
     final filePath = fileData['filePath'];
     final oldFolderId = fileData['folderId'];
 
-    // Update the folderId field in 'all_files'
     final fileDoc = await _getFileDocByPath(userId, oldFolderId, filePath);
     if (fileDoc != null) {
       await fileDoc.reference.update({'folderId': targetFolderId});
@@ -534,9 +554,10 @@ class FolderContentPage extends StatelessWidget {
                   child: const Text(
                     "Cancel",
                     style: TextStyle(
-                        color: Color(0xFF1A62B7),
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
+                      color: Color(0xFF1A62B7),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -557,9 +578,10 @@ class FolderContentPage extends StatelessWidget {
                   child: const Text(
                     "Delete",
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -600,7 +622,6 @@ class FolderContentPage extends StatelessWidget {
     return null;
   }
 
-  // CHANGED: No longer sets folderId to null; moves files to 'All Files'
   void _showDeleteFolderDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -691,7 +712,7 @@ class FolderContentPage extends StatelessWidget {
                           .where('folderId', isEqualTo: folderId)
                           .get();
 
-                      // 3) Move those files into "All Files" (not null)
+                      // 3) Move those files into "All Files"
                       if (allFilesFolderId != null) {
                         for (var fileDoc in filesSnapshot.docs) {
                           batch.update(fileDoc.reference, {
