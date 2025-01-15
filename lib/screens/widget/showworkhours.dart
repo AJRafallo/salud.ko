@@ -32,40 +32,45 @@ class _DisplayWorkHoursWidgetState extends State<DisplayWorkHoursWidget> {
   }
 
   Future<void> fetchWorkHours() async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection(
-              'healthcare_providers') // Adjust collection name as needed
-          .doc(widget.providerId)
-          .get();
+  try {
+    final doc = await FirebaseFirestore.instance
+        .collection('healthcare_providers')
+        .doc(widget.providerId)
+        .get();
 
-      if (doc.exists && doc.data()?['workHours'] != null) {
-        final fetchedWorkHours =
-            Map<String, dynamic>.from(doc.data()!['workHours']);
-        setState(() {
-          workHours = fetchedWorkHours.map((key, value) {
-            return MapEntry(
-                key,
-                List<Map<String, String>>.from(
-                    value.map((e) => Map<String, String>.from(e))));
-          });
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          workHours = {}; // Default to empty work hours if none exist
-          isLoading = false;
-        });
-      }
-    } catch (e) {
+    if (doc.exists && doc.data()?['workHours'] != null) {
+      final fetchedWorkHours = Map<String, dynamic>.from(doc.data()!['workHours']);
       setState(() {
+        workHours = fetchedWorkHours.map((key, value) {
+          return MapEntry(
+            key,
+            List<Map<String, String>>.from(value.map((e) {
+              // Ensure both 'start' and 'end' are not null
+              if (e['start'] == null || e['end'] == null) {
+                return {'start': 'N/A', 'end': 'N/A'}; // Default fallback
+              }
+              return Map<String, String>.from(e);
+            })),
+          );
+        });
         isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Error fetching work hours: $e"),
-      ));
+    } else {
+      setState(() {
+        workHours = {}; // Default to empty work hours if none exist
+        isLoading = false;
+      });
     }
+  } catch (e) {
+    setState(() {
+      isLoading = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Error fetching work hours: $e"),
+    ));
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

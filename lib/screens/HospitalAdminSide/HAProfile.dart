@@ -1,6 +1,3 @@
-
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -28,7 +25,6 @@ class _HospitalAdShowProfileState extends State<HospitalAdShowProfile> {
     fontStyle: FontStyle.italic,
   );
 
-
   String? profileImageUrl; // Variable to store profile image URL
   final currentUser = FirebaseAuth.instance.currentUser;
 
@@ -37,7 +33,6 @@ class _HospitalAdShowProfileState extends State<HospitalAdShowProfile> {
     super.initState();
     // This is where you can initialize any values if necessary
   }
-
 
   Future<void> _uploadImage() async {
     try {
@@ -125,8 +120,6 @@ class _HospitalAdShowProfileState extends State<HospitalAdShowProfile> {
 
           profileImageUrl = facility['profileImage'] ?? '';
 
-
-
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(25.0),
@@ -144,20 +137,20 @@ class _HospitalAdShowProfileState extends State<HospitalAdShowProfile> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const HospitalAdProfile(),
-                                ),
-                              );
-                            },
-                            child: const Icon(
-                              Icons.edit_rounded,
-                              size: 30,
-                              color: Colors.white,
-                            ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const HospitalAdProfile(),
+                              ),
+                            );
+                          },
+                          child: const Icon(
+                            Icons.edit_rounded,
+                            size: 30,
+                            color: Colors.white,
                           ),
+                        ),
                         Center(
                           child: Column(
                             children: [
@@ -326,24 +319,23 @@ class _HospitalAdShowProfileState extends State<HospitalAdShowProfile> {
                       );
                     },
                     child: Padding(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(10),
                       child: Container(
                         alignment: Alignment.center,
                         padding: const EdgeInsets.symmetric(
-                            vertical: 12.0, horizontal: 20.0),
+                            vertical: 12.0, horizontal: 50),
                         decoration: ShapeDecoration(
-                          color: Colors.blue, // Button color
+                          color: const Color(0xFF1A62B7),
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(30), // Rounded corners
+                            borderRadius: BorderRadius.circular(25),
                           ),
                         ),
                         child: const Text(
-                          'View on Map',
+                          'View Location',
                           style: TextStyle(
-                            fontStyle: FontStyle.normal,
-                            fontSize: 15,
-                            color: Colors.white, // Text color
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
