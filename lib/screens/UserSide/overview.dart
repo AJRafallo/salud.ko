@@ -3,6 +3,9 @@ import 'package:pedometer/pedometer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
+import 'package:saludko/screens/widget/Overview/steps.dart';
+import 'package:saludko/screens/widget/Overview/weight_and_height.dart';
+import 'package:saludko/screens/widget/Overview/sleep_hours.dart';
 
 class OverviewPage extends StatefulWidget {
   const OverviewPage({super.key});
@@ -229,219 +232,113 @@ class _OverviewPageState extends State<OverviewPage> {
     );
   }
 
-  Widget _buildStepsCard() {
-    Color progressColor = const Color(0xFFFFA8B4);
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFFCCE3FF),
-        borderRadius: BorderRadius.all(Radius.circular(25)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.directions_walk,
-                    size: 22, color: Colors.black),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                "Steps",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "${(_monthlyStepsPercentage * 100).toStringAsFixed(0)}%",
-                      style: const TextStyle(
-                          fontSize: 32, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      "Total this month",
-                      style: TextStyle(fontSize: 12, color: Colors.black54),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    width: 70,
-                    height: 70,
-                    child: CircularProgressIndicator(
-                      value: _monthlyStepsPercentage,
-                      strokeWidth: 3,
-                      backgroundColor: Colors.white,
-                      valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-                    ),
-                  ),
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border:
-                          Border.all(color: const Color(0xFF1A62B7), width: 3),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _milesWalked.toStringAsFixed(1),
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                          const Text(
-                            "miles",
-                            style:
-                                TextStyle(fontSize: 10, color: Colors.black54),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWeightHeightCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xFF9ECBFF), width: 2),
-        borderRadius: const BorderRadius.all(Radius.circular(25)),
-      ),
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Weight",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w300,
-                  color: Colors.black,
-                ),
-              ),
-              IconButton(
-                onPressed: _showEditDialog,
-                icon: const Icon(Icons.more_horiz, color: Color(0xFF1A62B7)),
-                constraints: const BoxConstraints(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Flexible(
-                flex: 2,
-                child: Text(
-                  _formatNumber(_weight),
-                  style: const TextStyle(
-                      fontSize: 19, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(width: 4),
-              const Flexible(
-                child: Text(
-                  "KG",
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A62B7),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            "Height",
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w300,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Flexible(
-                flex: 2,
-                child: Text(
-                  _formatNumber(_height),
-                  style: const TextStyle(
-                      fontSize: 19, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(width: 4),
-              const Flexible(
-                child: Text(
-                  "CM",
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A62B7),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  flex: 6,
-                  child: _buildStepsCard(),
+          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+          child: Column(
+            children: [
+              // Row with Steps + Weight & Height
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      flex: 6,
+                      child: StepsCardWidget(
+                        monthlyStepsPercentage: _monthlyStepsPercentage,
+                        milesWalked: _milesWalked,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 4,
+                      child: WeightHeightCardWidget(
+                        weight: _weight,
+                        height: _height,
+                        formatNumber: _formatNumber,
+                        onEditPressed: _showEditDialog,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 4,
-                  child: _buildWeightHeightCard(),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 16),
+
+              // "All Health Data" + plus/edit icons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "All Health Data",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      // + Button (transparent with black border)
+                      GestureDetector(
+                        onTap: () {
+                          // TODO: functionality for adding health data
+                        },
+                        child: Container(
+                          width: 30,
+                          height: 30,
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          decoration: BoxDecoration(
+                            color: Colors
+                                .transparent, // <-- transparent background
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.black, // same color as icon
+                              width: 1.5,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.add,
+                            size: 18,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      // Edit Button (transparent with black border)
+                      GestureDetector(
+                        onTap: () {
+                          // TODO: functionality for editing health data
+                        },
+                        child: Container(
+                          width: 30,
+                          height: 30,
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          decoration: BoxDecoration(
+                            color: Colors
+                                .transparent, // <-- transparent background
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.black, // same color as icon
+                              width: 1.5,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.edit,
+                            size: 18,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // SleepTrackingWidget
+              SleepTrackingWidget(),
+            ],
           ),
         ),
       ),

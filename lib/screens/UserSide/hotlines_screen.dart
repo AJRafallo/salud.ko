@@ -307,19 +307,19 @@ class Hotline {
 final List<Hotline> hotlines = [
   Hotline(
     name: "ONE HOSPITAL COMMAND",
-    numbers: ["+63 920 5130241", "+63 977 2780385"],
+    numbers: ["+63 9617272688", "+63 977 2780385"],
   ),
   Hotline(
     name: "BICOL MEDICAL CENTER",
-    numbers: ["+63 927 3579961", "+63 919 4701201"],
+    numbers: ["+63 9617272688", "+63 977 2780385"],
   ),
   Hotline(
     name: "NAGA CITY HOSPITAL",
-    numbers: ["+63 970 4911691", "+63 926-0972071"],
+    numbers: ["+63 9617272688", "+63 977 2780385"],
   ),
   Hotline(
     name: "NICC HOSPITAL",
-    numbers: ["+54 475 0000", "+54 472-60-94"],
+    numbers: ["+63 9617272688", "+63 977 2780385"],
   ),
 ];
 

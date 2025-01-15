@@ -11,10 +11,14 @@ class NotificationsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: const Text(
+          'Notifications',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF1A62B7),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.chevron_left),
+          color: Colors.white,
           onPressed: () => Navigator.pop(context),
         ),
       ),
