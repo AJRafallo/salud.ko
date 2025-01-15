@@ -427,9 +427,9 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          content: Column(
+          content: const Column(
             mainAxisSize: MainAxisSize.min,
-            children: const [
+            children: [
               SizedBox(height: 5),
               Text(
                 "Are you sure you want to delete this medicine?",
