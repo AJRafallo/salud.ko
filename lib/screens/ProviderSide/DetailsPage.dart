@@ -40,6 +40,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
           .doc(user.uid)
           .get();
       setState(() {
+        
         currentUserRole = userDoc['role'];
       });
     }
@@ -320,19 +321,19 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                         }
                       },
                       child: Padding(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(10),
                         child: Container(
                           alignment: Alignment.center,
                           padding: const EdgeInsets.symmetric(
-                              vertical: 12.0, horizontal: 20.0),
+                              vertical: 12.0, horizontal: 50),
                           decoration: ShapeDecoration(
-                            color: Colors.blue,
+                            color: const Color(0xFF1A62B7),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                              borderRadius: BorderRadius.circular(25),
                             ),
                           ),
                           child: const Text(
-                            'View on Map',
+                            'View Location',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,

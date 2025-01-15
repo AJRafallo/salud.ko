@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/ProviderSide/DetailsPage.dart';
 import 'package:saludko/screens/Services/databasehelper.dart';
 import 'package:saludko/screens/widget/appbar_2.dart';
 
@@ -48,6 +47,79 @@ class _SavedScreenState extends State<SavedScreen> {
     );
   }
 
+// Navigate to a provider detail screen
+void _showProviderDetails(Map<String, dynamic> provider) {
+  showModalBottomSheet(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: CircleAvatar(
+                radius: 80,
+                backgroundImage: provider['profileImage'] != null && provider['profileImage'].isNotEmpty
+                    ? NetworkImage(provider['profileImage'])
+                    : const AssetImage('lib/assets/images/avatar.png') as ImageProvider,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Dr. ${provider['firstname'] ?? '[No first name]'} ${provider['lastname'] ?? '[No last name]'}',
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              provider['specialization'] ?? '[No specialization]',
+              style: const TextStyle(
+                fontSize: 18,
+                fontStyle: FontStyle.italic,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Divider(thickness: 1, color: Colors.grey.shade300),
+            const SizedBox(height: 15),
+            Text(
+              'Email: ${provider['email'] ?? '[No email]'}',
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Phone: ${provider['phone'] ?? '[No phone]'}',
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Workplace: ${provider['workplace'] ?? '[No workplace]'}',
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,11 +157,7 @@ class _SavedScreenState extends State<SavedScreen> {
                           itemCount: _bookmarkedProviders.length,
                           itemBuilder: (context, index) {
                             final provider = _bookmarkedProviders[index];
-                            var profileImageUrl = provider['profileImage'] ??
-                                ''; // Get provider's profile image URL, if available
-                            print('Provider: $provider'); // Debugging
-                            print(
-                                'Provider Image URL: $profileImageUrl'); // Debugging
+                            var profileImageUrl = provider['profileImage'] ?? ''; // Get provider's profile image URL, if available
 
                             return Container(
                               margin: const EdgeInsets.symmetric(vertical: 5),
@@ -110,20 +178,16 @@ class _SavedScreenState extends State<SavedScreen> {
                                   radius: 20,
                                   backgroundImage: profileImageUrl.isNotEmpty
                                       ? NetworkImage(profileImageUrl)
-                                      : const AssetImage(
-                                              'lib/assets/images/avatar.png')
-                                          as ImageProvider,
+                                      : const AssetImage('lib/assets/images/avatar.png') as ImageProvider,
                                   onBackgroundImageError: (error, stackTrace) {
-                                    print(
-                                        'Error loading image: $error'); // Log the error
+                                    print('Error loading image: $error');
                                     setState(() {
-                                      profileImageUrl =
-                                          ''; // Reset to show the default avatar
+                                      profileImageUrl = ''; // Fallback to the default avatar
                                     });
                                   },
                                 ),
                                 title: Text(
-                                  provider['firstname'],
+                                  provider['firstname'] ?? 'Unknown Name',
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
@@ -131,7 +195,7 @@ class _SavedScreenState extends State<SavedScreen> {
                                   ),
                                 ),
                                 subtitle: Text(
-                                  provider['email'],
+                                  provider['email'] ?? 'Unknown Email',
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontStyle: FontStyle.italic,
@@ -139,23 +203,13 @@ class _SavedScreenState extends State<SavedScreen> {
                                   ),
                                 ),
                                 trailing: IconButton(
-                                  icon: const Icon(
-                                    Icons.bookmark,
-                                    color: Colors.green,
-                                  ),
+                                  icon: const Icon(Icons.bookmark, color: Colors.green),
                                   onPressed: () {
-                                    _removeBookmark(
-                                        provider['id']); // Remove bookmark
+                                    _removeBookmark(provider['id']);
                                   },
                                 ),
                                 onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ProviderDetailScreen(
-                                              provider: provider),
-                                    ),
-                                  );
+                                  _showProviderDetails(provider);
                                 },
                               ),
                             );
