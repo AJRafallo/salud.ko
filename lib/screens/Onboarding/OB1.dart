@@ -7,98 +7,118 @@ class Onboarding1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
+      body: SafeArea(
+        child: GestureDetector(
+          onHorizontalDragEnd: (details) {
+            if (details.primaryVelocity != null &&
+                details.primaryVelocity! < 0) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const Onboarding2()),
+              );
+            }
+          },
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 50),
-              const Text(
-                "Welcome to",
-                style: TextStyle(
-                  fontSize: 30,
-                  //fontWeight: FontWeight.w900,
-                ),
-              ),
-              const Text(
-                "salud.ko",
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w900,
-                  fontStyle: FontStyle.italic,
-                  color: Color(0xFF1A62B7),
-                ),
-              ),
-              const Image(
-                image: AssetImage('lib/assets/images/ob1.png'),
-              ),
-              const Text(
-                "Naga City’s go-to app for all your health needs.",
-                style: TextStyle(fontSize: 20),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 50),
-              buildDotsIndicator(0),
-              const SizedBox(height: 50),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MyLogin(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      'Skip',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black54,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 50),
+                      const Text(
+                        "Welcome to",
+                        style: TextStyle(fontSize: 30),
                       ),
-                    ),
+                      const Text(
+                        "salud.ko",
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w900,
+                          fontStyle: FontStyle.italic,
+                          color: Color(0xFF1A62B7),
+                        ),
+                      ),
+                      const Image(
+                        image: AssetImage('lib/assets/images/ob1.png'),
+                      ),
+                      const Text(
+                        "Naga City’s go-to app for all your health needs.",
+                        style: TextStyle(fontSize: 20),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 50),
+                      buildDotsIndicator(0),
+                    ],
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Onboarding2(),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Color(0xFF3C8BE9),
-                            Color(0xFF134784),
-                          ],
-                          stops: [0.0, 1.0],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(25),
-                        ),
-                      ),
-                      padding: const EdgeInsets.fromLTRB(70, 10, 70, 10),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MyLogin(),
+                          ),
+                        );
+                      },
                       child: const Text(
-                        'Continue',
+                        'Skip',
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Colors.black54,
                         ),
                       ),
                     ),
-                  ),
-                ],
+
+                    // Continue Button
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Onboarding2(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF3C8BE9), Color(0xFF134784)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(25)),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 65,
+                          vertical: 10,
+                        ),
+                        child: const FittedBox(
+                          child: Text(
+                            'Continue',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(height: 30),
             ],
           ),
         ),
