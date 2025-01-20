@@ -7,12 +7,12 @@ class WeightHeightCardWidget extends StatelessWidget {
   final VoidCallback onEditPressed;
 
   const WeightHeightCardWidget({
-    Key? key,
+    super.key,
     required this.weight,
     required this.height,
     required this.formatNumber,
     required this.onEditPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

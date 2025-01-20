@@ -59,7 +59,7 @@ class _WorkHoursWidgetState extends State<WorkHoursWidget> {
 
   Future<void> selectTime(
       BuildContext context, String day, int index, String key) async {
-    final TimeOfDay initialTime =
+    const TimeOfDay initialTime =
         TimeOfDay(hour: 9, minute: 0); // Default to 9:00 AM
     final TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -166,7 +166,7 @@ class _WorkHoursWidgetState extends State<WorkHoursWidget> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {

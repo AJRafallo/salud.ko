@@ -8,6 +8,8 @@ import 'package:saludko/screens/widget/snackbar.dart';
 import 'package:saludko/screens/widget/textfield.dart';
 
 class ProviderSignUpScreen extends StatefulWidget {
+  const ProviderSignUpScreen({super.key});
+
   @override
   _ProviderSignUpScreenState createState() => _ProviderSignUpScreenState();
 }
@@ -42,7 +44,7 @@ class _ProviderSignUpScreenState extends State<ProviderSignUpScreen> {
 
     if (res == "Success") {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => EmailVerificationScreen(),
+        builder: (context) => const EmailVerificationScreen(),
       ));
     } else {
       setState(() {
@@ -111,7 +113,6 @@ class _ProviderSignUpScreenState extends State<ProviderSignUpScreen> {
                     },
                   ),
                 ),
-                
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -137,7 +138,6 @@ class _ProviderSignUpScreenState extends State<ProviderSignUpScreen> {
                 const SizedBox(height: 20),
                 MyButton(onTab: signUpHealthcareProvider1, text: "Sign Up"),
                 const SizedBox(height: 15),
-                
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

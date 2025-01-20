@@ -5,10 +5,10 @@ class StepsCardWidget extends StatelessWidget {
   final double milesWalked;
 
   const StepsCardWidget({
-    Key? key,
+    super.key,
     required this.monthlyStepsPercentage,
     required this.milesWalked,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

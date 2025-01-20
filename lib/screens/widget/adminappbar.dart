@@ -48,8 +48,9 @@ class _AdminAppBarState extends State<AdminAppBar> {
               size: 30,
               color: Colors.white,
             ),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-            menuPadding: EdgeInsets.all(0),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+            menuPadding: const EdgeInsets.all(0),
             onSelected: (value) async {
               if (value == 'logout') {
                 await AuthServices().signOut(); // Your logout service
@@ -63,13 +64,12 @@ class _AdminAppBarState extends State<AdminAppBar> {
             itemBuilder: (context) => [
               const PopupMenuItem(
                 value: 'logout',
-                
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('Logout'),
                   ],
-                ), 
+                ),
               ),
             ],
           ),

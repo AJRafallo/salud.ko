@@ -32,45 +32,45 @@ class _DisplayWorkHoursWidgetState extends State<DisplayWorkHoursWidget> {
   }
 
   Future<void> fetchWorkHours() async {
-  try {
-    final doc = await FirebaseFirestore.instance
-        .collection('healthcare_providers')
-        .doc(widget.providerId)
-        .get();
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('healthcare_providers')
+          .doc(widget.providerId)
+          .get();
 
-    if (doc.exists && doc.data()?['workHours'] != null) {
-      final fetchedWorkHours = Map<String, dynamic>.from(doc.data()!['workHours']);
-      setState(() {
-        workHours = fetchedWorkHours.map((key, value) {
-          return MapEntry(
-            key,
-            List<Map<String, String>>.from(value.map((e) {
-              // Ensure both 'start' and 'end' are not null
-              if (e['start'] == null || e['end'] == null) {
-                return {'start': 'N/A', 'end': 'N/A'}; // Default fallback
-              }
-              return Map<String, String>.from(e);
-            })),
-          );
+      if (doc.exists && doc.data()?['workHours'] != null) {
+        final fetchedWorkHours =
+            Map<String, dynamic>.from(doc.data()!['workHours']);
+        setState(() {
+          workHours = fetchedWorkHours.map((key, value) {
+            return MapEntry(
+              key,
+              List<Map<String, String>>.from(value.map((e) {
+                // Ensure both 'start' and 'end' are not null
+                if (e['start'] == null || e['end'] == null) {
+                  return {'start': 'N/A', 'end': 'N/A'}; // Default fallback
+                }
+                return Map<String, String>.from(e);
+              })),
+            );
+          });
+          isLoading = false;
         });
-        isLoading = false;
-      });
-    } else {
+      } else {
+        setState(() {
+          workHours = {}; // Default to empty work hours if none exist
+          isLoading = false;
+        });
+      }
+    } catch (e) {
       setState(() {
-        workHours = {}; // Default to empty work hours if none exist
         isLoading = false;
       });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Error fetching work hours: $e"),
+      ));
     }
-  } catch (e) {
-    setState(() {
-      isLoading = false;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Error fetching work hours: $e"),
-    ));
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +124,7 @@ class _DisplayWorkHoursWidgetState extends State<DisplayWorkHoursWidget> {
                           color: Colors.black54,
                         ),
                       );
-                    }).toList(),
+                    }),
                   const SizedBox(height: 10), // Spacing between days
                 ],
               );
