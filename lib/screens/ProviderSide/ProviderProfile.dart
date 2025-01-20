@@ -78,32 +78,31 @@ class _ProviderProfileState extends State<ProviderProfile> {
   }
 
   // Save work hours to Firestore
-Future<void> saveWorkHours(Map<String, List<Map<String, String>>> workHours) async {
-  try {
-    // Save the work hours map to Firestore
-    await FirebaseFirestore.instance
-        .collection('healthcare_providers')
-        .doc(currentUser!.uid)
-        .update({'workHours': workHours});
+  Future<void> saveWorkHours(
+      Map<String, List<Map<String, String>>> workHours) async {
+    try {
+      // Save the work hours map to Firestore
+      await FirebaseFirestore.instance
+          .collection('healthcare_providers')
+          .doc(currentUser!.uid)
+          .update({'workHours': workHours});
 
-    setState(() {
-      // Optionally update the local state if needed
-      this.workHours = workHours;
-    });
+      setState(() {
+        // Optionally update the local state if needed
+        this.workHours = workHours;
+      });
 
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Work hours saved successfully')),
-    );
-  } catch (e) {
-    // Show error message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error saving work hours: $e')),
-    );
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Work hours saved successfully')),
+      );
+    } catch (e) {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving work hours: $e')),
+      );
+    }
   }
-}
-
-
 
   @override
   void dispose() {
@@ -500,10 +499,10 @@ Future<void> saveWorkHours(Map<String, List<Map<String, String>>> workHours) asy
                             ),
                           ),
                         ),
-WorkHoursWidget(
-                            workHours: workHours,
-                            onSave: saveWorkHours,
-                          ),
+                        WorkHoursWidget(
+                          workHours: workHours,
+                          onSave: saveWorkHours,
+                        ),
                         const SizedBox(height: 10),
 
                         // Workplace Field
@@ -646,9 +645,9 @@ WorkHoursWidget(
     String result = "";
     workHours.forEach((day, hours) {
       result += "$day: ";
-      hours.forEach((slot) {
+      for (var slot in hours) {
         result += "${slot['start']} - ${slot['end']}  ";
-      });
+      }
       result += "\n";
     });
     return result;

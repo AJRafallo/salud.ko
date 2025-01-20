@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:saludko/screens/ProviderSide/ProviderSignupPage.dart';
 import 'package:saludko/screens/ProviderSide/psignup1.dart';
 import 'package:saludko/screens/Services/authentication.dart';
 import 'package:saludko/screens/UserSide/home_screen.dart';
@@ -51,7 +50,8 @@ class _SignupScreenState extends State<MySignup> {
       showSnackBar(context, res);
 
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const VerificationWaitingScreen()),
+        MaterialPageRoute(
+            builder: (context) => const VerificationWaitingScreen()),
       );
     } else {
       setState(() {
@@ -74,8 +74,6 @@ class _SignupScreenState extends State<MySignup> {
       }
     });
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +141,8 @@ class _SignupScreenState extends State<MySignup> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ProviderSignUpScreen(),
+                              builder: (context) =>
+                                  const ProviderSignUpScreen(),
                             ));
                       },
                       child: const Text(

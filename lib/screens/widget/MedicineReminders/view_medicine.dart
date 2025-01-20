@@ -409,7 +409,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                         color: Colors.black,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       med.notes.isEmpty ? 'No additional notes.' : med.notes,
                       style: const TextStyle(
