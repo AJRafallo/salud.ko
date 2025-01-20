@@ -296,16 +296,16 @@ class _AdminHotlinesScreenState extends State<AdminHotlinesScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          content: Column(
+          content: const Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 5),
-              const Text(
+              SizedBox(height: 5),
+              Text(
                 "Are you sure you want to delete this hotline?",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: Colors.black),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
             ],
           ),
           actions: [

@@ -5,7 +5,7 @@ import 'package:saludko/screens/AdminSide/Hotlines/hotlines_service.dart';
 class EditHotlineScreen extends StatefulWidget {
   final Hotline? hotline;
 
-  EditHotlineScreen({this.hotline});
+  const EditHotlineScreen({super.key, this.hotline});
 
   @override
   _EditHotlineScreenState createState() => _EditHotlineScreenState();
@@ -39,28 +39,29 @@ class _EditHotlineScreenState extends State<EditHotlineScreen> {
             children: [
               TextFormField(
                 initialValue: name,
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Name'),
                 validator: (value) => value!.isEmpty ? 'Enter a name' : null,
                 onSaved: (value) => name = value!,
               ),
               TextFormField(
                 initialValue: primaryContact,
-                decoration: InputDecoration(labelText: 'Primary Contact'),
+                decoration: const InputDecoration(labelText: 'Primary Contact'),
                 validator: (value) =>
                     value!.isEmpty ? 'Enter a primary contact' : null,
                 onSaved: (value) => primaryContact = value!,
               ),
               TextFormField(
                 initialValue: secondaryContact,
-                decoration: InputDecoration(labelText: 'Secondary Contact'),
+                decoration:
+                    const InputDecoration(labelText: 'Secondary Contact'),
                 onSaved: (value) => secondaryContact = value ?? '',
               ),
               TextFormField(
                 initialValue: description,
-                decoration: InputDecoration(labelText: 'Description'),
+                decoration: const InputDecoration(labelText: 'Description'),
                 onSaved: (value) => description = value ?? '',
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {

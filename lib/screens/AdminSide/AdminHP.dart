@@ -322,7 +322,7 @@ class AdminHP extends StatelessWidget {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            AdminHotlinesScreen(),
+                                            const AdminHotlinesScreen(),
                                       ),
                                     );
                                   },
