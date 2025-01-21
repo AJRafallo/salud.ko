@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 class TestOcrPage extends StatefulWidget {
-  const TestOcrPage({Key? key}) : super(key: key);
+  const TestOcrPage({super.key});
 
   @override
   State<TestOcrPage> createState() => _TestOcrPageState();

@@ -286,7 +286,7 @@ class _ShowProfilePageState extends State<ShowProfilePage> {
       BuildContext context, Map<String, dynamic> user) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Color(0xFFDEEDFF),
+      backgroundColor: const Color(0xFFDEEDFF),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(20.0),

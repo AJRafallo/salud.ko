@@ -302,7 +302,7 @@ class _MedicalFilesPageState extends State<MedicalFilesPage> {
                               folder["id"],
                             ),
                           );
-                        }).toList(),
+                        }),
                         _buildFolder(
                           context: context,
                           label: "Create Folder",

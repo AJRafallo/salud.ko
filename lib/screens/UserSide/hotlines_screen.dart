@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:saludko/screens/widget/appbar_2.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
@@ -177,25 +178,57 @@ class _HotlinesScreenState extends State<HotlinesScreen> {
                     ],
                   ),
                 ),
-                ...hotlines.map((hotline) {
-                  return Column(
-                    children: [
-                      HotlineContainer(
-                          hotline: hotline), // Pass the hotline data
-                      const SizedBox(height: 10),
-                      const Center(
-                        child: SizedBox(
-                          width: 340,
-                          child: Divider(
-                            color: Color(0xFFA1A1A1),
-                            thickness: 1,
-                          ),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('hotlines')
+                      .snapshots(), // Real-time updates
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'No hotlines available.',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-                  );
-                }),
+                      );
+                    }
+
+                    final hotlineDocs = snapshot.data!.docs;
+
+                    return Column(
+                      children: List.generate(hotlineDocs.length, (index) {
+                        final doc = hotlineDocs[index];
+                        final data = doc.data() as Map<String, dynamic>;
+                        final hotline = Hotline(
+                          name: data['name'] ?? '',
+                          numbers: List<String>.from(data['numbers'] ?? []),
+                        );
+
+                        return Column(
+                          children: [
+                            HotlineContainer(hotline: hotline),
+                            if (index != hotlineDocs.length - 1) ...[
+                              const SizedBox(height: 10),
+                              const Center(
+                                child: SizedBox(
+                                  width: 340,
+                                  child: Divider(
+                                    color: Color(0xFFA1A1A1),
+                                    thickness: 1,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                            ],
+                          ],
+                        );
+                      }),
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -304,26 +337,6 @@ class Hotline {
   Hotline({required this.name, required this.numbers});
 }
 
-final List<Hotline> hotlines = [
-  Hotline(
-    name: "ONE HOSPITAL COMMAND",
-    numbers: ["+63 9617272688", "+63 977 2780385"],
-  ),
-  Hotline(
-    name: "BICOL MEDICAL CENTER",
-    numbers: ["+63 9617272688", "+63 977 2780385"],
-  ),
-  Hotline(
-    name: "NAGA CITY HOSPITAL",
-    numbers: ["+63 9617272688", "+63 977 2780385"],
-  ),
-  Hotline(
-    name: "NICC HOSPITAL",
-    numbers: ["+63 9617272688", "+63 977 2780385"],
-  ),
-];
-
-// hotlines interface
 class HotlineContainer extends StatelessWidget {
   final Hotline hotline;
 
@@ -334,7 +347,6 @@ class HotlineContainer extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
-        //margin: const EdgeInsets.symmetric(vertical: 5),
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
           color: const Color(0xFFD1DBE1),
@@ -367,7 +379,7 @@ class HotlineContainer extends StatelessWidget {
             ),
             IconButton(
               onPressed: () {
-                showDisclaimerDialog(context, hotline); // Pass the hotline data
+                showDisclaimerDialog(context, hotline); // Pass hotline data
               },
               icon: const Icon(Icons.call),
               color: const Color(0xFF188b15),
@@ -468,8 +480,7 @@ class HotlineContainer extends StatelessWidget {
                         onPressed: () {
                           // Close the red pop-up and open the green one
                           Navigator.of(context).pop();
-                          showNumberSelectionDialog(context,
-                              hotline); // Pass hotline to number selection
+                          showNumberSelectionDialog(context, hotline);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFDB0000),

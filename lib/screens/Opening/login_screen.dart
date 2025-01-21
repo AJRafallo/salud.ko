@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:saludko/screens/AdminSide/AdminHP.dart';
 import 'package:saludko/screens/HospitalAdminSide/HAHomepage.dart';
 import 'package:saludko/screens/ProviderSide/ProviderHP.dart';
-import 'package:saludko/screens/ProviderSide/ProviderVerificationStatusPage.dart';
 import 'package:saludko/screens/ProviderSide/pverification1.dart';
 import 'package:saludko/screens/Services/authentication.dart';
 import 'package:saludko/screens/UserSide/home_screen.dart';

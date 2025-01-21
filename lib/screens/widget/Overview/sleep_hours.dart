@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SleepTrackingWidget extends StatelessWidget {
-  SleepTrackingWidget({Key? key}) : super(key: key);
+  SleepTrackingWidget({super.key});
 
   // Dummy data for the bar chart
   final List<Map<String, dynamic>> sleepData = [
@@ -42,8 +42,8 @@ class SleepTrackingWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: const [
+              const Row(
+                children: [
                   Icon(Icons.bedtime, color: Color(0xFF1A62B7)),
                   SizedBox(width: 8),
                   Text(

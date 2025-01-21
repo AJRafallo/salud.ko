@@ -4,10 +4,9 @@ import 'package:saludko/screens/AdminSide/AFeedback.dart';
 import 'package:saludko/screens/AdminSide/AMembers.dart';
 import 'package:saludko/screens/AdminSide/AProfile.dart';
 import 'package:saludko/screens/AdminSide/VerificationPage.dart';
-import 'package:saludko/screens/widget/VerifList2.dart';
 import 'package:saludko/screens/widget/adminappbar.dart';
-import 'package:saludko/screens/widget/healthcarefacilitieslist.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:saludko/screens/AdminSide/Hotlines/admin_hotlines.dart';
 
 class AdminHP extends StatelessWidget {
   const AdminHP({super.key});
@@ -81,15 +80,14 @@ class AdminHP extends StatelessWidget {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            const AdminShowProfile()),
+                                      builder: (context) =>
+                                          const AdminShowProfile(),
+                                    ),
                                   );
                                 },
                                 child: Column(
-                                                                        mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Container(
                                       width: 325,
@@ -98,12 +96,9 @@ class AdminHP extends StatelessWidget {
                                         gradient: const LinearGradient(
                                           colors: [
                                             Color(0xFFDEEDFF), // Light blue
-                                            Color.fromARGB(255, 115, 146,
-                                                176), // Slightly darker blue
-                                            Color(
-                                                0xFFFFFFFF), // White for metallic shine
-                                            Color(
-                                                0xFFA6CBE3), // Subtle shadow effect
+                                            Color.fromARGB(255, 115, 146, 176),
+                                            Color(0xFFFFFFFF), // White
+                                            Color(0xFFA6CBE3),
                                           ],
                                           stops: [0.0, 0.3, 0.7, 1.0],
                                           begin: Alignment.topLeft,
@@ -116,23 +111,23 @@ class AdminHP extends StatelessWidget {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const AdminShowProfile()),
+                                              builder: (context) =>
+                                                  const AdminShowProfile(),
+                                            ),
                                           );
                                         },
                                         child: Column(
                                           children: [
                                             CircleAvatar(
                                               radius: 50,
-                                              backgroundImage: profileImageUrl !=
-                                                          null &&
-                                                      profileImageUrl!.isNotEmpty
-                                                  ? NetworkImage(profileImageUrl!)
-                                                  : const AssetImage(
-                                                      'lib/assets/images/avatar.png',
-                                                    ) as ImageProvider,
-                                              child: (profileImageUrl == null ||
-                                                      profileImageUrl!.isEmpty)
+                                              backgroundImage:
+                                                  (profileImageUrl.isNotEmpty)
+                                                      ? NetworkImage(
+                                                          profileImageUrl)
+                                                      : const AssetImage(
+                                                          'lib/assets/images/avatar.png',
+                                                        ) as ImageProvider,
+                                              child: (profileImageUrl.isEmpty)
                                                   ? const Icon(
                                                       Icons.camera_alt,
                                                       size: 40,
@@ -168,6 +163,8 @@ class AdminHP extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 20),
+
+                          // ─── ROW 1: MEMBERS & VERIFY ─────────────────────────────────
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -187,15 +184,17 @@ class AdminHP extends StatelessWidget {
                                 child: Column(
                                   children: [
                                     GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const AdminMembers()),
-                                          );
-                                        },
-                                        child: const Column(children: [
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const AdminMembers(),
+                                          ),
+                                        );
+                                      },
+                                      child: const Column(
+                                        children: [
                                           Icon(
                                             Icons.group_rounded,
                                             size: 30,
@@ -207,7 +206,9 @@ class AdminHP extends StatelessWidget {
                                             ),
                                             textAlign: TextAlign.center,
                                           )
-                                        ])),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -229,8 +230,9 @@ class AdminHP extends StatelessWidget {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              const AdminDashboard()),
+                                        builder: (context) =>
+                                            const AdminDashboard(),
+                                      ),
                                     );
                                   },
                                   child: const Column(
@@ -253,11 +255,14 @@ class AdminHP extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 10),
+
+                          // ─── ROW 2: FEEDBACKS & MANAGE HOTLINES (UPDATED) ───────────
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
+                              // Feedback Container
                               Container(
-                                width: 320,
+                                width: 155,
                                 padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
@@ -274,8 +279,9 @@ class AdminHP extends StatelessWidget {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              const FeedbackFeed()),
+                                        builder: (context) =>
+                                            const FeedbackFeed(),
+                                      ),
                                     );
                                   },
                                   child: const Column(
@@ -285,7 +291,49 @@ class AdminHP extends StatelessWidget {
                                         size: 30,
                                       ),
                                       Text(
-                                        "salud.ko Feedbacks",
+                                        "Feedbacks",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              // Manage Hotlines Container
+                              Container(
+                                width: 155,
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(25),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black,
+                                      blurRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const AdminHotlinesScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: const Column(
+                                    children: [
+                                      Icon(
+                                        Icons.phone,
+                                        size: 30,
+                                      ),
+                                      Text(
+                                        "Manage Hotlines",
                                         style: TextStyle(
                                           fontSize: 12,
                                         ),
@@ -297,6 +345,7 @@ class AdminHP extends StatelessWidget {
                               ),
                             ],
                           ),
+
                           const SizedBox(height: 20),
                         ],
                       ),
