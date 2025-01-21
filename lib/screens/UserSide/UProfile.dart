@@ -39,19 +39,14 @@ class _ShowProfilePageState extends State<ShowProfilePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A62B7),
-        title: Align(
-          alignment: Alignment.topRight, // Align the title to the right
-          child: Container(
-            margin: const EdgeInsets.only(right: 16.0), // Add margin if needed
-
-            child: const Text(
-              'User Profile',
-              style: TextStyle(
-                color: Colors.white, // Change the text color
-                fontSize: 20, // Change the font size
-                fontWeight: FontWeight.bold, // Change the font weight
-                fontStyle: FontStyle.italic,
-              ),
+        title: const Align(
+          alignment: Alignment.centerRight, // Align the title to the right
+          child: Text(
+            'User Profile',
+            style: TextStyle(
+              color: Colors.white, // Change the text color
+              fontSize: 20, // Change the font size
+              fontWeight: FontWeight.bold, // Change the font weight
             ),
           ),
         ),
