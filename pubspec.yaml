@@ -55,6 +55,7 @@ dependencies:
   webview_flutter_wkwebview: ^3.9.0
 
   pedometer: ^4.0.2
+  uuid: ^4.5.1
 
   flutter_local_notifications: ^18.0.1 
   timezone: ^0.10.0

@@ -2,105 +2,98 @@ import 'package:flutter/material.dart';
 
 class AddSleepEntryDialog extends StatefulWidget {
   final Function(double hours, DateTime date) onSave;
+  final double? initialHours;
+  final DateTime? initialDate;
+  final String? dialogTitle;
 
   const AddSleepEntryDialog({
-    Key? key,
+    super.key,
     required this.onSave,
-  }) : super(key: key);
+    this.initialHours,
+    this.initialDate,
+    this.dialogTitle,
+  });
 
   @override
   State<AddSleepEntryDialog> createState() => _AddSleepEntryDialogState();
 }
 
 class _AddSleepEntryDialogState extends State<AddSleepEntryDialog> {
-  final TextEditingController _hoursController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
+  late TextEditingController _hoursController;
+  late DateTime _selectedDate;
 
-  /// Opens the date picker and sets [_selectedDate].
+  @override
+  void initState() {
+    super.initState();
+    _hoursController = TextEditingController(
+      text: widget.initialHours != null ? "${widget.initialHours}" : "",
+    );
+    _selectedDate = widget.initialDate ?? DateTime.now();
+  }
+
   Future<void> _pickDate() async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2010),
       lastDate: DateTime(2100),
     );
     if (picked != null) {
-      setState(() {
-        _selectedDate = picked;
-      });
+      setState(() => _selectedDate = picked);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      // Rounded corners
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-
-      // Title with icon above + center alignment
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       title: Column(
         children: [
-          const Icon(
-            Icons.bedtime,
-            size: 40,
-            color: Color(0xFF1A62B7),
-          ),
+          const Icon(Icons.bedtime, size: 40, color: Color(0xFF1A62B7)),
           const SizedBox(height: 10),
-          const Center(
+          Center(
             child: Text(
-              'Sleeping Hours',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+              widget.dialogTitle ?? 'Sleeping Hours',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ),
         ],
       ),
-
       content: SingleChildScrollView(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start, // left alignment
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ---- Hours of Sleep ----
-            const Text(
-              'Enter your Hours of Sleep',
-              style: TextStyle(fontWeight: FontWeight.normal),
-            ),
+            const Text("Enter your Hours of Sleep"),
             const SizedBox(height: 8),
             TextField(
               controller: _hoursController,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
-                hintText: 'Enter the amount of hours of sleep.',
+                hintText: "e.g. 7.5",
+                hintStyle: TextStyle(
+                  color: Colors.black38,
+                ),
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
-
-            // ---- Date of Measurement ----
-            const Text(
-              'Date of Measurement',
-              style: TextStyle(fontWeight: FontWeight.normal),
-            ),
+            const Text("Date of Measurement"),
             const SizedBox(height: 8),
             InkWell(
               onTap: _pickDate,
               child: Container(
                 width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 8,
+                ),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  // Show 'YYYY-MM-DD' style
-                  '${_selectedDate.toLocal()}'.split(' ')[0],
+                  "${_selectedDate.month}/${_selectedDate.day}",
                   style: const TextStyle(fontSize: 15),
                 ),
               ),
@@ -108,43 +101,40 @@ class _AddSleepEntryDialogState extends State<AddSleepEntryDialog> {
           ],
         ),
       ),
-
       actions: [
-        // ---- Cancel Button ----
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.pop(context),
           style: TextButton.styleFrom(
+            side: const BorderSide(color: Color(0xFF1A62B7)),
+            backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            side: const BorderSide(color: Color(0xFF1A62B7)),
-            backgroundColor: Colors.white,
           ),
           child: const Text(
-            'Cancel',
+            "Cancel",
             style: TextStyle(color: Color(0xFF1A62B7)),
           ),
         ),
-
-        // ---- Save Button ----
         TextButton(
           onPressed: () {
-            if (_hoursController.text.isNotEmpty) {
-              final double? hours = double.tryParse(_hoursController.text);
-              if (hours != null && hours > 0) {
-                widget.onSave(hours, _selectedDate);
-                Navigator.of(context).pop();
+            final text = _hoursController.text.trim();
+            if (text.isNotEmpty) {
+              final val = double.tryParse(text);
+              if (val != null) {
+                widget.onSave(val, _selectedDate);
               }
             }
+            Navigator.pop(context);
           },
           style: TextButton.styleFrom(
+            backgroundColor: const Color(0xFF1A62B7),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            backgroundColor: const Color(0xFF1A62B7),
           ),
           child: const Text(
-            'Save',
+            "Save",
             style: TextStyle(color: Colors.white),
           ),
         ),
