@@ -12,7 +12,6 @@ class Medicine {
   int durationValue;
   String notes;
   bool notificationsEnabled;
-
   int quantityLeft;
 
   Medicine({

@@ -38,6 +38,7 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
           ),
           Row(
             children: [
+              // Notification Bell Icon
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -54,6 +55,7 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
                 ),
               ),
               const SizedBox(width: 16),
+              // Profile icon
               GestureDetector(
                 onTap: () {
                   Navigator.push(

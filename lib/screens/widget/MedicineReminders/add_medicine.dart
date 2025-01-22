@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:saludko/screens/widget/MedicineReminders/medicine.dart';
 import 'package:saludko/screens/widget/MedicineReminders/dose_list.dart';
 import 'package:saludko/screens/widget/MedicineReminders/quantity_duration.dart';
+import 'package:saludko/screens/Services/localnotifications.dart';
 
 class AddMedicinePage extends StatefulWidget {
   const AddMedicinePage({super.key});
@@ -27,6 +28,9 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
   String _durationType = 'Everyday';
   int _durationValue = 7;
 
+  // Notifications
+  bool _notificationsEnabled = false;
+
   final String _userId = FirebaseAuth.instance.currentUser!.uid;
 
   @override
@@ -36,7 +40,7 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
     _dosageController = TextEditingController();
     _notesController = TextEditingController();
 
-    _doses = ['8:00 AM'];
+    _doses = ['8:00 AM']; // Default first dose
     _quantity = 0;
     _quantityLeft = 0;
     _durationValue = 7;
@@ -161,6 +165,26 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
               ),
               const SizedBox(height: 16),
 
+              // Toggle for enabling notifications
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Enable Notifications?',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  Switch(
+                    value: _notificationsEnabled,
+                    onChanged: (val) {
+                      setState(() {
+                        _notificationsEnabled = val;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
               // Add Medicine Button
               SizedBox(
                 width: double.infinity,
@@ -258,6 +282,7 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
     }
   }
 
+  /// Save the medicine and schedule notifications
   Future<void> _saveMedicine() async {
     final name = _nameController.text.trim();
     final dosage = double.tryParse(_dosageController.text.trim()) ?? 0.0;
@@ -281,9 +306,63 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
       durationType: _durationType,
       durationValue: _durationValue,
       notes: notes,
+      notificationsEnabled: _notificationsEnabled,
     );
 
     await docRef.set(newMed.toMap());
+
+    // If notifications are enabled, schedule them
+    if (_notificationsEnabled) {
+      for (int i = 0; i < _doses.length; i++) {
+        final doseTimeStr = _doses[i];
+        final scheduledTime = _parseDoseToDateTime(doseTimeStr);
+
+        // Unique notification ID
+        final notificationId = docRef.id.hashCode + i;
+
+        // Schedule the local notification
+        await LocalNotificationService.scheduleNotification(
+          id: notificationId,
+          title: 'Time to take ${newMed.name}',
+          body:
+              'Dosage: ${newMed.dosage.toStringAsFixed(0)} ${newMed.dosageUnit}',
+          dateTime: scheduledTime,
+          // repeatDaily: true, // if you want it daily
+        );
+
+        // Also store it in Firestore so it appears in NotificationsScreen
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(_userId)
+            .collection('notifications')
+            .add({
+          'medicineName': newMed.name,
+          'time': scheduledTime,
+          'createdAt': DateTime.now(),
+          'notificationId': notificationId,
+        });
+      }
+    }
+
     Navigator.pop(context);
+  }
+
+  /// Convert "8:00 AM" -> DateTime for today
+  DateTime _parseDoseToDateTime(String timeStr) {
+    final now = DateTime.now();
+    final parts = timeStr.split(' ');
+    if (parts.length != 2) return now;
+
+    final hhmm = parts[0].split(':');
+    if (hhmm.length != 2) return now;
+
+    int hour = int.tryParse(hhmm[0]) ?? now.hour;
+    int min = int.tryParse(hhmm[1]) ?? now.minute;
+    final amPm = parts[1].toUpperCase();
+
+    if (amPm == 'PM' && hour < 12) hour += 12;
+    if (amPm == 'AM' && hour == 12) hour = 0;
+
+    return DateTime(now.year, now.month, now.day, hour, min);
   }
 }

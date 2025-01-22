@@ -1,7 +1,12 @@
+import 'dart:io';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+import 'package:saludko/screens/Services/localnotifications.dart';
 import 'package:saludko/screens/AdminSide/AdminHP.dart';
 import 'package:saludko/screens/HospitalAdminSide/HAHomepage.dart';
 import 'package:saludko/screens/ProviderSide/ProviderHP.dart';
@@ -12,9 +17,30 @@ import 'package:saludko/screens/Opening/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 1) Firebase
   await Firebase.initializeApp();
 
+  // 2) Timezone
+  tz.initializeTimeZones();
+  tz.setLocalLocation(tz.getLocation('Asia/Manila'));
+
+  // 3) Local notifications plugin
+  await LocalNotificationService.initialize();
+
+  // 4) Request runtime notification permission on Android 13+
+  await requestAndroid13NotificationPermission();
+
   runApp(const MyApp());
+}
+
+Future<void> requestAndroid13NotificationPermission() async {
+  if (Platform.isAndroid) {
+    final status = await Permission.notification.status;
+    if (status.isDenied) {
+      await Permission.notification.request();
+    }
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -23,7 +49,6 @@ class MyApp extends StatelessWidget {
   Future<String?> _getUserRole() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      // Check if user exists in 'users' collection
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
@@ -32,7 +57,6 @@ class MyApp extends StatelessWidget {
         return 'user';
       }
 
-      // Check if user exists in 'healthcare_providers' collection
       DocumentSnapshot providerDoc = await FirebaseFirestore.instance
           .collection('healthcare_providers')
           .doc(user.uid)
@@ -46,7 +70,6 @@ class MyApp extends StatelessWidget {
         }
       }
 
-      // Check if user exists in 'admins' collection
       DocumentSnapshot adminDoc = await FirebaseFirestore.instance
           .collection('admins')
           .doc(user.uid)
@@ -55,7 +78,6 @@ class MyApp extends StatelessWidget {
         return 'admin';
       }
 
-      // Check if user exists in 'hospital' collection with role 'hospital_admin'
       DocumentSnapshot hospitalDoc = await FirebaseFirestore.instance
           .collection('hospital')
           .doc(user.uid)
@@ -75,24 +97,25 @@ class MyApp extends StatelessWidget {
         future: _getUserRole(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SplashScreen(); // Show splash screen while loading
+            return const SplashScreen();
           } else if (snapshot.hasData) {
-            // Navigate to the correct home screen based on the user role
-            if (snapshot.data == 'user') {
+            final role = snapshot.data;
+            if (role == 'user') {
               return const MyHomeScreen();
-            } else if (snapshot.data == 'healthcare_provider') {
+            } else if (role == 'healthcare_provider') {
               return const ProviderHP();
-            } else if (snapshot.data == 'admin') {
+            } else if (role == 'admin') {
               return const AdminHP();
-            } else if (snapshot.data == 'hospital_admin') {
-              return const HAdminHomeScreen(); // Redirect hospital admin to their homepage
-            } else if (snapshot.data == 'not_verified') {
+            } else if (role == 'hospital_admin') {
+              return const HAdminHomeScreen();
+            } else if (role == 'not_verified') {
               return const EmailVerificationScreen();
             } else {
-              return const MyLogin(); // Redirect to login if the role is not found
+              return const MyLogin();
             }
           } else {
-            return const SplashScreen(); // Redirect to login if not authenticated
+            // User not logged in or unknown
+            return const SplashScreen();
           }
         },
       ),
