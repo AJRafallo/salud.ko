@@ -44,10 +44,12 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2"/>
-
         <meta-data
-    android:name="com.google.android.geo.API_KEY"
-    android:value="AIzaSyCEIYOUToGD1th6pFT0HU26h-8u_64Y5SQ" />
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCEIYOUToGD1th6pFT0HU26h-8u_64Y5SQ" />
+        <meta-data
+            android:name="flutter_local_notifications_default_channel_id"
+            android:value="medicines_channel_id" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

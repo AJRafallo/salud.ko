@@ -231,7 +231,6 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
 
   Widget _buildMedicineList(BuildContext context, List<Medicine> medicines) {
     if (medicines.isEmpty) {
-      // Just the text inside a container with padding, no icon
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(16),
@@ -278,7 +277,6 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
                     child: Icon(Icons.local_pharmacy, color: Color(0xFF1A62B7)),
                   ),
                 ),
-                // Medicine info
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,7 +297,6 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      // Display the first dose + duration
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
@@ -337,7 +334,6 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
     );
   }
 
-  // Bottom sheet for Edit/Delete
   void _showMedicineActionsBottomSheet(BuildContext context, Medicine med) {
     showModalBottomSheet(
       context: context,
@@ -349,7 +345,6 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Title row
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: Row(
@@ -510,7 +505,6 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
     );
   }
 
-  // Helper capsule
   Widget _smallCapsule({
     required String text,
     required Color color,
@@ -551,7 +545,6 @@ class _MedicineRemindersPageState extends State<MedicineRemindersPage> {
     );
   }
 
-  // Next dose calculation
   Map<String, dynamic>? _getEarliestNextDose(List<Medicine> medicines) {
     if (medicines.isEmpty) return null;
 

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:saludko/screens/widget/MedicineReminders/medicine.dart';
 import 'package:saludko/screens/widget/MedicineReminders/dose_list.dart';
 import 'package:saludko/screens/widget/MedicineReminders/quantity_duration.dart';
+import 'package:saludko/screens/Services/localnotifications.dart';
 
 class EditMedicinePage extends StatefulWidget {
   final Medicine existingMedicine;
@@ -58,15 +59,17 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
 
   @override
   Widget build(BuildContext context) {
+    final med = widget.existingMedicine;
+
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.chevron_left, size: 28),
+          icon: const Icon(Icons.chevron_left, size: 30),
           onPressed: () => Navigator.pop(context),
         ),
         elevation: 0,
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
         actions: [
           IconButton(
             icon: const Icon(Icons.delete, color: Color(0xFFDB0000)),
@@ -74,7 +77,6 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
           ),
         ],
       ),
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -89,6 +91,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                 decoration: _inputDecoration('Enter Medicine Name'),
               ),
               const SizedBox(height: 16),
+
               _buildLabel('Medicine Dosage'),
               const SizedBox(height: 8),
               TextField(
@@ -98,6 +101,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                 decoration: _inputDecoration('mg'),
               ),
               const SizedBox(height: 12),
+
               // Notifications Toggle
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -106,39 +110,18 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                     'Turn on Notifications?',
                     style: TextStyle(color: Colors.black.withOpacity(0.7)),
                   ),
-                  Transform.scale(
-                    scale: 0.8,
-                    child: Switch(
-                      value: _notificationsEnabled,
-                      thumbColor: WidgetStateProperty.resolveWith<Color>(
-                        (states) => Colors.white,
-                      ),
-                      trackColor: WidgetStateProperty.resolveWith<Color>(
-                        (states) => states.contains(WidgetState.selected)
-                            ? const Color(0xFF1A62B7)
-                            : const Color(0xFF49454F),
-                      ),
-                      thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
-                        (states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return const Icon(Icons.check,
-                                color: Colors.black, size: 12);
-                          } else {
-                            return const Icon(Icons.close,
-                                color: Colors.grey, size: 12);
-                          }
-                        },
-                      ),
-                      onChanged: (val) {
-                        setState(() {
-                          _notificationsEnabled = val;
-                        });
-                      },
-                    ),
+                  Switch(
+                    value: _notificationsEnabled,
+                    onChanged: (val) {
+                      setState(() {
+                        _notificationsEnabled = val;
+                      });
+                    },
                   ),
                 ],
               ),
               const SizedBox(height: 12),
+
               // Doses List
               DosesListWidget(
                 doses: _doses,
@@ -149,7 +132,8 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                 },
               ),
               const SizedBox(height: 16),
-              // Quantity + Duration
+
+              // Quantity & Duration
               QuantityDurationWidget(
                 quantity: _quantity,
                 quantityLeft: _quantityLeft,
@@ -167,6 +151,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                     setState(() => _durationValue = val),
               ),
               const SizedBox(height: 16),
+
               _buildLabel('Notes'),
               const SizedBox(height: 8),
               TextField(
@@ -178,6 +163,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                 ),
               ),
               const SizedBox(height: 16),
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -246,8 +232,62 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
         notificationsEnabled: _notificationsEnabled,
       );
 
-      // Update Firestore
+      // 1) Cancel existing notifications
+      for (int i = 0; i < widget.existingMedicine.doses.length; i++) {
+        final oldId = widget.existingMedicine.id.hashCode + i;
+        await LocalNotificationService.cancelNotification(oldId);
+      }
+
+      // Remove old notification docs in Firestore
+      final oldNotifs = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_userId)
+          .collection('notifications')
+          .where('notificationId',
+              isGreaterThanOrEqualTo: widget.existingMedicine.id.hashCode)
+          .where('notificationId',
+              isLessThanOrEqualTo: widget.existingMedicine.id.hashCode + 100)
+          .get();
+
+      for (var doc in oldNotifs.docs) {
+        await doc.reference.delete();
+      }
+
+      // 2) Update the medicine in Firestore
       await docRef.update(updatedMed.toMap());
+
+      // 3) If notifications enabled, schedule new
+      if (_notificationsEnabled) {
+        for (int i = 0; i < updatedMed.doses.length; i++) {
+          final doseTimeStr = updatedMed.doses[i];
+          final scheduledTime = _parseDoseToDateTime(doseTimeStr);
+          final notificationId = updatedMed.id.hashCode + i;
+
+          try {
+            await LocalNotificationService.scheduleNotification(
+              id: notificationId,
+              title: 'Time to take ${updatedMed.name}',
+              body:
+                  'Dosage: ${updatedMed.dosage.toStringAsFixed(0)} ${updatedMed.dosageUnit}',
+              dateTime: scheduledTime,
+            );
+          } catch (e) {
+            print('Error scheduling notification: $e');
+          }
+
+          // Add new doc in notifications subcollection
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(_userId)
+              .collection('notifications')
+              .add({
+            'medicineName': updatedMed.name,
+            'time': scheduledTime,
+            'createdAt': DateTime.now(),
+            'notificationId': notificationId,
+          });
+        }
+      }
 
       Navigator.pop(context, updatedMed);
     } catch (e) {
@@ -257,7 +297,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
     }
   }
 
-  Future<void> _onDeletePressed(BuildContext context) async {
+  void _onDeletePressed(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) {
@@ -322,16 +362,38 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                           .collection('medicines')
                           .doc(widget.existingMedicine.id);
 
+                      // Cancel existing notifications
+                      for (int i = 0;
+                          i < widget.existingMedicine.doses.length;
+                          i++) {
+                        final oldId = widget.existingMedicine.id.hashCode + i;
+                        await LocalNotificationService.cancelNotification(
+                            oldId);
+                      }
+
+                      // Delete the medicine doc
                       await docRef.delete();
 
-                      // 1) close the alert dialog
-                      Navigator.pop(ctx);
+                      // Remove from notifications subcollection
+                      final oldNotifs = await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(_userId)
+                          .collection('notifications')
+                          .where('notificationId',
+                              isGreaterThanOrEqualTo:
+                                  widget.existingMedicine.id.hashCode)
+                          .where('notificationId',
+                              isLessThanOrEqualTo:
+                                  widget.existingMedicine.id.hashCode + 100)
+                          .get();
+                      for (var doc in oldNotifs.docs) {
+                        await doc.reference.delete();
+                      }
 
-                      // 2) pop the EditMedicinePage
-                      Navigator.pop(context);
-
-                      // 3) pop the ViewMedicinePage
-                      Navigator.pop(context);
+                      // Close dialogs/pages
+                      Navigator.pop(ctx); // close the alert
+                      Navigator.pop(context); // close EditMedicinePage
+                      Navigator.pop(context); // close ViewMedicinePage
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -365,5 +427,23 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
         );
       },
     );
+  }
+
+  DateTime _parseDoseToDateTime(String timeStr) {
+    final now = DateTime.now();
+    final parts = timeStr.split(' ');
+    if (parts.length != 2) return now;
+
+    final hhmm = parts[0].split(':');
+    if (hhmm.length != 2) return now;
+
+    int hour = int.tryParse(hhmm[0]) ?? now.hour;
+    int min = int.tryParse(hhmm[1]) ?? now.minute;
+    final amPm = parts[1].toUpperCase();
+
+    if (amPm == 'PM' && hour < 12) hour += 12;
+    if (amPm == 'AM' && hour == 12) hour = 0;
+
+    return DateTime(now.year, now.month, now.day, hour, min);
   }
 }
