@@ -40,7 +40,7 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
     _dosageController = TextEditingController();
     _notesController = TextEditingController();
 
-    _doses = ['8:00 AM']; // Default first dose
+    _doses = ['8:00 AM']; // default initial dose
     _quantity = 0;
     _quantityLeft = 0;
     _durationValue = 7;
@@ -169,10 +169,8 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Enable Notifications?',
-                    style: TextStyle(fontSize: 16),
-                  ),
+                  const Text('Enable Notifications?',
+                      style: TextStyle(fontSize: 16)),
                   Switch(
                     value: _notificationsEnabled,
                     onChanged: (val) {
@@ -211,10 +209,7 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
   Widget _buildSectionTitle(String text) {
     return Text(
       text,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-      ),
+      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
     );
   }
 
@@ -235,10 +230,8 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
           ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 12,
-          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         ),
       ),
     );
@@ -261,10 +254,8 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
           ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: 8,
-          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         ),
       ),
     );
@@ -282,7 +273,6 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
     }
   }
 
-  /// Save the medicine and schedule notifications
   Future<void> _saveMedicine() async {
     final name = _nameController.text.trim();
     final dosage = double.tryParse(_dosageController.text.trim()) ?? 0.0;
@@ -309,34 +299,37 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
       notificationsEnabled: _notificationsEnabled,
     );
 
+    // 1) Save the medicine doc
     await docRef.set(newMed.toMap());
 
-    // If notifications are enabled, schedule them
+    // 2) If notifications are enabled, schedule them & create Firestore notifs
     if (_notificationsEnabled) {
       for (int i = 0; i < _doses.length; i++) {
         final doseTimeStr = _doses[i];
         final scheduledTime = _parseDoseToDateTime(doseTimeStr);
-
-        // Unique notification ID
         final notificationId = docRef.id.hashCode + i;
 
-        // Schedule the local notification
-        await LocalNotificationService.scheduleNotification(
-          id: notificationId,
-          title: 'Time to take ${newMed.name}',
-          body:
-              'Dosage: ${newMed.dosage.toStringAsFixed(0)} ${newMed.dosageUnit}',
-          dateTime: scheduledTime,
-          // repeatDaily: true, // if you want it daily
-        );
+        try {
+          await LocalNotificationService.scheduleNotification(
+            id: notificationId,
+            title: 'Time to take ${newMed.name}',
+            body:
+                'Dosage: ${newMed.dosage.toStringAsFixed(0)} ${newMed.dosageUnit}',
+            dateTime: scheduledTime,
+          );
+        } catch (e) {
+          debugPrint('Error scheduling notification: $e');
+        }
 
-        // Also store it in Firestore so it appears in NotificationsScreen
+        // IMPORTANT: add all needed fields, including 'medicineId' & 'status'
         await FirebaseFirestore.instance
             .collection('users')
             .doc(_userId)
             .collection('notifications')
             .add({
+          'medicineId': newMed.id,
           'medicineName': newMed.name,
+          'status': 'unread', // default to unread
           'time': scheduledTime,
           'createdAt': DateTime.now(),
           'notificationId': notificationId,
@@ -344,10 +337,11 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
       }
     }
 
+    // 3) Done
     Navigator.pop(context);
   }
 
-  /// Convert "8:00 AM" -> DateTime for today
+  /// Convert "8:00 AM" -> DateTime (today)
   DateTime _parseDoseToDateTime(String timeStr) {
     final now = DateTime.now();
     final parts = timeStr.split(' ');

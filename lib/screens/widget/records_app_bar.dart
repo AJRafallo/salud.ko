@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:saludko/screens/UserSide/UProfile.dart';
 import 'package:saludko/screens/widget/MedicineReminders/notifications.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SaludkoAppBar extends StatefulWidget {
   const SaludkoAppBar({super.key});
@@ -38,24 +40,8 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
           ),
           Row(
             children: [
-              // Notification Bell Icon
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const NotificationsScreen(),
-                    ),
-                  );
-                },
-                child: const Icon(
-                  Icons.notifications,
-                  size: 30,
-                  color: Colors.white,
-                ),
-              ),
+              _buildNotificationBell(context),
               const SizedBox(width: 16),
-              // Profile icon
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -87,6 +73,73 @@ class _SaludkoAppBarState extends State<SaludkoAppBar> {
           ),
         ),
       ),
+    );
+  }
+
+  /// Builds the bell icon with a small red dot if there are any unread notifications.
+  Widget _buildNotificationBell(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId == null) {
+      // User not logged in -> show plain bell icon.
+      return GestureDetector(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (ctx) => const NotificationsScreen()),
+        ),
+        child: const Icon(Icons.notifications, size: 30, color: Colors.white),
+      );
+    }
+
+    return StreamBuilder<QuerySnapshot>(
+      // Listen only to 'unread' notifications.
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .where('status', isEqualTo: 'unread')
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          // Data not yet loaded -> show plain bell icon.
+          return GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (ctx) => const NotificationsScreen()),
+            ),
+            child:
+                const Icon(Icons.notifications, size: 30, color: Colors.white),
+          );
+        }
+
+        final hasUnread = snapshot.data!.docs.isNotEmpty;
+
+        return GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (ctx) => const NotificationsScreen()),
+          ),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              const Icon(Icons.notifications, size: 30, color: Colors.white),
+              if (hasUnread)
+                Positioned(
+                  right: -1,
+                  top: -1,
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

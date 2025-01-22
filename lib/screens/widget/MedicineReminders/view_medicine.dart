@@ -1,32 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:saludko/screens/widget/MedicineReminders/medicine.dart';
 import 'package:saludko/screens/widget/MedicineReminders/edit_medicine.dart';
 
-class ViewMedicinePage extends StatefulWidget {
+class ViewMedicinePage extends StatelessWidget {
   final Medicine medicine;
 
   const ViewMedicinePage({super.key, required this.medicine});
 
   @override
-  State<ViewMedicinePage> createState() => _ViewMedicinePageState();
-}
+  Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final docRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('medicines')
+        .doc(medicine.id);
 
-class _ViewMedicinePageState extends State<ViewMedicinePage> {
-  late Medicine _currentMed;
-  bool _notificationsEnabled = false;
+    // StreamBuilder -> real-time updates of the "medicine" doc
+    return StreamBuilder<DocumentSnapshot>(
+      stream: docRef.snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(),
+            body: const Center(child: Text('Error loading medicine.')),
+          );
+        }
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Scaffold(
+            appBar: AppBar(),
+            body: const Center(child: Text('Medicine not found.')),
+          );
+        }
 
-  @override
-  void initState() {
-    super.initState();
-    _currentMed = widget.medicine;
-    _notificationsEnabled = _currentMed.notificationsEnabled;
+        // Convert doc data -> Medicine
+        final docData = snapshot.data!;
+        final currentMed = Medicine.fromFirestore(docData);
+
+        return _buildPage(context, currentMed);
+      },
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final med = _currentMed;
-
+  Widget _buildPage(BuildContext context, Medicine med) {
     final nextDoseStr = _getNextDoseForSingleMedicine(med);
     final timesPerDay = med.doses.length;
     final daysLeft = med.durationValue;
@@ -48,6 +67,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Name + Notifications row
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -59,9 +79,8 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                         Text(
                           'Medicine Name',
                           style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black.withOpacity(0.6),
-                          ),
+                              fontSize: 14,
+                              color: Colors.black.withOpacity(0.6)),
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -77,7 +96,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                   ),
                   const SizedBox(width: 16),
 
-                  // Notifications
+                  // Notifications switch
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,14 +104,13 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                         Text(
                           'Notifications',
                           style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black.withOpacity(0.6),
-                          ),
+                              fontSize: 14,
+                              color: Colors.black.withOpacity(0.6)),
                         ),
                         Transform.scale(
                           scale: 0.8,
                           child: Switch(
-                            value: _notificationsEnabled,
+                            value: med.notificationsEnabled,
                             thumbColor: WidgetStateProperty.resolveWith<Color>(
                               (states) => Colors.white,
                             ),
@@ -112,10 +130,16 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                                 }
                               },
                             ),
+                            // If user toggles notifications here, you'd have to
+                            // update Firestore on the fly or let them go to Edit.
                             onChanged: (val) {
-                              setState(() {
-                                _notificationsEnabled = val;
-                              });
+                              // If you want to allow direct toggle here:
+                              FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                                  .collection('medicines')
+                                  .doc(med.id)
+                                  .update({'notificationsEnabled': val});
                             },
                           ),
                         ),
@@ -130,7 +154,6 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Medicine Dosage
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,8 +178,6 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                     ),
                   ),
                   const SizedBox(width: 16),
-
-                  // Next Dose
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,31 +223,23 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                           const Text(
                             'Dose',
                             style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            '$timesPerDay times per day',
-                            style: const TextStyle(fontSize: 14),
-                          ),
+                          Text('$timesPerDay times per day',
+                              style: const TextStyle(fontSize: 14)),
                         ],
                       ),
                     ),
                     const SizedBox(height: 12),
                     for (int i = 0; i < med.doses.length; i++) ...[
-                      Text(
-                        '${_ordinal(i + 1)} Dose:',
-                        style: const TextStyle(fontSize: 14),
-                      ),
+                      Text('${_ordinal(i + 1)} Dose:',
+                          style: const TextStyle(fontSize: 14)),
                       const SizedBox(height: 4),
                       Container(
                         constraints: const BoxConstraints(minHeight: 50),
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 12,
-                        ),
+                            horizontal: 18, vertical: 12),
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -237,17 +250,11 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                           children: [
                             Text(
                               med.doses[i],
-                              style: const TextStyle(
-                                fontSize: 14,
-                                //fontWeight: FontWeight.w600,
-                              ),
+                              style: const TextStyle(fontSize: 14),
                             ),
                             const Spacer(),
-                            const Icon(
-                              Icons.access_time,
-                              size: 16,
-                              color: Color(0xFF1A62B7),
-                            ),
+                            const Icon(Icons.access_time,
+                                size: 16, color: Color(0xFF1A62B7)),
                           ],
                         ),
                       ),
@@ -257,6 +264,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
               ),
               const SizedBox(height: 24),
 
+              // Quantity & Duration row
               Row(
                 children: [
                   // Quantity
@@ -275,9 +283,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                           const Text(
                             'Quantity',
                             style: TextStyle(
-                              fontSize: 19,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                fontSize: 19, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 12),
                           Row(
@@ -299,10 +305,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                                   const SizedBox(height: 4),
                                   Text(
                                     med.quantityUnit,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.normal,
-                                    ),
+                                    style: const TextStyle(fontSize: 14),
                                   ),
                                 ],
                               ),
@@ -328,13 +331,8 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                                     ),
                                   ),
                                   const SizedBox(height: 4),
-                                  const Text(
-                                    'Left',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  ),
+                                  const Text('Left',
+                                      style: TextStyle(fontSize: 14)),
                                 ],
                               ),
                             ],
@@ -343,6 +341,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                       ),
                     ),
                   ),
+
                   // Duration
                   Expanded(
                     child: Container(
@@ -359,10 +358,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                           const Text(
                             'Duration',
                             style: TextStyle(
-                              fontSize: 19,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                                fontSize: 19, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 12),
                           Text(
@@ -378,9 +374,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                           Text(
                             '$daysLeft DAYS LEFT',
                             style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                            ),
+                                fontSize: 14, color: Colors.black),
                           ),
                         ],
                       ),
@@ -390,7 +384,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
               ),
               const SizedBox(height: 24),
 
-              // Notes container
+              // Notes
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -403,18 +397,13 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                   children: [
                     const Text(
                       'Notes',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       med.notes.isEmpty ? 'No additional notes.' : med.notes,
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
+                      style: const TextStyle(fontSize: 14),
                     ),
                   ],
                 ),
@@ -424,7 +413,7 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _navigateToEditMedication,
+                  onPressed: () => _navigateToEditMedication(context, med),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1A62B7),
                     shape: RoundedRectangleBorder(
@@ -432,10 +421,8 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text(
-                    'Edit Medication',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  child: const Text('Edit Medication',
+                      style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],
@@ -445,19 +432,12 @@ class _ViewMedicinePageState extends State<ViewMedicinePage> {
     );
   }
 
-  void _navigateToEditMedication() {
+  void _navigateToEditMedication(BuildContext context, Medicine med) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => EditMedicinePage(existingMedicine: _currentMed),
-      ),
-    ).then((result) {
-      if (result != null && result is Medicine) {
-        setState(() {
-          _currentMed = result;
-        });
-      }
-    });
+          builder: (_) => EditMedicinePage(existingMedicine: med)),
+    );
   }
 
   String? _getNextDoseForSingleMedicine(Medicine m) {

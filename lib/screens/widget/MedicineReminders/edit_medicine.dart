@@ -158,9 +158,8 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                 controller: _notesController,
                 maxLines: 3,
                 style: TextStyle(color: Colors.black.withOpacity(0.8)),
-                decoration: _inputDecoration(
-                  'Additional info: e.g. "Take with food".',
-                ),
+                decoration:
+                    _inputDecoration('Additional info: e.g. "Take with food".'),
               ),
               const SizedBox(height: 16),
 
@@ -175,10 +174,8 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text(
-                    'Save Changes',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  child: const Text('Save Changes',
+                      style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],
@@ -192,9 +189,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
     return Text(
       label,
       style: TextStyle(
-        fontWeight: FontWeight.bold,
-        color: Colors.black.withOpacity(0.7),
-      ),
+          fontWeight: FontWeight.bold, color: Colors.black.withOpacity(0.7)),
     );
   }
 
@@ -202,9 +197,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
     return InputDecoration(
       hintText: hint,
       hintStyle: TextStyle(color: Colors.black.withOpacity(0.5)),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(5),
-      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
     );
   }
@@ -232,13 +225,13 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
         notificationsEnabled: _notificationsEnabled,
       );
 
-      // 1) Cancel existing notifications
+      // 1) Cancel existing local notifications
       for (int i = 0; i < widget.existingMedicine.doses.length; i++) {
         final oldId = widget.existingMedicine.id.hashCode + i;
         await LocalNotificationService.cancelNotification(oldId);
       }
 
-      // Remove old notification docs in Firestore
+      // Remove old notifs in Firestore
       final oldNotifs = await FirebaseFirestore.instance
           .collection('users')
           .doc(_userId)
@@ -248,15 +241,14 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
           .where('notificationId',
               isLessThanOrEqualTo: widget.existingMedicine.id.hashCode + 100)
           .get();
-
       for (var doc in oldNotifs.docs) {
         await doc.reference.delete();
       }
 
-      // 2) Update the medicine in Firestore
+      // 2) Update the medicine doc
       await docRef.update(updatedMed.toMap());
 
-      // 3) If notifications enabled, schedule new
+      // 3) If notifications are enabled, schedule new ones
       if (_notificationsEnabled) {
         for (int i = 0; i < updatedMed.doses.length; i++) {
           final doseTimeStr = updatedMed.doses[i];
@@ -272,7 +264,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
               dateTime: scheduledTime,
             );
           } catch (e) {
-            print('Error scheduling notification: $e');
+            debugPrint('Error scheduling notification: $e');
           }
 
           // Add new doc in notifications subcollection
@@ -281,7 +273,9 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
               .doc(_userId)
               .collection('notifications')
               .add({
+            'medicineId': updatedMed.id,
             'medicineName': updatedMed.name,
+            'status': 'unread',
             'time': scheduledTime,
             'createdAt': DateTime.now(),
             'notificationId': notificationId,
@@ -335,9 +329,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                     backgroundColor: Colors.white,
                     side: const BorderSide(color: Color(0xFF1A62B7)),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
-                      vertical: 10,
-                    ),
+                        horizontal: 30, vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -393,21 +385,19 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                       // Close dialogs/pages
                       Navigator.pop(ctx); // close the alert
                       Navigator.pop(context); // close EditMedicinePage
-                      Navigator.pop(context); // close ViewMedicinePage
+                      Navigator.pop(
+                          context); // close ViewMedicinePage (if you want that)
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Failed to delete medicine.'),
-                        ),
+                            content: Text('Failed to delete medicine.')),
                       );
                     }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFDB0000),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 35,
-                      vertical: 10,
-                    ),
+                        horizontal: 35, vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -415,10 +405,9 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                   child: const Text(
                     "Delete",
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
