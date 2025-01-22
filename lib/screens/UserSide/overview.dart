@@ -6,6 +6,8 @@ import 'dart:async';
 import 'package:saludko/screens/widget/Overview/steps.dart';
 import 'package:saludko/screens/widget/Overview/weight_and_height.dart';
 import 'package:saludko/screens/widget/Overview/sleep_hours.dart';
+import 'package:saludko/screens/widget/Overview/add_sleep.dart';
+import 'package:saludko/screens/widget/Overview/all_health_data.dart';
 
 class OverviewPage extends StatefulWidget {
   const OverviewPage({super.key});
@@ -27,6 +29,10 @@ class _OverviewPageState extends State<OverviewPage> {
   double _monthlyStepsPercentage = 0.0;
   double _milesWalked = 0.0;
   final int _monthlyStepGoal = 100000;
+
+  // Sleep Data
+  List<Map<String, dynamic>> _sleepData = [];
+  bool _showSleepData = true;
 
   @override
   void initState() {
@@ -97,6 +103,133 @@ class _OverviewPageState extends State<OverviewPage> {
     }
   }
 
+  // Opens dialog to add new sleep entry
+  void _addNewSleepEntry() {
+    showDialog(
+      context: context,
+      builder: (_) => AddSleepEntryDialog(
+        onSave: (double hours, DateTime date) {
+          setState(() {
+            _sleepData.add({'hours': hours, 'date': date});
+          });
+        },
+      ),
+    );
+  }
+
+  // Reset sleep data
+  void _resetSleepData() {
+    setState(() {
+      _sleepData.clear();
+    });
+  }
+
+  // Toggle Sleep widget
+  void _toggleSleepVisibility() {
+    setState(() {
+      _showSleepData = !_showSleepData;
+    });
+  }
+
+  // Edit Health Data Visibility (with real-time toggle)
+  void _showEditHealthDataDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        bool tempShowSleep = _showSleepData;
+
+        return StatefulBuilder(
+          builder: (BuildContext context, setStateDialog) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              // Centered & bold header + icon
+              title: Column(
+                children: [
+                  const Icon(
+                    Icons.visibility,
+                    size: 40,
+                    color: Color(0xFF1A62B7),
+                  ),
+                  const SizedBox(height: 10),
+                  const Center(
+                    child: Text(
+                      'Edit Health Data Visibility',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // For now, we only have Sleep Hours
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Sleep Hours'),
+                      Switch(
+                        value: tempShowSleep,
+                        onChanged: (val) {
+                          setStateDialog(() {
+                            tempShowSleep = val;
+                          });
+                        },
+                        activeColor: const Color(0xFF1A62B7),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                // Cancel Button
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: TextButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    side: const BorderSide(color: Color(0xFF1A62B7)),
+                    backgroundColor: Colors.white,
+                  ),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Color(0xFF1A62B7)),
+                  ),
+                ),
+                // Apply Button
+                TextButton(
+                  onPressed: () {
+                    // Update the actual variable
+                    setState(() {
+                      _showSleepData = tempShowSleep;
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  style: TextButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    backgroundColor: const Color(0xFF1A62B7),
+                  ),
+                  child: const Text(
+                    'Apply',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // Edit Weight & Height
   void _showEditDialog() {
     final weightController = TextEditingController(text: _weight.toString());
     final heightController = TextEditingController(text: _height.toString());
@@ -123,8 +256,7 @@ class _OverviewPageState extends State<OverviewPage> {
                     padding: EdgeInsets.only(bottom: 4.0),
                     child: Text(
                       'Weight (KG)',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: 14),
                     ),
                   ),
                 ),
@@ -150,8 +282,7 @@ class _OverviewPageState extends State<OverviewPage> {
                     padding: EdgeInsets.only(bottom: 4.0),
                     child: Text(
                       'Height (CM)',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: 14),
                     ),
                   ),
                 ),
@@ -177,11 +308,11 @@ class _OverviewPageState extends State<OverviewPage> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               style: TextButton.styleFrom(
-                side: const BorderSide(color: Color(0xFF1A62B7)),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                minimumSize: const Size(80, 40),
+                side: const BorderSide(color: Color(0xFF1A62B7)),
+                backgroundColor: Colors.white,
               ),
               child: const Text(
                 'Cancel',
@@ -215,11 +346,10 @@ class _OverviewPageState extends State<OverviewPage> {
                 }
               },
               style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFF1A62B7),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                minimumSize: const Size(80, 40),
+                backgroundColor: const Color(0xFF1A62B7),
               ),
               child: const Text(
                 'Save',
@@ -267,77 +397,23 @@ class _OverviewPageState extends State<OverviewPage> {
               ),
               const SizedBox(height: 16),
 
-              // "All Health Data" + plus/edit icons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "All Health Data",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      // + Button (transparent with black border)
-                      GestureDetector(
-                        onTap: () {
-                          // TODO: functionality for adding health data
-                        },
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: BoxDecoration(
-                            color: Colors
-                                .transparent, // <-- transparent background
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.black, // same color as icon
-                              width: 1.5,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.add,
-                            size: 18,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      // Edit Button (transparent with black border)
-                      GestureDetector(
-                        onTap: () {
-                          // TODO: functionality for editing health data
-                        },
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: BoxDecoration(
-                            color: Colors
-                                .transparent, // <-- transparent background
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.black, // same color as icon
-                              width: 1.5,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.edit,
-                            size: 18,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              // The new separate widget for the "All Health Data" row
+              AllHealthDataHeader(
+                onAddTapped: _addNewSleepEntry,
+                onEditTapped: _showEditHealthDataDialog,
               ),
+
               const SizedBox(height: 16),
 
-              // SleepTrackingWidget
-              SleepTrackingWidget(),
+              // Sleep Hours tracking
+              _showSleepData
+                  ? SleepTrackingWidget(
+                      sleepData: _sleepData,
+                      onAddEntry: _addNewSleepEntry,
+                      onReset: _resetSleepData,
+                      onHide: _toggleSleepVisibility,
+                    )
+                  : const SizedBox(),
             ],
           ),
         ),
