@@ -165,7 +165,7 @@ class SelfMonitoringWidget extends StatelessWidget {
 class _ColoredLineChart extends StatelessWidget {
   final List<Offset> data;
 
-  const _ColoredLineChart({super.key, required this.data});
+  const _ColoredLineChart({required this.data});
 
   @override
   Widget build(BuildContext context) {

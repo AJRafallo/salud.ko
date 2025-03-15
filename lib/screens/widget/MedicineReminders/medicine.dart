@@ -13,6 +13,10 @@ class Medicine {
   String notes;
   bool notificationsEnabled;
   int quantityLeft;
+  bool isRoundTheClock;
+  int roundInterval;
+  int roundTimes;
+  String roundStartTime;
 
   Medicine({
     required this.id,
@@ -27,9 +31,12 @@ class Medicine {
     required this.notes,
     this.notificationsEnabled = false,
     this.quantityLeft = 0,
+    this.isRoundTheClock = false,
+    this.roundInterval = 4,
+    this.roundTimes = 3,
+    this.roundStartTime = '8:00 AM',
   });
 
-  // From Firestore
   factory Medicine.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Medicine(
@@ -45,10 +52,13 @@ class Medicine {
       notes: data['notes'] ?? '',
       notificationsEnabled: data['notificationsEnabled'] ?? false,
       quantityLeft: data['quantityLeft'] ?? 0,
+      isRoundTheClock: data['isRoundTheClock'] ?? false,
+      roundInterval: data['roundInterval'] ?? 4,
+      roundTimes: data['roundTimes'] ?? 3,
+      roundStartTime: data['roundStartTime'] ?? '8:00 AM',
     );
   }
 
-  // To Firestore
   Map<String, dynamic> toMap() {
     return {
       'name': name,
@@ -62,6 +72,10 @@ class Medicine {
       'notes': notes,
       'notificationsEnabled': notificationsEnabled,
       'quantityLeft': quantityLeft,
+      'isRoundTheClock': isRoundTheClock,
+      'roundInterval': roundInterval,
+      'roundTimes': roundTimes,
+      'roundStartTime': roundStartTime,
     };
   }
 }

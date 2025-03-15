@@ -10,14 +10,6 @@ class AdminAppBar extends StatefulWidget {
 }
 
 class _AdminAppBarState extends State<AdminAppBar> {
-  final TextEditingController searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
@@ -101,17 +93,6 @@ class _AdminAppBarState extends State<AdminAppBar> {
                 ),
               ),
               SizedBox(height: 20), // Space between the text and search box
-              /*Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: InputTextField(
-                  textEditingController: searchController,
-                  hintText: "search",
-                  icon: Icons.search,
-                ),
-              ),*/
             ],
           ),
         ),
