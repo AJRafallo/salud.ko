@@ -186,10 +186,9 @@ class _MultiLineChart extends StatelessWidget {
   final List<Offset> diastolicData;
 
   const _MultiLineChart({
-    Key? key,
     required this.systolicData,
     required this.diastolicData,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

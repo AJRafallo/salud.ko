@@ -14,12 +14,19 @@ class AddMedicinePage extends StatefulWidget {
 }
 
 class _AddMedicinePageState extends State<AddMedicinePage> {
+  // Basic fields
   late TextEditingController _nameController;
   late TextEditingController _dosageController;
   late TextEditingController _notesController;
 
   // Doses
   List<String> _doses = [];
+
+  // Round-the-clock fields
+  bool _isRoundTheClock = false;
+  int _roundInterval = 4;
+  int _roundTimes = 3;
+  String _roundStartTime = '8:00 AM';
 
   // Quantity & Duration
   int _quantity = 0;
@@ -28,7 +35,6 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
   String _durationType = 'Everyday';
   int _durationValue = 7;
 
-  // Notifications
   bool _notificationsEnabled = false;
 
   final String _userId = FirebaseAuth.instance.currentUser!.uid;
@@ -40,10 +46,7 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
     _dosageController = TextEditingController();
     _notesController = TextEditingController();
 
-    _doses = ['8:00 AM']; // default initial dose
-    _quantity = 0;
-    _quantityLeft = 0;
-    _durationValue = 7;
+    _doses = ['8:00 AM']; // default
   }
 
   @override
@@ -58,14 +61,12 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Add Medicine',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        elevation: 0,
+        title: const Text('Add Medicine',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
+        elevation: 0,
+        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, size: 28),
           onPressed: () => Navigator.pop(context),
@@ -105,12 +106,40 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
               ),
               const SizedBox(height: 16),
 
-              // Doses
+              // DosesListWidget with new props
               DosesListWidget(
                 doses: _doses,
                 onDosesChanged: (newDoses) {
                   setState(() {
                     _doses = newDoses;
+                  });
+                },
+
+                // Round-the-clock initial data
+                initialIsRoundTheClock: _isRoundTheClock,
+                initialInterval: _roundInterval,
+                initialTimes: _roundTimes,
+                initialStartTime: _roundStartTime,
+
+                // Callbacks
+                onRoundTheClockChanged: (val) {
+                  setState(() {
+                    _isRoundTheClock = val;
+                  });
+                },
+                onIntervalChanged: (val) {
+                  setState(() {
+                    _roundInterval = val;
+                  });
+                },
+                onTimesChanged: (val) {
+                  setState(() {
+                    _roundTimes = val;
+                  });
+                },
+                onStartTimeChanged: (val) {
+                  setState(() {
+                    _roundStartTime = val;
                   });
                 },
               ),
@@ -155,17 +184,14 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
                   hintText: 'Additional info: e.g. "Take with food".',
                   hintStyle: TextStyle(color: Colors.black.withOpacity(0.5)),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
+                      borderRadius: BorderRadius.circular(5)),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Toggle for enabling notifications
+              // Notifications toggle
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -183,7 +209,6 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
               ),
               const SizedBox(height: 16),
 
-              // Add Medicine Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -191,8 +216,7 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1A62B7),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                        borderRadius: BorderRadius.circular(8)),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   child: const Text('Add Medicine',
@@ -201,61 +225,6 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String text) {
-    return Text(
-      text,
-      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-    );
-  }
-
-  Widget _buildTextField(
-    TextEditingController controller,
-    String hint, {
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 250),
-      child: TextField(
-        controller: controller,
-        textAlign: TextAlign.center,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.black.withOpacity(0.5)),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5),
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSmallTextField(
-    TextEditingController controller,
-    String hint, {
-    bool isCentered = false,
-  }) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 80),
-      child: TextField(
-        controller: controller,
-        textAlign: isCentered ? TextAlign.center : TextAlign.start,
-        keyboardType: TextInputType.number,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.black.withOpacity(0.5)),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5),
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         ),
       ),
     );
@@ -271,6 +240,52 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
     if (currentDosage > 0) {
       _dosageController.text = (currentDosage - 1).toString();
     }
+  }
+
+  Widget _buildSectionTitle(String text) => Text(
+        text,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      );
+
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hint, {
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 250),
+      child: TextField(
+        controller: controller,
+        textAlign: TextAlign.center,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.black.withOpacity(0.5)),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSmallTextField(TextEditingController controller, String hint,
+      {bool isCentered = false}) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 80),
+      child: TextField(
+        controller: controller,
+        textAlign: isCentered ? TextAlign.center : TextAlign.start,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.black.withOpacity(0.5)),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        ),
+      ),
+    );
   }
 
   Future<void> _saveMedicine() async {
@@ -297,12 +312,18 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
       durationValue: _durationValue,
       notes: notes,
       notificationsEnabled: _notificationsEnabled,
+
+      // NEW fields
+      isRoundTheClock: _isRoundTheClock,
+      roundInterval: _roundInterval,
+      roundTimes: _roundTimes,
+      roundStartTime: _roundStartTime,
     );
 
-    // 1) Save the medicine doc
+    // Save
     await docRef.set(newMed.toMap());
 
-    // 2) If notifications are enabled, schedule them & create Firestore notifs
+    // If notifications are enabled, schedule them for each dose in _doses
     if (_notificationsEnabled) {
       for (int i = 0; i < _doses.length; i++) {
         final doseTimeStr = _doses[i];
@@ -321,7 +342,6 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
           debugPrint('Error scheduling notification: $e');
         }
 
-        // IMPORTANT: add all needed fields, including 'medicineId' & 'status'
         await FirebaseFirestore.instance
             .collection('users')
             .doc(_userId)
@@ -329,7 +349,7 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
             .add({
           'medicineId': newMed.id,
           'medicineName': newMed.name,
-          'status': 'unread', // default to unread
+          'status': 'unread',
           'time': scheduledTime,
           'createdAt': DateTime.now(),
           'notificationId': notificationId,
@@ -337,7 +357,6 @@ class _AddMedicinePageState extends State<AddMedicinePage> {
       }
     }
 
-    // 3) Done
     Navigator.pop(context);
   }
 

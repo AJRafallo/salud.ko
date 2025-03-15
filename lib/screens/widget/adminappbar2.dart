@@ -17,14 +17,6 @@ class AdminAppBar2 extends StatefulWidget {
 }
 
 class _AdminAppBar2State extends State<AdminAppBar2> {
-  final TextEditingController searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
@@ -108,17 +100,6 @@ class _AdminAppBar2State extends State<AdminAppBar2> {
                 ),
               ),
               const SizedBox(height: 20),
-              /*Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: InputTextField(
-                  textEditingController: searchController,
-                  hintText: "search",
-                  icon: Icons.search,
-                ),
-              ),*/
             ],
           ),
         ),

@@ -28,6 +28,12 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
   String _durationType = 'Everyday';
   int _durationValue = 7;
 
+  // Round-the-clock
+  bool _isRoundTheClock = false;
+  int _roundInterval = 4;
+  int _roundTimes = 3;
+  String _roundStartTime = '8:00 AM';
+
   final String _userId = FirebaseAuth.instance.currentUser!.uid;
 
   @override
@@ -41,12 +47,17 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
 
     _notificationsEnabled = m.notificationsEnabled;
     _doses = List.from(m.doses);
-
     _quantity = m.quantity;
     _quantityLeft = m.quantityLeft;
     _quantityUnit = m.quantityUnit;
     _durationType = m.durationType;
     _durationValue = m.durationValue;
+
+    // Round-the-clock from the DB
+    _isRoundTheClock = m.isRoundTheClock;
+    _roundInterval = m.roundInterval;
+    _roundTimes = m.roundTimes;
+    _roundStartTime = m.roundStartTime;
   }
 
   @override
@@ -122,12 +133,36 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
               ),
               const SizedBox(height: 12),
 
-              // Doses List
+              // Doses
               DosesListWidget(
                 doses: _doses,
                 onDosesChanged: (newDoses) {
                   setState(() {
                     _doses = newDoses;
+                  });
+                },
+                initialIsRoundTheClock: _isRoundTheClock,
+                initialInterval: _roundInterval,
+                initialTimes: _roundTimes,
+                initialStartTime: _roundStartTime,
+                onRoundTheClockChanged: (val) {
+                  setState(() {
+                    _isRoundTheClock = val;
+                  });
+                },
+                onIntervalChanged: (val) {
+                  setState(() {
+                    _roundInterval = val;
+                  });
+                },
+                onTimesChanged: (val) {
+                  setState(() {
+                    _roundTimes = val;
+                  });
+                },
+                onStartTimeChanged: (val) {
+                  setState(() {
+                    _roundStartTime = val;
                   });
                 },
               ),
@@ -174,8 +209,10 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text('Save Changes',
-                      style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    'Save Changes',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ],
@@ -189,7 +226,9 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
     return Text(
       label,
       style: TextStyle(
-          fontWeight: FontWeight.bold, color: Colors.black.withOpacity(0.7)),
+        fontWeight: FontWeight.bold,
+        color: Colors.black.withOpacity(0.7),
+      ),
     );
   }
 
@@ -223,15 +262,20 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
         durationValue: _durationValue,
         notes: _notesController.text.trim(),
         notificationsEnabled: _notificationsEnabled,
+
+        // Round-the-clock fields
+        isRoundTheClock: _isRoundTheClock,
+        roundInterval: _roundInterval,
+        roundTimes: _roundTimes,
+        roundStartTime: _roundStartTime,
       );
 
-      // 1) Cancel existing local notifications
+      // Cancel existing local notifications
       for (int i = 0; i < widget.existingMedicine.doses.length; i++) {
         final oldId = widget.existingMedicine.id.hashCode + i;
         await LocalNotificationService.cancelNotification(oldId);
       }
-
-      // Remove old notifs in Firestore
+      // Delete old notifications in Firestore
       final oldNotifs = await FirebaseFirestore.instance
           .collection('users')
           .doc(_userId)
@@ -245,14 +289,25 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
         await doc.reference.delete();
       }
 
-      // 2) Update the medicine doc
+      // Update the medicine doc in Firestore
       await docRef.update(updatedMed.toMap());
 
-      // 3) If notifications are enabled, schedule new ones
+      // If notifications are enabled, schedule new ones
       if (_notificationsEnabled) {
         for (int i = 0; i < updatedMed.doses.length; i++) {
           final doseTimeStr = updatedMed.doses[i];
-          final scheduledTime = _parseDoseToDateTime(doseTimeStr);
+          // Parse "8:00 AM" -> DateTime
+          DateTime scheduledTime = _parseDoseToDateTime(doseTimeStr);
+
+          // ------------------------------------------------------------
+          // FIX: If the parsed time is already in the past for 'today',
+          //      push it to tomorrow so the plugin doesn't throw errors.
+          final now = DateTime.now();
+          if (scheduledTime.isBefore(now)) {
+            scheduledTime = scheduledTime.add(const Duration(days: 1));
+          }
+          // ------------------------------------------------------------
+
           final notificationId = updatedMed.id.hashCode + i;
 
           try {
@@ -267,7 +322,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
             debugPrint('Error scheduling notification: $e');
           }
 
-          // Add new doc in notifications subcollection
+          // Add a document in notifications collection
           await FirebaseFirestore.instance
               .collection('users')
               .doc(_userId)
@@ -322,7 +377,6 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Cancel
                 ElevatedButton(
                   onPressed: () => Navigator.pop(ctx),
                   style: ElevatedButton.styleFrom(
@@ -344,7 +398,6 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                   ),
                 ),
                 const SizedBox(width: 20),
-                // Delete
                 ElevatedButton(
                   onPressed: () async {
                     try {
@@ -362,31 +415,32 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                         await LocalNotificationService.cancelNotification(
                             oldId);
                       }
-
                       // Delete the medicine doc
                       await docRef.delete();
 
-                      // Remove from notifications subcollection
+                      // Delete any notifications in Firestore for this med
                       final oldNotifs = await FirebaseFirestore.instance
                           .collection('users')
                           .doc(_userId)
                           .collection('notifications')
-                          .where('notificationId',
-                              isGreaterThanOrEqualTo:
-                                  widget.existingMedicine.id.hashCode)
-                          .where('notificationId',
-                              isLessThanOrEqualTo:
-                                  widget.existingMedicine.id.hashCode + 100)
+                          .where(
+                            'notificationId',
+                            isGreaterThanOrEqualTo:
+                                widget.existingMedicine.id.hashCode,
+                          )
+                          .where(
+                            'notificationId',
+                            isLessThanOrEqualTo:
+                                widget.existingMedicine.id.hashCode + 100,
+                          )
                           .get();
                       for (var doc in oldNotifs.docs) {
                         await doc.reference.delete();
                       }
 
-                      // Close dialogs/pages
                       Navigator.pop(ctx); // close the alert
-                      Navigator.pop(context); // close EditMedicinePage
-                      Navigator.pop(
-                          context); // close ViewMedicinePage (if you want that)
+                      Navigator.pop(context); // close Edit page
+                      Navigator.pop(context); // close View page if needed
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -405,9 +459,10 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
                   child: const Text(
                     "Delete",
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -418,6 +473,7 @@ class _EditMedicinePageState extends State<EditMedicinePage> {
     );
   }
 
+  // Convert "8:00 AM" -> DateTime (today)
   DateTime _parseDoseToDateTime(String timeStr) {
     final now = DateTime.now();
     final parts = timeStr.split(' ');
